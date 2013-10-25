@@ -1,5 +1,5 @@
 from flask import url_for, redirect, render_template, request, flash
-from app import app, db
+from app import app, db, login_manager
 from app.models import *
 from app.forms  import *
 
@@ -117,17 +117,18 @@ class AdminIndexView(Accessible, admin.AdminIndexView):
 @app.route('/')
 @app.route('/index')
 def index():
+    print("CurrentUserForIndex "+str(login.current_user))
     return render_template('index.html', 
         title="Homepage",user=login.current_user)
 
 
-@app.route('/login/', methods=('GET', 'POST'))
+@app.route('/login', methods=('GET', 'POST'))
 def login_view():
     form = LoginForm(request.form)
     if helpers.validate_form_on_submit(form):
         user = form.get_user()
-        login.login_user(user)
-        return redirect(url_for('index'))
+        login.login_user(user,remember=form.remember_me)        
+        return redirect(request.args.get("next") or url_for("index"))
 
     return render_template('login.html', 
         title="Login",user=login.current_user,
@@ -155,6 +156,12 @@ def register_view():
 def logout_view():
     login.logout_user()
     return redirect(url_for('index'))
+
+
+@login_manager.user_loader
+def load_user(userid):
+    return db.session.query(User).filter_by(id=userid).first()
+
 
 #init_login()
 
