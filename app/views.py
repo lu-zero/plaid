@@ -1,6 +1,7 @@
 from flask import url_for, redirect, render_template, request, flash
 from app import app, db
 from app.models import *
+from app.forms  import *
 
 from wtforms import form, fields, validators
 
@@ -9,42 +10,15 @@ from flask.ext.admin.contrib import sqla
 from flask.ext.admin.contrib.sqla.form import InlineModelConverter, get_form
 from flask.ext.admin import helpers
 
-# Define login and registration forms (for flask-login)
-class LoginForm(form.Form):
-    login = fields.TextField(validators=[validators.required()])
-    password = fields.PasswordField(validators=[validators.required()])
-
-    def validate_login(self, field):
-        user = self.get_user()
-
-        if user is None:
-            raise validators.ValidationError('Invalid user')
-
-        if user.password != self.password.data:
-            raise validators.ValidationError('Invalid password')
-
-    def get_user(self):
-        return db.session.query(User).filter_by(login=self.login.data).first()
-
-
-class RegistrationForm(form.Form):
-    login = fields.TextField(validators=[validators.required()])
-    email = fields.TextField()
-    password = fields.PasswordField(validators=[validators.required()])
-
-    def validate_login(self, field):
-        if db.session.query(User).filter_by(login=self.login.data).count() > 0:
-            raise validators.ValidationError('Duplicate username')
-
 # Initialize flask-login
-def init_login():
-    login_manager = login.LoginManager()
-    login_manager.setup_app(app)
+# def init_login():
+#     login_manager = login.LoginManager()
+#     login_manager.setup_app(app)
 
-    # Create user loader function
-    @login_manager.user_loader
-    def load_user(user_id):
-        return db.session.query(User).get(user_id)
+#     # Create user loader function
+#     @login_manager.user_loader
+#     def load_user(user_id):
+#         return db.session.query(User).get(user_id)
 
 class Accessible(object):
     def is_accessible(self):
@@ -140,11 +114,11 @@ class InvoiceModelView(ModelView):
 class AdminIndexView(Accessible, admin.AdminIndexView):
     pass
 
-#routes
-# Flask views
 @app.route('/')
+@app.route('/index')
 def index():
-    return render_template('index.html', user=login.current_user)
+    return render_template('index.html', 
+        title="Homepage",user=login.current_user)
 
 
 @app.route('/login/', methods=('GET', 'POST'))
@@ -155,7 +129,9 @@ def login_view():
         login.login_user(user)
         return redirect(url_for('index'))
 
-    return render_template('form.html', form=form)
+    return render_template('login.html', 
+        title="Login",user=login.current_user,
+        form=form)
 
 
 @app.route('/register/', methods=('GET', 'POST'))
@@ -172,7 +148,7 @@ def register_view():
         login.login_user(user)
         return redirect(url_for('index'))
 
-    return render_template('form.html', form=form)
+    return render_template('login.html', form=form)
 
 
 @app.route('/logout/')
@@ -180,7 +156,7 @@ def logout_view():
     login.logout_user()
     return redirect(url_for('index'))
 
-init_login()
+#init_login()
 
 admin = admin.Admin(app, 'Auth', index_view=AdminIndexView())
 admin.add_view(ModelView(User, db.session))

@@ -1,0 +1,18 @@
+<html>
+	<head>
+		<title>Plaid - {{title}}</title>
+	</head>
+	<body>
+		<h1>{{title}}</h1>
+		<div style="border-bottom:2px dashed green;margin-bottom:20px">
+		{% if user.is_autenthicated:%}
+		Logged in as {{user.name}}
+		{% else %}
+		User not authenticated. <a href="/login">Login</a>.
+		{% endif %}
+		</div>
+		<div style="">
+		{% block content %}{% endblock %}
+		</div>
+	<body>
+</html>
