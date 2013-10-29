@@ -6,11 +6,11 @@ ROLE_USER = 0
 ROLE_ADMIN = 1
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(128), index = True)
-    login = db.Column(db.String(80), index = True, unique = True)
-    email = db.Column(db.String(120), index = True, unique = True)
-    role = db.Column(db.SmallInteger, default = ROLE_USER)
+    id       = db.Column(db.Integer, primary_key = True)
+    name     = db.Column(db.String(128), index = True)
+    login    = db.Column(db.String(80), index = True, unique = True)
+    email    = db.Column(db.String(120), index = True, unique = True)
+    role     = db.Column(db.SmallInteger, default = ROLE_USER)
     password = db.Column(db.String(64))
 
     # Flask-Login integration
@@ -33,6 +33,10 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % (self.email)
 
+    @staticmethod
+    def get_by_id(userid):
+        return db.session.query(User).filter_by(id=userid).first()
+
 class Submitter(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(128), index = True)
@@ -43,15 +47,26 @@ class Submitter(db.Model):
         if not self.name:
             return  "<" + self.email + ">"
         return self.name + "<" + self.email + ">"
+
     def __init__(self, name, email):
         self.name  = name
         self.email = email
+
+    @classmethod
+    def get_or_create(self, name, email):
+        instance = self.query.filter_by(email=email).first()
+        if not instance:
+            instance = Submitter(name=name, email=email)
+            db.session.add(instance)
+            db.session.commit()
+        return instance
+
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     linkname = db.Column(db.String(128))
     name = db.Column(db.String(128))
-    listid = db.Column(db.String(128))
+    listid = db.Column(db.String(128),unique=True)
     listemail = db.Column(db.String(128))
     web_url = db.Column(db.String(128))
     scm_url = db.Column(db.String(128))
@@ -62,9 +77,9 @@ class Project(db.Model):
         return self.name
 
 class EmailMixin(object):
-    msgid = db.Column(db.String(255))
-    name = db.Column(db.String(255))
-    date = db.Column(db.DateTime(), default=datetime.now)
+    msgid   = db.Column(db.String(255))
+    name    = db.Column(db.String(255))
+    date    = db.Column(db.DateTime(), default=datetime.now)
     headers = db.Column(db.Text)
     content = db.Column(db.Text)
 

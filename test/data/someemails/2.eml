@@ -1,0 +1,114 @@
+Return-Path: <libav-devel-bounces@libav.org>
+X-Original-To: lu_zero@gentoo.org
+Delivered-To: lu_zero@gentoo.org
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id 8311C2AC066
+	for <lu_zero@gentoo.org>; Wed, 16 Mar 2011 18:53:28 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new using ClamAV at gentoo.org
+X-Spam-Score: -2.582
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.582 required=5.5 tests=[AWL=0.017,
+	BAYES_00=-2.599]
+Received: from smtp.gentoo.org ([127.0.0.1])
+	by localhost (smtp.gentoo.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5sVgdJkaDpXz for <lu_zero@gentoo.org>;
+	Wed, 16 Mar 2011 18:53:22 +0000 (UTC)
+Received: from natsuki.mplayerhq.hu (natsuki.mplayerhq.hu [213.144.138.186])
+	by smtp.gentoo.org (Postfix) with ESMTP id CFB151BC1D6
+	for <lu_zero@gentoo.org>; Wed, 16 Mar 2011 18:53:19 +0000 (UTC)
+Received: from natsuki.mplayerhq.hu (localhost.localdomain [127.0.0.1])
+	by natsuki.mplayerhq.hu (Postfix) with ESMTP id 6FCEE3B194;
+	Wed, 16 Mar 2011 19:53:18 +0100 (CET)
+X-Original-To: libav-devel@libav.org
+Delivered-To: libav-devel@libav.org
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by natsuki.mplayerhq.hu (Postfix) with ESMTP id 723833B194
+	for <libav-devel@libav.org>; Wed, 16 Mar 2011 19:53:17 +0100 (CET)
+Received: from natsuki.mplayerhq.hu ([127.0.0.1])
+	by localhost (natsuki.mplayerhq.hu [127.0.0.1]) (amavisd-new,
+	port 10024) with LMTP id P0DQ1RfjmMv9 for <libav-devel@libav.org>;
+	Wed, 16 Mar 2011 19:53:17 +0100 (CET)
+Received: from unicorn.mansr.com (unicorn.mansr.com [78.86.181.103])
+	by natsuki.mplayerhq.hu (Postfix) with ESMTP id 4CED23B140
+	for <libav-devel@libav.org>; Wed, 16 Mar 2011 19:53:17 +0100 (CET)
+Received: by unicorn.mansr.com (Postfix, from userid 51770)
+	id 00F921538A; Wed, 16 Mar 2011 18:53:16 +0000 (GMT)
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mans@mansr.com>
+To: libav development <libav-devel@libav.org>
+References: <AANLkTimQR_L1MFheH_JWtj486pJoYD4TeAG=x7ZfLEUG@mail.gmail.com>
+Date: Wed, 16 Mar 2011 18:53:16 +0000
+In-Reply-To: <AANLkTimQR_L1MFheH_JWtj486pJoYD4TeAG=x7ZfLEUG@mail.gmail.com>
+	(Ramiro Polla's message of "Wed, 16 Mar 2011 15:37:31 -0300")
+Message-ID: <yw1x7hby6go3.fsf@unicorn.mansr.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/23.2 (gnu/linux)
+MIME-Version: 1.0
+Subject: Re: [libav-devel] [PATCH] Remove occurrences of my old email
+	address.
+X-BeenThere: libav-devel@libav.org
+X-Mailman-Version: 2.1.11
+Precedence: list
+Reply-To: libav development <libav-devel@libav.org>
+List-Id: libav development <libav-devel.libav.org>
+List-Unsubscribe: <https://lists.libav.org/mailman/options/libav-devel>,
+	<mailto:libav-devel-request@libav.org?subject=unsubscribe>
+List-Archive: <http://lists.libav.org/pipermail/libav-devel>
+List-Post: <mailto:libav-devel@libav.org>
+List-Help: <mailto:libav-devel-request@libav.org?subject=help>
+List-Subscribe: <https://lists.libav.org/mailman/listinfo/libav-devel>,
+	<mailto:libav-devel-request@libav.org?subject=subscribe>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Sender: libav-devel-bounces@libav.org
+Errors-To: libav-devel-bounces@libav.org
+
+Ramiro Polla <ramiro.polla@gmail.com> writes:
+
+> $subj
+>
+> From 986236319034b0bfe4e74c03f3478511dc9285f9 Mon Sep 17 00:00:00 2001
+> From: Ramiro Polla <ramiro.polla@gmail.com>
+> Date: Wed, 16 Mar 2011 15:28:43 -0300
+> Subject: [PATCH] Remove occurrences of my old email address.
+>
+> ---
+>  libavcodec/mimic.c      |    2 +-
+>  libavformat/msnwc_tcp.c |    2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/libavcodec/mimic.c b/libavcodec/mimic.c
+> index bcf125a..450dd65 100644
+> --- a/libavcodec/mimic.c
+> +++ b/libavcodec/mimic.c
+> @@ -1,6 +1,6 @@
+>  /*
+>   * Copyright (C) 2005  Ole Andr=E9 Vadla Ravn=E5s <oleavr@gmail.com>
+> - * Copyright (C) 2008  Ramiro Polla <ramiro@lisha.ufsc.br>
+> + * Copyright (C) 2008  Ramiro Polla
+>   *
+>   * This file is part of FFmpeg.
+>   *
+> diff --git a/libavformat/msnwc_tcp.c b/libavformat/msnwc_tcp.c
+> index 5af1c4e..692dc1f 100644
+> --- a/libavformat/msnwc_tcp.c
+> +++ b/libavformat/msnwc_tcp.c
+> @@ -1,5 +1,5 @@
+>  /*
+> - * Copyright (C) 2008  Ramiro Polla <ramiro@lisha.ufsc.br>
+> + * Copyright (C) 2008  Ramiro Polla
+>   *
+>   * This file is part of FFmpeg.
+>   *
+> -- =
+
+> 1.7.1
+
+Queued.
+
+-- =
+
+M=E5ns Rullg=E5rd
+mans@mansr.com
+_______________________________________________
+libav-devel mailing list
+libav-devel@libav.org
+https://lists.libav.org/mailman/listinfo/libav-devel

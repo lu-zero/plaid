@@ -1,0 +1,116 @@
+Return-Path: <libav-devel-bounces@libav.org>
+X-Original-To: lu_zero@gentoo.org
+Delivered-To: lu_zero@gentoo.org
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id B7FA81BC1CF
+	for <lu_zero@gentoo.org>; Wed, 16 Mar 2011 18:43:36 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new using ClamAV at gentoo.org
+X-Spam-Score: -2.594
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.594 required=5.5 tests=[AWL=0.005,
+	BAYES_00=-2.599]
+Received: from smtp.gentoo.org ([127.0.0.1])
+	by localhost (smtp.gentoo.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id gRZPwqoCGkfp for <lu_zero@gentoo.org>;
+	Wed, 16 Mar 2011 18:43:30 +0000 (UTC)
+Received: from natsuki.mplayerhq.hu (natsuki.mplayerhq.hu [213.144.138.186])
+	by smtp.gentoo.org (Postfix) with ESMTP id E60F91BC0CD
+	for <lu_zero@gentoo.org>; Wed, 16 Mar 2011 18:43:27 +0000 (UTC)
+Received: from natsuki.mplayerhq.hu (localhost.localdomain [127.0.0.1])
+	by natsuki.mplayerhq.hu (Postfix) with ESMTP id 5B0413B19C;
+	Wed, 16 Mar 2011 19:43:26 +0100 (CET)
+X-Original-To: libav-devel@libav.org
+Delivered-To: libav-devel@libav.org
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by natsuki.mplayerhq.hu (Postfix) with ESMTP id 44DC74E003
+	for <libav-devel@libav.org>; Wed, 16 Mar 2011 19:37:36 +0100 (CET)
+Received: from natsuki.mplayerhq.hu ([127.0.0.1])
+	by localhost (natsuki.mplayerhq.hu [127.0.0.1]) (amavisd-new,
+	port 10024) with LMTP id surlvEfV9-ns for <libav-devel@libav.org>;
+	Wed, 16 Mar 2011 19:37:36 +0100 (CET)
+Received: from mail-fx0-f54.google.com (mail-fx0-f54.google.com
+	[209.85.161.54])
+	by natsuki.mplayerhq.hu (Postfix) with ESMTP id 204174E002
+	for <libav-devel@libav.org>; Wed, 16 Mar 2011 19:37:32 +0100 (CET)
+Received: by fxm11 with SMTP id 11so3034760fxm.27
+	for <libav-devel@libav.org>; Wed, 16 Mar 2011 11:37:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=gamma;
+	h=domainkey-signature:mime-version:date:message-id:subject:from:to
+	:content-type; bh=HH+GDCvjAgK5j4YO78OjNw808WCeKFTvz/soEqPjYOw=;
+	b=xbxWHSUbdfv43xvxuFnpKgP1cn5XizhT9Z+2EMW1Omi8WVJmNW2Rk1ROsUlxaL00Bz
+	3cBT3o+vWnyhd675T/qP1B1kmx9gIiEbYTJsKbkLzun8poS46Tqy7QH2TlcaOuQly83t
+	0LaXVp5EMeOtLNRw9Aq3QAIJ3Yz5P0ShNyRec=
+DomainKey-Signature: a=rsa-sha1; c=nofws; d=gmail.com; s=gamma;
+	h=mime-version:date:message-id:subject:from:to:content-type;
+	b=sjbKz1z0/Vmwifn+LYx3TZ/+M1iiyQ89lpaLGfPtGqw8biNO1mFIylpm4mBS3amN8c
+	esJ6INbQENZsaCDnW/N6EIGGQzzcXrzInjDNQy/GA2VnzYDYPbnNSBg19J/fuyUbrcV7
+	pCg58PT/jjfndQT4XNlM61NictBmW2NFQ++kY=
+MIME-Version: 1.0
+Received: by 10.223.127.210 with SMTP id h18mr385295fas.46.1300300651749; Wed,
+	16 Mar 2011 11:37:31 -0700 (PDT)
+Received: by 10.223.112.209 with HTTP; Wed, 16 Mar 2011 11:37:31 -0700 (PDT)
+Date: Wed, 16 Mar 2011 15:37:31 -0300
+Message-ID: <AANLkTimQR_L1MFheH_JWtj486pJoYD4TeAG=x7ZfLEUG@mail.gmail.com>
+From: Ramiro Polla <ramiro.polla@gmail.com>
+To: libav-devel@libav.org
+Content-Type: multipart/mixed; boundary=00235453097072e432049e9dd64a
+X-Mailman-Approved-At: Wed, 16 Mar 2011 19:43:24 +0100
+Subject: [libav-devel] [PATCH] Remove occurrences of my old email address.
+X-BeenThere: libav-devel@libav.org
+X-Mailman-Version: 2.1.11
+Precedence: list
+Reply-To: libav development <libav-devel@libav.org>
+List-Id: libav development <libav-devel.libav.org>
+List-Unsubscribe: <https://lists.libav.org/mailman/options/libav-devel>,
+	<mailto:libav-devel-request@libav.org?subject=unsubscribe>
+List-Archive: <http://lists.libav.org/pipermail/libav-devel>
+List-Post: <mailto:libav-devel@libav.org>
+List-Help: <mailto:libav-devel-request@libav.org?subject=help>
+List-Subscribe: <https://lists.libav.org/mailman/listinfo/libav-devel>,
+	<mailto:libav-devel-request@libav.org?subject=subscribe>
+Sender: libav-devel-bounces@libav.org
+Errors-To: libav-devel-bounces@libav.org
+
+--00235453097072e432049e9dd64a
+Content-Type: text/plain; charset=ISO-8859-1
+
+$subj
+
+--00235453097072e432049e9dd64a
+Content-Type: application/octet-stream; 
+	name="0001-Remove-occurrences-of-my-old-email-address.patch"
+Content-Disposition: attachment; 
+	filename="0001-Remove-occurrences-of-my-old-email-address.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_glcleynr0
+
+RnJvbSA5ODYyMzYzMTkwMzRiMGJmZTRlNzRjMDNmMzQ3ODUxMWRjOTI4NWY5IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBSYW1pcm8gUG9sbGEgPHJhbWlyby5wb2xsYUBnbWFpbC5jb20+
+CkRhdGU6IFdlZCwgMTYgTWFyIDIwMTEgMTU6Mjg6NDMgLTAzMDAKU3ViamVjdDogW1BBVENIXSBS
+ZW1vdmUgb2NjdXJyZW5jZXMgb2YgbXkgb2xkIGVtYWlsIGFkZHJlc3MuCgotLS0KIGxpYmF2Y29k
+ZWMvbWltaWMuYyAgICAgIHwgICAgMiArLQogbGliYXZmb3JtYXQvbXNud2NfdGNwLmMgfCAgICAy
+ICstCiAyIGZpbGVzIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKCmRp
+ZmYgLS1naXQgYS9saWJhdmNvZGVjL21pbWljLmMgYi9saWJhdmNvZGVjL21pbWljLmMKaW5kZXgg
+YmNmMTI1YS4uNDUwZGQ2NSAxMDA2NDQKLS0tIGEvbGliYXZjb2RlYy9taW1pYy5jCisrKyBiL2xp
+YmF2Y29kZWMvbWltaWMuYwpAQCAtMSw2ICsxLDYgQEAKIC8qCiAgKiBDb3B5cmlnaHQgKEMpIDIw
+MDUgIE9sZSBBbmRy6SBWYWRsYSBSYXZu5XMgPG9sZWF2ckBnbWFpbC5jb20+Ci0gKiBDb3B5cmln
+aHQgKEMpIDIwMDggIFJhbWlybyBQb2xsYSA8cmFtaXJvQGxpc2hhLnVmc2MuYnI+CisgKiBDb3B5
+cmlnaHQgKEMpIDIwMDggIFJhbWlybyBQb2xsYQogICoKICAqIFRoaXMgZmlsZSBpcyBwYXJ0IG9m
+IEZGbXBlZy4KICAqCmRpZmYgLS1naXQgYS9saWJhdmZvcm1hdC9tc253Y190Y3AuYyBiL2xpYmF2
+Zm9ybWF0L21zbndjX3RjcC5jCmluZGV4IDVhZjFjNGUuLjY5MmRjMWYgMTAwNjQ0Ci0tLSBhL2xp
+YmF2Zm9ybWF0L21zbndjX3RjcC5jCisrKyBiL2xpYmF2Zm9ybWF0L21zbndjX3RjcC5jCkBAIC0x
+LDUgKzEsNSBAQAogLyoKLSAqIENvcHlyaWdodCAoQykgMjAwOCAgUmFtaXJvIFBvbGxhIDxyYW1p
+cm9AbGlzaGEudWZzYy5icj4KKyAqIENvcHlyaWdodCAoQykgMjAwOCAgUmFtaXJvIFBvbGxhCiAg
+KgogICogVGhpcyBmaWxlIGlzIHBhcnQgb2YgRkZtcGVnLgogICoKLS0gCjEuNy4xCgo=
+--00235453097072e432049e9dd64a
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+libav-devel mailing list
+libav-devel@libav.org
+https://lists.libav.org/mailman/listinfo/libav-devel
+
+--00235453097072e432049e9dd64a--

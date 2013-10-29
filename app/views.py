@@ -160,7 +160,7 @@ def logout_view():
 
 @login_manager.user_loader
 def load_user(userid):
-    return db.session.query(User).filter_by(id=userid).first()
+    return User.get_by_id(userid)
 
 
 #init_login()

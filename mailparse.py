@@ -8,13 +8,8 @@ import datetime
 import operator
 
 from email import message_from_file
-try:
-    from email.header import Header, decode_header
-    from email.utils import parsedate_tz, mktime_tz
-except ImportError:
-    # Python 2.4 compatibility
-    from email.Header import Header, decode_header
-    from email.Utils import parsedate_tz, mktime_tz
+from email.header import Header, decode_header
+from email.utils import parsedate_tz, mktime_tz
 
 from app import app, db
 from app.parser import parse_patch
@@ -22,13 +17,11 @@ from app.models import Submitter, Patch, Comment
 
 list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
 
-
 migrate = Migrate(app, db)
-
 manager = Manager(app)
-list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
 
 whitespace_re = re.compile('\s+')
+
 def normalise_space(str):
     return whitespace_re.sub(' ', str).strip()
 
@@ -42,7 +35,6 @@ def clean_header(header):
         return frag_str.decode()
 
     fragments = map(decode, decode_header(header))
-
     return normalise_space(u' '.join(fragments))
 
 def find_project(mail):
@@ -63,16 +55,14 @@ def find_project(mail):
 
             listid = match.group(1)
 
-            try:
-                project = Project.query.filter_by(listid=listid).first()
+            # to each project corresponds one mailing-list
+            project = Project.query.filter_by(listid=listid).first()
+            if project:
                 break
-            except:
-                pass
 
     return project
 
-def find_author(mail):
-
+def find_submitter(mail):
     from_header = clean_header(mail.get('From'))
     (name, email) = (None, None)
 
@@ -103,11 +93,9 @@ def find_author(mail):
     if name is not None:
         name = name.strip()
 
-    author = Submitter.query.filter_by(email=email).first()
-    if not person:
-        author = Submitter(name=name, email=email)
+    submitter = Submitter.get_or_create(name=name, email=email)
 
-    return author
+    return submitter
 
 def mail_date(mail):
     t = parsedate_tz(mail.get('Date', ''))
@@ -342,13 +330,13 @@ def parse_mail(mail):
 
     msgid = mail.get('Message-Id').strip()
 
-    author = find_author(mail)
+    submitter = find_submitter(mail)
 
     (patch, comment) = find_content(project, mail)
 
     if patch:
         # we delay the saving until we know we have a patch.
-        patch.submitter = author
+        patch.submitter = submitter
         patch.msgid = msgid
         patch.project = project
 #        patch.state = get_state(mail.get('X-Patchwork-State', '').strip())
