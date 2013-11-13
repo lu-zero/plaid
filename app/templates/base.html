@@ -8,7 +8,7 @@
 		{% if user!=None and user.is_authenticated() and not user.is_anonymous(): %}
 		Logged in as {{user.name}} - <a href="/logout">Logout</a>
 		{% else %}
-		User not authenticated. <a href="/login">Login</a>.
+		User not authenticated. <a href="/login">Login</a> or <a href="/register">register</a>.
 		{% endif %}
 		</div>
 		<div style="">

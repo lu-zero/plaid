@@ -135,11 +135,11 @@ def login_view():
         form=form)
 
 
-@app.route('/register/', methods=('GET', 'POST'))
+@app.route('/register', methods=('GET', 'POST'))
 def register_view():
     form = RegistrationForm(request.form)
     if helpers.validate_form_on_submit(form):
-        user = User()
+        user = User(form.login)
 
         form.populate_obj(user)
 
@@ -149,7 +149,7 @@ def register_view():
         login.login_user(user)
         return redirect(url_for('index'))
 
-    return render_template('login.html', form=form)
+    return render_template('register.html', form=form, user=login.current_user)
 
 
 @app.route('/logout/')
