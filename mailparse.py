@@ -13,7 +13,7 @@ from email.utils import parsedate_tz, mktime_tz
 
 from app import app, db
 from app.parser import parse_patch
-from app.models import Submitter, Patch, Comment
+from app.models import Submitter, Patch, Comment, Project
 
 list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
 
@@ -37,7 +37,7 @@ def clean_header(header):
     fragments = map(decode, decode_header(header))
     return normalise_space(u' '.join(fragments))
 
-def find_project(mail):
+def find_project_name(mail):
     project = None
     listid_res = [re.compile('.*<([^>]+)>.*', re.S),
                   re.compile('^([\S]+)$', re.S)]
@@ -54,13 +54,15 @@ def find_project(mail):
                 continue
 
             listid = match.group(1)
+            return listid
 
-            # to each project corresponds one mailing-list
-            project = Project.query.filter_by(listid=listid).first()
-            if project:
-                break
 
-    return project
+def find_project(mail):
+    project_name = find_project_name(mail)
+    if project_name:
+        return Project.query.filter_by(listid=listid).first()
+    else:
+        return None
 
 def find_submitter(mail):
     from_header = clean_header(mail.get('From'))

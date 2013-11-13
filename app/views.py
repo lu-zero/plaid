@@ -167,4 +167,6 @@ def load_user(userid):
 
 admin = admin.Admin(app, 'Auth', index_view=AdminIndexView())
 admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Project, db.session))
+
 # setup()
