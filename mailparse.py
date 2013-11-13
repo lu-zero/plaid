@@ -64,7 +64,7 @@ def find_project(mail):
     else:
         return None
 
-def find_submitter(mail):
+def find_submitter_name_and_email(mail):
     from_header = clean_header(mail.get('From'))
     (name, email) = (None, None)
 
@@ -95,6 +95,10 @@ def find_submitter(mail):
     if name is not None:
         name = name.strip()
 
+    return (name,email)
+
+def find_submitter(mail):
+    (name, email) = find_submitter_name_and_email(mail)
     submitter = Submitter.get_or_create(name=name, email=email)
 
     return submitter
