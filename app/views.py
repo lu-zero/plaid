@@ -149,7 +149,7 @@ def register_view():
         login.login_user(user)
         return redirect(url_for('index'))
 
-    return render_template('register.html', form=form, user=login.current_user)
+    return render_template('register.html', form=form, user=login.current_user, title='Registration')
 
 
 @app.route('/logout/')
