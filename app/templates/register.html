@@ -1,15 +1,9 @@
 {% extends "base.html" %}
-{% from "form.html" import form_field %}
+{% from "form.html" import form_fields %}
 {% block content %}
 <h2>New user registration</h2>
-<form method=post action="/register">
-	<dl>
-		{{ form_field(form.name) }}
-		{{ form_field(form.login) }}
-		{{ form_field(form.email) }}
-		{{ form_field(form.password) }}
-		{{ form_field(form.confirm) }}
-	</dl>
+<form method="post" action="/register" class="form-horizontal">
+    {{ form_fields([form.name,form.login,form.email,form.password,form.confirm])  }}
 	<p><input type=submit value=Register></p>
 </form>
 {% endblock %}
