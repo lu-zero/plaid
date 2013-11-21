@@ -7,6 +7,7 @@ class LoginForm(form.Form):
     username = fields.TextField(validators=[validators.required()])
     password = fields.PasswordField(validators=[validators.required()])
     remember_me = fields.BooleanField()
+    submit = fields.SubmitField('Login')
 
     def validate_username(self, field):
         user = self.get_user()
@@ -30,6 +31,7 @@ class RegistrationForm(form.Form):
     ])
     confirm = fields.PasswordField('Repeat Password')
     name = fields.TextField(validators=[validators.required()])
+    submit = fields.SubmitField('Register')
 
     def validate_login(self, field):
         if db.session.query(User).filter_by(login=self.login.data).count() > 0:

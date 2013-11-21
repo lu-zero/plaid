@@ -1,21 +1,22 @@
+<!doctype html>
 <html>
-	<head>
-		<title>Plaid - {{title}}</title>
-		<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap.css')}}" />
-	</head>
-	<body>
-		<h1>{{title}}</h1>
-		<div style="border-bottom:2px dashed green;margin-bottom:20px">
-		{% if user!=None and user.is_authenticated() and not user.is_anonymous(): %}
-		Logged in as {{user.name}} - <a href="/logout">Logout</a>
-		{% else %}
-		User not authenticated. <a href="/login">Login</a> or <a href="/register">register</a>.
-		{% endif %}
-		</div>
-		<div style="">
-		{% block content %}{% endblock %}
-		</div>				
-    	<script src="{{url_for('static', filename='js/jquery-2.0.3.js')}}"></script>
-    	<script src="{{url_for('static', filename='js/bootstrap.js')}}"></script>
-	<body>
+    <head>
+        <title>Plaid - {{title}}</title>
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap.css')}}" />
+    </head>
+    <body>
+        <h1>{{title}}</h1>
+        <div class="breadcrumb">
+        {% if user!=None and user.is_authenticated() and not user.is_anonymous(): %}
+        Logged in as {{user.name}} - <a href="/logout">Logout</a>
+        {% else %}
+        User not authenticated. <a href="/login">Login</a> or <a href="/register">register</a>.
+        {% endif %}
+        </div>
+        <div class="container">
+        {% block content %}{% endblock %}
+        </div>
+        <script src="{{url_for('static', filename='js/jquery-2.0.3.js')}}"></script>
+        <script src="{{url_for('static', filename='js/bootstrap.js')}}"></script>
+    <body>
 </html>

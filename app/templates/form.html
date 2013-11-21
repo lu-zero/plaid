@@ -1,16 +1,16 @@
 {%- macro form_field_label(field) -%}
-<label for="{{ field.id }}">{{ field.label.text }}
+<label class="control-label" for="{{ field.id }}">{{ field.label.text }}
 {%- if field.flags.required -%}
-<abbr title="Diese Feld muss angegeben werden">*</abbr>
+<abbr title="Required">*</abbr>
 {%- endif %}</label>
 {% endmacro %}
- 
+
 {%- macro form_field_description(field) -%}
 {% if field.description %}
 <span class="descr">{{ field.description }}</span>
 {% endif %}
 {%- endmacro -%}
- 
+
 {%- macro form_field_errors(field) -%}
 {% if field.errors %}
 <div>
@@ -20,49 +20,51 @@
 </div>
 {% endif %}
 {%- endmacro -%}
- 
+
 {%- macro form_field_boolean(field) -%}
-<div class="input">
 <label>
 {{ field(**kwargs) }}
 <span>{{ field.label.text }}</span>
 {{ form_field_description(field) }}
 {{ form_field_errors(field) }}
 </label>
-</div>
 {%- endmacro -%}
- 
-{%- macro action_buttons(submit_title, cancel_title="Zurück setzten", submit_class="primary") -%}
+
+{%- macro action_buttons(submit_title, cancel_title="Cancel", submit_class="primary") -%}
 <div class="actions">
 <input type="submit" class="btn {{submit_class}}" value="{{submit_title}}">
 &nbsp;
 <button type="reset" class="btn">{{cancel_title}}</button>
 </div>
 {%- endmacro -%}
- 
+
 {%- macro form_field(field) -%}
-<div class="clearfix">
+<div class="control-group">
 {% if field.type == 'HiddenField' %}
-{{ field() }}
+    {{ field() }}
 {% else %}
-{% if field.type == 'BooleanField' %}
-{{ form_field_boolean(field, **kwargs) }}
-{% else%}
-{{ form_field_label(field) }}
-<div class="input" id="{{field.id}}-div">
-{% if field.type == 'RadioField' %}
-{{ field(class='radio-group', **kwargs) }}
-{% else %}
-{{ field(**kwargs) }}
-{% endif %}
-{{ form_field_description(field) }}
-{{ form_field_errors(field) }}
-</div>
-{% endif %}
+    {% if field.type == 'BooleanField' %}
+        {{ form_field_boolean(field, **kwargs) }}
+    {% else %}
+        {% if field.type != 'SubmitField' %}
+            {{ form_field_label(field) }}
+        {% endif %}
+        <div class="controls">
+        {% if field.type == 'RadioField' %}
+            {{ field(class='radio-group', **kwargs) }}
+        {% elif field.type == 'SubmitField' %}
+            {{ field(class='btn', **kwargs) }}
+        {% else %}
+            {{ field(**kwargs) }}
+        {% endif %}
+        {{ form_field_description(field) }}
+        {{ form_field_errors(field) }}
+        </div>
+    {% endif %}
 {% endif %}
 </div>
 {%- endmacro -%}
- 
+
 {%- macro form_fields(fields, class=None, legend=None) -%}
 <fieldset {% if class %}class="{{class}}"{% endif %}>
 {% if legend %}

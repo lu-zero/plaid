@@ -3,7 +3,6 @@
 {% block content %}
 <h2>New user registration</h2>
 <form method="post" action="/register" class="form-horizontal">
-    {{ form_fields([form.name,form.login,form.email,form.password,form.confirm])  }}
-	<p><input type=submit value=Register></p>
+    {{ form_fields(form) }}
 </form>
 {% endblock %}

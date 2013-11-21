@@ -1,12 +1,20 @@
 {% extends "base.html" %}
-{% from "_formhelpers.html" import render_field %}
+{% from "form.html" import form_field, form_field_boolean %}
 {% block content %}
-<form method=post action="/login">
-	<dl>
-		{{ render_field(form.username) }}
-		{{ render_field(form.password) }}
-		{{ render_field(form.remember_me) }}
-	</dl>
-	<p><input type=submit value=Login></p>
+<form method=post action="/login" class="form-horizontal">
+    <fieldset>
+    {{ form_field(form.username) }}
+    {{ form_field(form.password) }}
+    <div class="control-group">
+        <div class="controls input-append">
+        <span class="add-on">
+        <div class="checkbox">
+            <span>{{ form.remember_me.label.text }}<span>
+            {{ form.remember_me() }}
+        </div>
+        </span>
+        <button class="btn">Login</button>
+        </div>
+    </div>
 </form>
 {% endblock %}
