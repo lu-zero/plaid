@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-{% from "_formhelpers.html" import render_field %}
+{% from "form.html" import form_field %}
 {% block content %}
 <h2>New user registration</h2>
 <form method=post action="/register">
 	<dl>
-		{{ render_field(form.name) }}
-		{{ render_field(form.login) }}
-		{{ render_field(form.email) }}
-		{{ render_field(form.password) }}
-		{{ render_field(form.confirm) }}
+		{{ form_field(form.name) }}
+		{{ form_field(form.login) }}
+		{{ form_field(form.email) }}
+		{{ form_field(form.password) }}
+		{{ form_field(form.confirm) }}
 	</dl>
 	<p><input type=submit value=Register></p>
 </form>
