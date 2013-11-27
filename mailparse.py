@@ -15,6 +15,14 @@ from app import app, db
 from app.parser import parse_patch
 from app.models import Submitter, Patch, Comment, Project
 
+import mailbox
+
+def import_mailbox(path):
+    mbox = mailbox.mbox(path,create=False)
+    for mail in mbox:
+        import_mail(mail)
+    return None
+
 list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
 
 migrate = Migrate(app, db)
@@ -60,7 +68,7 @@ def find_project_name(mail):
 def find_project(mail):
     project_name = find_project_name(mail)
     if project_name:
-        return Project.query.filter_by(listid=listid).first()
+        return Project.query.filter_by(listid=project_name).first()
     else:
         return None
 
@@ -202,8 +210,9 @@ def find_patch_for_comment(project, mail):
 
         # see if we have comments that refer to a patch
         if not patch:
-            comment = Comment.objects.get(msgid = ref)
-            return comment.patch
+            comment = Comment.query.filter_by(msgid = ref).first()
+            if comment:
+                return comment.patch
 
     return patch
 
@@ -313,7 +322,7 @@ def clean_content(str):
     str = sig_re.sub('', str)
     return str.strip()
 
-def parse_mail(mail):
+def import_mail(mail):
 
     # some basic sanity checks
     if 'From' not in mail:
@@ -331,7 +340,7 @@ def parse_mail(mail):
 
     project = find_project(mail)
     if project is None:
-        print "no project found"
+        print "No project for %s found" % find_project_name(mail)
         return 0
 
     msgid = mail.get('Message-Id').strip()
@@ -348,29 +357,22 @@ def parse_mail(mail):
 #        patch.state = get_state(mail.get('X-Patchwork-State', '').strip())
 #        patch.delegate = get_delegate(
 #                mail.get('X-Patchwork-Delegate', '').strip())
-        try:
-            patch.save()
-        except Exception, ex:
-            print str(ex)
+        db.session.add(patch)
 
     if comment:
         # looks like the original constructor for Comment takes the pk
         # when the Comment is created. reset it here.
         if patch:
             comment.patch = patch
-        comment.submitter = author
+        comment.submitter = submitter
         comment.msgid = msgid
-        try:
-            comment.save()
-        except Exception, ex:
-            print str(ex)
 
+        db.session.add(comment)
+
+    db.session.commit()
     return 0
 
-@manager.command
-def parse_mail():
-    mail = message_from_file(sys.stdin)
-    return parse_mail(mail)
+
 
 if __name__ == '__main__':
     manager.run()

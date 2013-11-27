@@ -102,7 +102,7 @@ class Patch(EmailMixin, db.Model):
         str = fname_re.sub('-', self.name)
         return str.strip('-') + '.patch'
 
-    def __init__(name, pull_url, content, date, headers):
+    def __init__(self, name, pull_url, content, date, headers):
         self.name = name
         self.pull_url = pull_url
         self.content = content
