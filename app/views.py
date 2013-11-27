@@ -139,8 +139,7 @@ def login_view():
 def register_view():
     form = RegistrationForm(request.form)
     if helpers.validate_form_on_submit(form):
-        user = User(form.login)
-
+        user = User()
         form.populate_obj(user)
 
         db.session.add(user)

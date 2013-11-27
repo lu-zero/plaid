@@ -13,9 +13,6 @@ class User(db.Model):
     role     = db.Column(db.SmallInteger, default = ROLE_USER)
     password = db.Column(db.String(64))
 
-    def __init__(self,login):
-        self.login = login
-
     # Flask-Login integration
     def is_authenticated(self):
         return True
