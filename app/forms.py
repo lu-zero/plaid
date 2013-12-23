@@ -4,7 +4,7 @@ from app.models import *
 
 # Define login and registration forms (for flask-login)
 class LoginForm(form.Form):
-    username = fields.TextField(validators=[validators.required()])
+    email = fields.TextField(validators=[validators.required()])
     password = fields.PasswordField(validators=[validators.required()])
     remember_me = fields.BooleanField()
     submit = fields.SubmitField('Login')
@@ -19,7 +19,7 @@ class LoginForm(form.Form):
             raise validators.ValidationError('Invalid password')
 
     def get_user(self):
-        return db.session.query(User).filter_by(login=self.username.data).first()
+        return db.session.query(User).filter_by(email=self.email.data).first()
 
 
 class RegistrationForm(form.Form):

@@ -7,8 +7,7 @@ ROLE_ADMIN = 1
 
 class User(db.Model):
     id       = db.Column(db.Integer, primary_key = True)
-    name     = db.Column(db.String(128), index = True)
-    login    = db.Column(db.String(80), index = True, unique = True)
+    nickname = db.Column(db.String(128), index = True)
     email    = db.Column(db.String(120), index = True, unique = True)
     role     = db.Column(db.SmallInteger, default = ROLE_USER)
     password = db.Column(db.String(64))
@@ -28,10 +27,16 @@ class User(db.Model):
 
     # Required for administrative interface
     def __unicode__(self):
-        return self.name + "<" + self.email + ">"
+        return "<" + self.email + ">"
 
     def __repr__(self):
         return '<User %r>' % (self.email)
+
+    def get_name(self):
+        if self.nickname:
+            return self.nickname
+        else:
+            return self.email
 
     @staticmethod
     def get_by_id(userid):

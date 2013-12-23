@@ -27,7 +27,7 @@ class CreateProject(Command):
 class CreateUser(Command):
     description = 'This command allows you to create a user account'
     option_list = (
-        Option('--name', '-n', required=True, dest='name', type=unicode,
+        Option('--name', '-n', required=False, dest='name', type=unicode,
                help="Set the user name to NAME."),
         Option('--email', '-e', required=True, dest='email', type=unicode,
                help="Set the user's email address to EMAIL."),
@@ -40,10 +40,10 @@ class CreateUser(Command):
     def run(self, name, email, password, role):
         if role!="0" and role!="1":
           raise Exception('Role should be 0 or 1')
-        u = User(login=name,
-                               password=password,
-                               email=email,
-                               role=int(role))
+        u = User(nickname=name,
+                 password=password,
+                 email=email,
+                 role=int(role))
         print('Creating user %s' % u)
         db.session.add(u)
         db.session.commit()
