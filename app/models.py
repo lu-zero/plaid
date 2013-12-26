@@ -76,6 +76,10 @@ class Project(db.Model):
     def __unicode__(self):
         return self.name
 
+    @staticmethod
+    def get_all():
+        return Project.query.all()
+
 class EmailMixin(object):
     msgid   = db.Column(db.String(255))
     name    = db.Column(db.String(255))

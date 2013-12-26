@@ -117,20 +117,35 @@ class AdminIndexView(Accessible, admin.AdminIndexView):
 @app.route('/')
 @app.route('/index')
 def index():
-    print("CurrentUserForIndex "+str(login.current_user))
-    return render_template('index.html', 
-        title="Homepage",user=login.current_user)
+    return render_template('index.html',
+        title="Homepage",user=login.current_user,projects=Project.get_all())
 
+@app.route('/project/<project_name>')
+def project(project_name):
+    project = Project.query.filter_by(name=project_name).first_or_404()
+    return render_template('project.html',
+        title="Project %s" % project.name,
+        user=login.current_user,
+        project=project)
+
+@app.route('/patch/<patch_id>')
+def patch(patch_id):
+    patch = Patch.query.filter_by(id=patch_id).first_or_404()
+    project = patch.project
+    return render_template('patch.html',
+        title="Project %s > patch %s" % (project.name,patch.name),
+        user=login.current_user,
+        patch=patch)
 
 @app.route('/login', methods=('GET', 'POST'))
 def login_view():
     form = LoginForm(request.form)
     if helpers.validate_form_on_submit(form):
         user = form.get_user()
-        login.login_user(user,remember=form.remember_me)        
+        login.login_user(user,remember=form.remember_me)
         return redirect(request.args.get("next") or url_for("index"))
 
-    return render_template('login.html', 
+    return render_template('login.html',
         title="Login",user=login.current_user,
         form=form)
 
@@ -167,5 +182,6 @@ def load_user(userid):
 admin = admin.Admin(app, 'Auth', index_view=AdminIndexView())
 admin.add_view(ModelView(User, db.session))
 admin.add_view(ModelView(Project, db.session))
+admin.add_view(ModelView(Patch, db.session))
 
 # setup()

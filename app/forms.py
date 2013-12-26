@@ -24,7 +24,7 @@ class LoginForm(form.Form):
 
 class RegistrationForm(form.Form):
     login = fields.TextField(validators=[validators.required()])
-    email = fields.TextField(validators=[validators.required()])
+    email = fields.TextField(validators=[validators.required(),validators.Email()])
     password = fields.PasswordField('New Password', [
         validators.Required(),
         validators.EqualTo('confirm', message='Passwords must match')

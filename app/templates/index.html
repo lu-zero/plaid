@@ -1,4 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
 <span>Welcome</span>
+<ul>
+{% for p in projects %}
+	<li><a href="{{url_for('project',project_name=p.name)}}">{{p.name}}</a></li>
+{% endfor %}
+</ul>
 {% endblock %}
