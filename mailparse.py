@@ -13,7 +13,7 @@ from email.utils import parsedate_tz, mktime_tz
 
 from app import app, db
 from app.parser import parse_patch
-from app.models import Submitter, Patch, Comment, Project
+from app.models import Submitter, Patch, Comment, Project, Serie
 
 import mailbox
 
@@ -29,6 +29,8 @@ migrate = Migrate(app, db)
 manager = Manager(app)
 
 whitespace_re = re.compile('\s+')
+gitsendemail_re = re.compile("<(\d+-\d+)-(\d+)-git-send-email-(.+)")
+
 
 def normalise_space(str):
     return whitespace_re.sub(' ', str).strip()
@@ -351,6 +353,12 @@ def import_mail(mail):
 
     if patch:
         # we delay the saving until we know we have a patch.
+        match = gitsendemail_re.match(msgid)
+        if match:
+            (uid, num, email) = match.groups()
+            serie = Serie.get_or_create(uid)
+            serie.patches.append(patch)
+            db.session.add(serie)
         patch.submitter = submitter
         patch.msgid = msgid
         patch.project = project

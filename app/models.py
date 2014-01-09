@@ -126,15 +126,28 @@ class Comment(EmailMixin, db.Model):
     patch = db.relationship('Patch', backref='comments')
 
 patches = db.Table('roles',
-    db.Column('series_id', db.Integer, db.ForeignKey('series.id')),
+    db.Column('serie_id', db.Integer, db.ForeignKey('serie.id')),
     db.Column('patch_id', db.Integer, db.ForeignKey('patch.id')),
 )
 
-class Series(db.Model):
+class Serie(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(255))
+    uid  = db.Column(db.String(255), unique=True, nullable=True)
     date = db.Column(db.DateTime(), default=datetime.now)
-    patches = db.relationship("Patch", secondary=patches)
+    patches = db.relationship("Patch", secondary=patches, backref="series")
+
+    @classmethod
+    def get_or_create(self, uid, name=None):
+        instance = self.query.filter_by(uid=uid).first()
+        if not instance:
+            if not name:
+                name = "git-send-email-" + uid
+            instance = Serie(name=name, uid=uid)
+            db.session.add(instance)
+            db.session.commit()
+        return instance
+
 
 topics = db.Table('topics',
     db.Column('patch_id', db.Integer, db.ForeignKey('patch.id')),
