@@ -9,16 +9,10 @@ from flask.ext import admin, login
 from flask.ext.admin.contrib import sqla
 from flask.ext.admin.contrib.sqla.form import InlineModelConverter, get_form
 from flask.ext.admin import helpers
+from flask.ext.admin.base import expose
+from flask.ext.admin import BaseView
 
-# Initialize flask-login
-# def init_login():
-#     login_manager = login.LoginManager()
-#     login_manager.setup_app(app)
-
-#     # Create user loader function
-#     @login_manager.user_loader
-#     def load_user(user_id):
-#         return db.session.query(User).get(user_id)
+from jinja2 import Markup
 
 class Accessible(object):
     def is_accessible(self):
@@ -28,87 +22,28 @@ class Accessible(object):
 class ModelView(Accessible, sqla.ModelView):
     pass
 
-class M2MInlineModelConverter(InlineModelConverter):
-    def contribute(self, model, form_class, inline_model):
-        mapper = model._sa_class_manager.mapper
-        info = self.get_info(inline_model)
+class PatchesView(ModelView):
 
-        directions = ['ONETOMANY', 'MANYTOMANY', 'MANYTOONE']
+    def _render_submitter(v,c,m,submitter):
+        return Markup('<a href="mailto:%s">%s</a>' % (m.submitter.email,m.submitter.name))
 
-        # Find property from target model to current model
-        target_mapper = info.model._sa_class_manager.mapper
+    # Disable model creation
+    can_create = False
 
-        reverse_prop = None
+    # Override displayed fields
+    column_list = ('submitter', 'name')
+    column_formatters = dict(submitter=_render_submitter)
+    column_sortable_list = (('submitter','submitter.name'), ('name', Patch.name))
 
-        for prop in target_mapper.iterate_properties:
-            if hasattr(prop, 'direction') and prop.direction.name in directions:
-                if issubclass(model, prop.mapper.class_):
-                    reverse_prop = prop
-                    break
-        else:
-            raise Exception('Cannot find reverse relation for model %s' % info.model)
+    @expose('/')
+    def index_view(self):
+        self._template_args['user'] = login.current_user
+        self._template_args['title'] = "Patches"
+        return super(PatchesView, self).index_view()
 
-        # Find forward property
-        forward_prop = None
-
-        for prop in mapper.iterate_properties:
-            if hasattr(prop, 'direction') and prop.direction.name in directions:
-                if prop.mapper.class_ == target_mapper.class_:
-                    forward_prop = prop
-                    break
-        else:
-            raise Exception('Cannot find forward relation for model %s' % info.model)
-
-        # Remove reverse property from the list
-        ignore = [reverse_prop.key]
-
-        if info.form_excluded_columns:
-            exclude = ignore + list(info.form_excluded_columns)
-        else:
-            exclude = ignore
-
-        # Create converter
-        converter = self.model_converter(self.session, info)
-
-        # Create form
-        child_form = info.get_form()
-
-        if child_form is None:
-            child_form = get_form(info.model,
-                                  converter,
-                                  only=info.form_columns,
-                                  exclude=exclude,
-                                  field_args=info.form_args,
-                                  hidden_pk=True)
-
-        # Post-process form
-        child_form = info.postprocess_form(child_form)
-
-        kwargs = dict()
-
-        label = self.get_label(info, forward_prop.key)
-        if label:
-            kwargs['label'] = label
-
-        # Contribute field
-        setattr(form_class,
-                forward_prop.key,
-                self.inline_field_list_type(child_form,
-                                            self.session,
-                                            info.model,
-                                            reverse_prop.key,
-                                            info,
-                                            **kwargs))
-
-        return form_class
-
-class CustomerModelView(ModelView):
-#    inline_models = (Customer, )
-    inline_model_form_converter = M2MInlineModelConverter
-
-class InvoiceModelView(ModelView):
-#    inline_models = (InvoiceItem, )
-    inline_model_form_converter = M2MInlineModelConverter
+    def __init__(self, session, **kwargs):
+        # You can pass name and other parameters if you want to
+        super(PatchesView, self).__init__(Patch, session, **kwargs)
 
 # Create customized index view class
 class AdminIndexView(Accessible, admin.AdminIndexView):
@@ -179,9 +114,14 @@ def load_user(userid):
 
 #init_login()
 
-admin = admin.Admin(app, 'Auth', index_view=AdminIndexView())
+crud = admin.Admin(app, 'CRUD', endpoint="crud", url="/", base_template='base.html')
+crud.add_view(PatchesView(db.session,endpoint="patches"))
+
+admin = admin.Admin(app, 'Auth', index_view=AdminIndexView(), endpoint="admin")
 admin.add_view(ModelView(User, db.session))
 admin.add_view(ModelView(Project, db.session))
 admin.add_view(ModelView(Patch, db.session))
+
+
 
 # setup()
