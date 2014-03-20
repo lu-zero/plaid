@@ -5,15 +5,21 @@
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap.css')}}" />
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap-theme.css')}}" />
         <link href="{{ url_for('admin.static', filename='admin/css/admin.css') }}" rel="stylesheet">
+        {% block head %}{% endblock %}
     </head>
     <body>
-        <h1>{{title}}</h1>
+        {% block subject %}
+        <h1>{{title|truncate(80)}}</h1>
+        {% endblock %}
         <div class="breadcrumb">
         {% if user!=None and user.is_authenticated() and not user.is_anonymous(): %}
         Logged in as {{user.get_name()}} - <a href="/logout">Logout</a>
         {% else %}
         User not authenticated. <a href="/login">Login</a> or <a href="/register">register</a>.
         {% endif %}
+        {% block breadcrumb %}
+        {% endblock %}
+
         </div>
         <div class="container">
         {% block content %}{% endblock %}

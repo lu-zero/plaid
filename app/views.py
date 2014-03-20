@@ -2,6 +2,8 @@ from flask import url_for, redirect, render_template, request, flash
 from app import app, db, login_manager
 from app.models import *
 from app.forms  import *
+from app.render import *
+
 
 from wtforms import form, fields, validators
 
@@ -63,14 +65,50 @@ def project(project_name):
         user=login.current_user,
         project=project)
 
+@app.route('/serie/<int:serie_id>')
+@app.route('/serie/<int:serie_id>/<int:patch_index>')
+def serie(serie_id, patch_index = 1):
+    serie = Serie.query.filter_by(id=serie_id).first_or_404()
+
+#    page = serie.paginate_patches(patch_index)
+
+    page = Patch.query.filter_by(serie_id = serie_id).order_by(Patch.date)
+
+    print("p %s %d" % (page, patch_index))
+
+    page = page.paginate(patch_index, 1)
+
+    patch = page.items[0]
+
+    project = patch.project
+
+    def endpoint(page_index):
+        return url_for('serie', serie_id=serie_id, patch_index=page_index)
+
+    return render_template('patch.html',
+        title=patch.name,
+        user=login.current_user,
+        patch=page.items[0],
+        serie=serie,
+        page=page,
+        endpoint=endpoint)
+
 @app.route('/patch/<patch_id>')
 def patch(patch_id):
     patch = Patch.query.filter_by(id=patch_id).first_or_404()
     project = patch.project
+    serie = None
+    if len(patch.serie.patches) > 1:
+        serie = patch.serie
+
+    content = render_patch(patch.content)
+
     return render_template('patch.html',
-        title="Project %s > patch %s" % (project.name,patch.name),
+        title=patch.name,
         user=login.current_user,
-        patch=patch)
+        patch=patch,
+        content=content,
+        serie=serie)
 
 @app.route('/login', methods=('GET', 'POST'))
 def login_view():

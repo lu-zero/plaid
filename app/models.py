@@ -100,11 +100,14 @@ class Patch(EmailMixin, db.Model):
     submitter_id = db.Column(db.Integer, db.ForeignKey('submitter.id'))
     submitter = db.relationship('Submitter', backref='patches')
     pull_url = db.Column(db.String(255))
-    commit_ref = db.Column(db.String(255))
+    commit_ref = db.Column(db.String(255), default=None)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
     project = db.relationship('Project', backref='patches')
     ancestor_id = db.Column(db.Integer, db.ForeignKey('patch.id'))
     ancestor = db.relationship('Patch', backref="successor", remote_side=[id])
+    serie_id = db.Column(db.Integer, db.ForeignKey('serie.id'))
+    serie = db.relationship('Serie', backref='patches', order_by='Patch.date')
+    state = db.Column(db.Integer, default=0)
 
     def filename(self):
         fname_re = re.compile('[^-_A-Za-z0-9\.]+')
@@ -123,19 +126,23 @@ class Comment(EmailMixin, db.Model):
     submitter_id = db.Column(db.Integer, db.ForeignKey('submitter.id'))
     submitter = db.relationship('Submitter', backref='comments')
     patch_id = db.Column(db.Integer, db.ForeignKey('patch.id'))
-    patch = db.relationship('Patch', backref='comments')
+    patch = db.relationship('Patch', backref='comments', order_by='Comment.date')
 
-patches = db.Table('roles',
-    db.Column('serie_id', db.Integer, db.ForeignKey('serie.id')),
-    db.Column('patch_id', db.Integer, db.ForeignKey('patch.id')),
+'''
+class PatchSerie(db.Model):
+    serie_id = db.Column(db.Integer, db.ForeignKey('serie.id'))
+    serie = relationship('Serie')
+    patch_id = db.Column(db.Integer, db.ForeignKey('patch.id'))
+    patch = relationship('Patch', backref=backref("patch_serie"))
+    serial = db.Column(db.Integer)
 )
+'''
 
 class Serie(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(255))
     uid  = db.Column(db.String(255), unique=True, nullable=True)
     date = db.Column(db.DateTime(), default=datetime.now)
-    patches = db.relationship("Patch", secondary=patches, backref="series")
 
     @classmethod
     def get_or_create(self, uid, name=None):
@@ -147,6 +154,14 @@ class Serie(db.Model):
             db.session.add(instance)
             db.session.commit()
         return instance
+
+    def paginate_patches(self, patch):
+        p = Patch.query.filter_by(serie_id = self.id)
+        return p.order_by(Patch.date).paginate(patch, 1)
+
+##    def next(self):
+
+
 
 
 topics = db.Table('topics',

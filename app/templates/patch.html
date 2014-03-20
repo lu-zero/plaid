@@ -1,4 +1,89 @@
 {% extends "base.html" %}
+{% from "macros.html" import paginate %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/pygments.css')}}" />
+{% endblock %}
+
+
+{% block breadcrumb %}
+{% if serie is defined %}
+<span class="pull-right">
+    Part of <a href="{{ url_for('serie', serie_id=serie.id) }}"> {{ serie.name }}</a>
+</span>
+{% endif %}
+{% endblock %}
+
+
 {% block content %}
-{{patch.name}}
+<table class="table">
+<tbody><tr>
+    <th>Submitter</th>
+    <td><a href="{{patch.submitter.email}}">{{patch.submitter.name}}</a></td>
+</tr>
+<tr>
+    <th>Date</th>
+    <td>{{patch.date}}</td>
+</tr>
+<tr>
+    <th>Message ID</th>
+    <td>
+        <a href="http://news.gmane.org/find-root.php?message_id={{patch.msgid}}">{{patch.msgid}}
+        </a>
+    </td>
+</tr>
+<tr>
+    <th>Download</th>
+    <td>
+    <a href="{{url_for('patch', patch_id=patch.id, format='mbox')}}">mbox</a> |
+    <a href="{{url_for('patch', patch_id=patch.id, format='patch')}}">patch</a>
+    </td>
+</tr>
+<tr>
+    <th>Permalink</th>
+    <td><a href="{{url_for('patch', patch_id=patch.id)}}">
+        {{url_for('patch', patch_id=patch.id)}}</a>
+    </td>
+</tr>
+<tr>
+    <th>State</th>
+    <td>{{patch.state}}</td>
+</tr>
+
+<tr>
+  <th>Headers</th>
+  <td><a href="#" data-toggle="collapse" data-target="#patchheaders">show</a>
+   <div class="collapse" id="patchheaders">
+    {{render_headers(patch.headers)}}
+   </div>
+  </td>
+ </tr>
+</tbody>
+</table>
+
+{% if page is defined %}
+    {{paginate(page, endpoint)}}
+{% endif %}
+
+<div class="panel panel-default">
+<div class="panel-heading">
+    <h3 class="panel-title">{{title}}</h3>
+</div>
+<div class="panel-body">
+{{render_patch(patch.content)}}
+</div>
+</div>
+
+{%- for comment in patch.comments %}
+<div class="panel panel-default">
+<div class="panel-heading">
+    <h3 class="panel-title">{{comment.submitter.name}} - {{comment.date}}</h3>
+</div>
+<div class="panel-body">
+<pre>
+{{ comment.content }}
+</pre>
+</div>
+</div>
+{% endfor %}
+
 {% endblock %}
