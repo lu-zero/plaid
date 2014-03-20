@@ -1,0 +1,14 @@
+{%- macro paginate(pagination, endpoint) -%}
+    <ul class="pagination">
+    {%- for page in pagination.iter_pages() %}
+        {% if page %}
+            <li {{ 'class="active"' if page == pagination.page }} >
+                <a href="{{ endpoint(page) }}"
+                   title="">{{ page }}</a>
+            </li>
+        {% else %}
+            <li><span>…</span></li>
+        {% endif %}
+    {%- endfor %}
+    </ul>
+{% endmacro %}
