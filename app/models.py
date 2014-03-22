@@ -114,6 +114,29 @@ class Patch(EmailMixin, db.Model):
         str = fname_re.sub('-', self.name)
         return str.strip('-') + '.patch'
 
+    @property
+    def mbox(self):
+        from email.mime.nonmultipart import MIMENonMultipart
+        from email.encoders import encode_7or8bit
+        from email.parser import HeaderParser
+        from email.header import Header
+
+        body = ''
+        if self.comments[0].msgid == self.msgid:
+            body += self.comments[0].content + '\n'
+        body += self.content
+
+        mbox = MIMENonMultipart('text', 'plain', charset='utf-8')
+
+        mbox['Subject'] = self.name
+        mbox['From'] = '%s <%s>' % (self.submitter.name, self.submitter.email)
+        mbox['Message-Id'] = self.msgid
+
+        mbox.set_payload(body.encode('utf-8'))
+        encode_7or8bit(mbox)
+
+        return mbox.as_string()
+
     def __init__(self, name, pull_url, content, date, headers):
         self.name = name
         self.pull_url = pull_url

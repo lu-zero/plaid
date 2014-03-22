@@ -1,4 +1,5 @@
 from flask import url_for, redirect, render_template, request, flash
+from flask import Response
 from app import app, db, login_manager
 from app.models import *
 from app.forms  import *
@@ -70,11 +71,7 @@ def project(project_name):
 def serie(serie_id, patch_index = 1):
     serie = Serie.query.filter_by(id=serie_id).first_or_404()
 
-#    page = serie.paginate_patches(patch_index)
-
     page = Patch.query.filter_by(serie_id = serie_id).order_by(Patch.date)
-
-    print("p %s %d" % (page, patch_index))
 
     page = page.paginate(patch_index, 1)
 
@@ -94,21 +91,29 @@ def serie(serie_id, patch_index = 1):
         endpoint=endpoint)
 
 @app.route('/patch/<patch_id>')
-def patch(patch_id):
+@app.route('/patch/<patch_id>/<format>')
+def patch(patch_id, format='html'):
     patch = Patch.query.filter_by(id=patch_id).first_or_404()
     project = patch.project
-    serie = None
-    if len(patch.serie.patches) > 1:
-        serie = patch.serie
+    serie = patch.serie
 
-    content = render_patch(patch.content)
+    if format == 'mbox':
+        return Response(patch.mbox, mimetype='application/mbox')
 
-    return render_template('patch.html',
-        title=patch.name,
-        user=login.current_user,
-        patch=patch,
-        content=content,
-        serie=serie)
+    if format == 'patch':
+        return Response(patch.content, mimetype='text/x-patch')
+
+    if len(serie.patches) > 1:
+        return render_template('patch.html',
+            title=patch.name,
+            user=login.current_user,
+            patch=patch,
+            serie=serie)
+    else:
+        return render_template('patch.html',
+            title=patch.name,
+            user=login.current_user,
+            patch=patch)
 
 @app.route('/login', methods=('GET', 'POST'))
 def login_view():
