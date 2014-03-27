@@ -15,7 +15,10 @@ class LoginForm(form.Form):
         if user is None:
             raise validators.ValidationError('Invalid user')
 
-        if user.password != self.password.data:
+    def validate_password(self, field):
+        user = self.get_user() 
+
+        if user and (user.password != self.password.data):
             raise validators.ValidationError('Invalid password')
 
     def get_user(self):
