@@ -40,7 +40,7 @@ class CreateUser(Command):
     def run(self, name, email, password, role):
         if role!="0" and role!="1":
           raise Exception('Role should be 0 or 1')
-        u = User(nickname=name,
+        u = User(name=name,
                  password=password,
                  email=email,
                  role=int(role))

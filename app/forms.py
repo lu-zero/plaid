@@ -23,7 +23,6 @@ class LoginForm(form.Form):
 
 
 class RegistrationForm(form.Form):
-    login = fields.TextField(validators=[validators.required()])
     email = fields.TextField(validators=[validators.required(),validators.Email()])
     password = fields.PasswordField('New Password', [
         validators.Required(),
@@ -33,6 +32,6 @@ class RegistrationForm(form.Form):
     name = fields.TextField(validators=[validators.required()])
     submit = fields.SubmitField('Register')
 
-    def validate_login(self, field):
-        if db.session.query(User).filter_by(login=self.login.data).count() > 0:
-            raise validators.ValidationError('Duplicate username')
+    def validate_email(self, field):
+        if db.session.query(User).filter_by(email=self.email.data).count() > 0:
+            raise validators.ValidationError('E-Mail already used. Did you forgot your password?')

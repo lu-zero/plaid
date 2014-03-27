@@ -7,7 +7,7 @@ ROLE_ADMIN = 1
 
 class User(db.Model):
     id       = db.Column(db.Integer, primary_key = True)
-    nickname = db.Column(db.String(128), index = True)
+    name     = db.Column(db.String(128), index = True)
     email    = db.Column(db.String(120), index = True, unique = True)
     role     = db.Column(db.SmallInteger, default = ROLE_USER)
     password = db.Column(db.String(64))
@@ -33,10 +33,7 @@ class User(db.Model):
         return '<User %r>' % (self.email)
 
     def get_name(self):
-        if self.nickname:
-            return self.nickname
-        else:
-            return self.email
+        return self.name
 
     @staticmethod
     def get_by_id(userid):
