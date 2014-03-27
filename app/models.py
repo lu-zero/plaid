@@ -1,6 +1,6 @@
 from app import db
 from datetime import date, datetime
-from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
+from sqlalchemy.orm import backref
 
 ROLE_USER = 0
 ROLE_ADMIN = 1
@@ -99,7 +99,7 @@ class Patch(EmailMixin, db.Model):
     pull_url = db.Column(db.String(255))
     commit_ref = db.Column(db.String(255), default=None)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
-    project = db.relationship('Project', backref='patches')
+    project = db.relationship('Project', backref=backref('patches', lazy='dynamic'))
     ancestor_id = db.Column(db.Integer, db.ForeignKey('patch.id'))
     ancestor = db.relationship('Patch', backref="successor", remote_side=[id])
     serie_id = db.Column(db.Integer, db.ForeignKey('serie.id'))
