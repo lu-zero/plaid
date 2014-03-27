@@ -178,14 +178,7 @@ class Serie(db.Model):
             db.session.commit()
         return instance
 
-    def paginate_patches(self, patch):
-        p = Patch.query.filter_by(serie_id = self.id)
-        return p.order_by(Patch.date).paginate(patch, 1)
-
 ##    def next(self):
-
-
-
 
 topics = db.Table('topics',
     db.Column('patch_id', db.Integer, db.ForeignKey('patch.id')),
