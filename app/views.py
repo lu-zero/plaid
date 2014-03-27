@@ -120,8 +120,11 @@ def login_view():
     form = LoginForm(request.form)
     if helpers.validate_form_on_submit(form):
         user = form.get_user()
-        login.login_user(user,remember=form.remember_me)
-        return redirect(request.args.get("next") or url_for("index"))
+        if user:
+        	login.login_user(user,remember=form.remember_me)
+        	return redirect(request.args.get("next") or url_for("index"))
+        else:
+        	flash('User not found, sorry pal!','warning')
 
     return render_template('login.html',
         title="Login",user=login.current_user,
