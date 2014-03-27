@@ -12,3 +12,9 @@
     {%- endfor %}
     </ul>
 {% endmacro %}
+
+{%- macro render_tags(tags) -%}
+    {%-  for tag in tags %}
+        <a href="{{ url_for('tag',tag_name=tag.name) }}">{{tag.name}}</a>
+    {% endfor %}
+{% endmacro %}

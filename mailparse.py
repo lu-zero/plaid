@@ -13,7 +13,7 @@ from email.utils import parsedate_tz, mktime_tz
 
 from app import app, db
 from app.parser import parse_patch
-from app.models import Submitter, Patch, Comment, Project, Serie
+from app.models import Submitter, Patch, Comment, Project, Serie, Tag
 
 import mailbox
 
@@ -73,6 +73,20 @@ def find_project(mail):
         return Project.query.filter_by(listid=project_name).first()
     else:
         return None
+
+def derive_tag_names(subject):
+    # skip the parts indicating the index in series (e.g., [1/2])
+    if subject.find(']')!=-1:        
+        subject = subject[subject.index(']')+1:] 
+
+    parts = subject.split(":")
+    if len(parts)<2:
+        # no colon 
+        return []
+    return [x.strip() for x in parts [0:-1] if x.strip().find(' ')==-1]
+
+def find_or_create_tags(tag_names):
+    return [Tag.get_or_create(tag_name) for tag_name in tag_names]
 
 def find_submitter_name_and_email(mail):
     from_header = clean_header(mail.get('From'))
@@ -175,8 +189,10 @@ def find_content(project, mail):
 
     if pullurl or patchbuf:
         name = clean_subject(mail.get('Subject'), [project.linkname])
+        tag_names = derive_tag_names(name)        
+        tags = find_or_create_tags(tag_names)
         patch = Patch(name = name, pull_url = pullurl, content = patchbuf,
-                    date = mail_date(mail), headers = mail_headers(mail))
+                    date = mail_date(mail), headers = mail_headers(mail), tags = tags)
 
     if commentbuf:
         if patch:

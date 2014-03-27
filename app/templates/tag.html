@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "macros.html" import paginate, render_tags %}
+
+{% block breadcrumb %}
+{% endblock %}
+
+{% block content %}
+
+<ul>
+{% for patch in tag.patches %}
+    <li><a href="{{url_for('patch',patch_id=patch.id)}}">{{patch.name}}</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}

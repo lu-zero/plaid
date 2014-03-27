@@ -134,12 +134,13 @@ class Patch(EmailMixin, db.Model):
 
         return mbox.as_string()
 
-    def __init__(self, name, pull_url, content, date, headers):
+    def __init__(self, name, pull_url, content, date, headers, tags):
         self.name = name
         self.pull_url = pull_url
         self.content = content
         self.date = date
         self.headers = headers
+        self.tags = tags
 
 class Comment(EmailMixin, db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -197,4 +198,13 @@ class Tag(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(255))
     patches = db.relationship("Patch", secondary=tags, backref="tags")
+
+    @classmethod
+    def get_or_create(self, name):
+        instance = self.query.filter_by(name=name).first()
+        if not instance:
+            instance = Tag(name=name)
+            db.session.add(instance)
+            db.session.commit()
+        return instance
 

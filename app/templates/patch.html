@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import paginate %}
+{% from "macros.html" import paginate, render_tags %}
 {% block head %}
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/pygments.css')}}" />
 {% endblock %}
@@ -31,6 +31,14 @@
         </a>
     </td>
 </tr>
+{% if patch.tags|length %}
+<tr>
+    <th>Tags</th>
+    <td>
+        {{render_tags(patch.tags)}}
+    </td>
+</tr>
+{% endif %}
 <tr>
     <th>Download</th>
     <td>

@@ -22,6 +22,9 @@ class TestMailbox(unittest.TestCase):
         self.assertEqual('libav-devel.libav.org',find_project_name(self.email1))
         self.assertEqual('libav-devel.libav.org',find_project_name(self.email2))
 
+    #def test_find_tags(self):
+    #    pass
+
     def test_mail_date(self):
         # 2011-03-16 18:37:31
         d1 = datetime.datetime.strptime('2011-03-16 18:37:31', "%Y-%m-%d %H:%M:%S")

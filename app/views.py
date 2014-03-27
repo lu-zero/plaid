@@ -66,6 +66,22 @@ def project(project_name):
         user=login.current_user,
         project=project)
 
+@app.route('/tag/<tag_name>')
+def tag(tag_name):
+    tag = Tag.query.filter_by(name=tag_name).first_or_404()
+    return render_template('tag.html',
+        title="Tag %s" % tag.name,
+        user=login.current_user,
+        tag=tag)
+
+@app.route('/tags')
+def tags():
+    tags = Tag.query.all()
+    return render_template('tags.html',
+        title="All tags",
+        user=login.current_user,
+        tags=tags)    
+
 @app.route('/serie/<int:serie_id>')
 @app.route('/serie/<int:serie_id>/<int:patch_index>')
 def serie(serie_id, patch_index = 1):
@@ -121,10 +137,10 @@ def login_view():
     if helpers.validate_form_on_submit(form):
         user = form.get_user()
         if user:
-        	login.login_user(user,remember=form.remember_me)
-        	return redirect(request.args.get("next") or url_for("index"))
+            login.login_user(user,remember=form.remember_me)
+            return redirect(request.args.get("next") or url_for("index"))
         else:
-        	flash('User not found, sorry pal!','warning')
+            flash('User not found, sorry pal!','warning')
 
     return render_template('login.html',
         title="Login",user=login.current_user,
