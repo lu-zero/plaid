@@ -9,7 +9,7 @@ class LoginForm(form.Form):
     remember_me = fields.BooleanField()
     submit = fields.SubmitField('Login')
 
-    def validate_username(self, field):
+    def validate_email(self, field):
         user = self.get_user()
 
         if user is None:
@@ -19,7 +19,7 @@ class LoginForm(form.Form):
             raise validators.ValidationError('Invalid password')
 
     def get_user(self):
-        return db.session.query(User).filter_by(email=self.email.data).first()
+        return db.session.query(User).filter_by(email=self.email.data.strip()).first()
 
 
 class RegistrationForm(form.Form):
