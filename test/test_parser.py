@@ -1,9 +1,9 @@
 import unittest
 from app.parser import parse_patch
-from mailparse import *
+from mailparse import derive_tag_names
+
 
 class TestParser(unittest.TestCase):
-
     comment_before_patch = """I send you my beautiful patch.
                      I hope you like it
 
@@ -12,7 +12,7 @@ class TestParser(unittest.TestCase):
 @@ -33,6 +33,10 @@ class User(db.Model):
      def __repr__(self):
          return '<User %r>' % (self.email)
- 
+
 +    @staticmethod
 +    def get_by_id(userid):
 +        return db.session.query(User).filter_by(id=userid).first()
@@ -27,7 +27,7 @@ class TestParser(unittest.TestCase):
 @@ -33,6 +33,10 @@ class User(db.Model):
      def __repr__(self):
          return '<User %r>' % (self.email)
- 
+
 +    @staticmethod
 +    def get_by_id(userid):
 +        return db.session.query(User).filter_by(id=userid).first()
@@ -36,14 +36,14 @@ class TestParser(unittest.TestCase):
      id = db.Column(db.Integer, primary_key = True)
      name = db.Column(db.String(128), index = True)
 
-        Nice patch, eh?"""     
+        Nice patch, eh?"""
 
     patch = """--- a/app/models.py
 +++ b/app/models.py
 @@ -33,6 +33,10 @@ class User(db.Model):
      def __repr__(self):
          return '<User %r>' % (self.email)
- 
+
 +    @staticmethod
 +    def get_by_id(userid):
 +        return db.session.query(User).filter_by(id=userid).first()
@@ -56,27 +56,28 @@ class TestParser(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_parse_patch_before_patch(self):        
+    def test_parse_patch_before_patch(self):
         (patch, comment) = parse_patch(self.comment_after_patch)
-        self.assertEqual(self.patch,patch)
+        self.assertEqual(self.patch, patch)
 
-    def test_parse_patch_after_patch(self):        
+    def test_parse_patch_after_patch(self):
         (patch, comment) = parse_patch(self.comment_before_patch)
-        self.assertEqual(self.patch,patch)          
+        self.assertEqual(self.patch, patch)
 
-    def test_parse_comment_before_patch(self):        
-     	(patch, comment) = parse_patch(self.comment_before_patch)
+    def test_parse_comment_before_patch(self):
+        (patch, comment) = parse_patch(self.comment_before_patch)
      	self.assertEqual("""I send you my beautiful patch.
-                     I hope you like it""",comment.strip())
+                     I hope you like it""", comment.strip())
 
     def test_parse_comment_after_patch(self):
         (patch, comment) = parse_patch(self.comment_after_patch)
-     	self.assertEqual("""Nice patch, eh?""",comment.strip())  
+        self.assertEqual("""Nice patch, eh?""", comment.strip())
 
     def test_derive_tag_names(self):
-        self.assertEqual(['a','b'], derive_tag_names("a: b: ciao"))
-        self.assertEqual(['a','b'], derive_tag_names("[1/2]a: b: ciao"))
-        self.assertEqual(['a','b'], derive_tag_names("a: I am not a tag: b: ciao"))
+        self.assertEqual(['a', 'b'], derive_tag_names("a: b: ciao"))
+        self.assertEqual(['a', 'b'], derive_tag_names("[1/2]a: b: ciao"))
+        self.assertEqual(['a', 'b'],
+                         derive_tag_names("a: I am not a tag: b: ciao"))
 
 if __name__ == "__main__":
-    unittest.main()        
+    unittest.main()

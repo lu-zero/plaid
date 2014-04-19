@@ -19,7 +19,6 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-
 import re
 
 try:
@@ -31,6 +30,7 @@ except ImportError:
 
 _hunk_re = re.compile('^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
 _filename_re = re.compile('^(---|\+\+\+) (\S+)')
+
 
 def parse_patch(text):
     patchbuf = ''
@@ -62,7 +62,6 @@ def parse_patch(text):
     # line counts while parsing a patch hunk
     lc = (0, 0)
     hunk = 0
-
 
     for line in text.split('\n'):
         line += '\n'
@@ -161,6 +160,7 @@ def parse_patch(text):
 
     return (patchbuf, commentbuf)
 
+
 def hash_patch(str):
     # normalise spaces
     str = str.replace('\r', '')
@@ -213,12 +213,12 @@ def main(args):
     from optparse import OptionParser
 
     parser = OptionParser()
-    parser.add_option('-p', '--patch', action = 'store_true',
-            dest = 'print_patch', help = 'print parsed patch')
-    parser.add_option('-c', '--comment', action = 'store_true',
-            dest = 'print_comment', help = 'print parsed comment')
-    parser.add_option('-#', '--hash', action = 'store_true',
-            dest = 'print_hash', help = 'print patch hash')
+    parser.add_option('-p', '--patch', action='store_true',
+                      dest='print_patch', help='print parsed patch')
+    parser.add_option('-c', '--comment', action='store_true',
+                      dest='print_comment', help='print parsed comment')
+    parser.add_option('-#', '--hash', action='store_true',
+                      dest='print_hash', help='print patch hash')
 
     (options, args) = parser.parse_args()
 

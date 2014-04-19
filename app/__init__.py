@@ -10,5 +10,5 @@ from flask.ext.login import LoginManager
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-from app import views, models
-
+from app import views
+from app import models

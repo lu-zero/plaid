@@ -1,10 +1,13 @@
 from app import app
-from jinja2 import Markup, escape
+from jinja2 import Markup
 from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
 import pygments.lexers as lexers
 from pygments.lexer import RegexLexer, bygroups
-from pygments.token import *
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Operator
+from pygments.token import Text
 
 
 class CodeHtmlFormatter(HtmlFormatter):
@@ -14,12 +17,13 @@ class CodeHtmlFormatter(HtmlFormatter):
 
     def _wrap_code(self, source):
         lines = list(source)
-        mw = len(str(len(lines) -1))
+        mw = len(str(len(lines) - 1))
         num = 0
         yield 0, '<pre class="highlight">'
         for i, t in lines:
             if i == 1:
-                line = '<span><a name="l-%d" href="#l-%d">%*d</a></span> ' % (num, num, mw, num)
+                line = ('<span><a name="l-%d" href="#l-%d">%*d</a></span> ' %
+                        (num, num, mw, num))
                 num += 1
                 line += t
             yield i, line
@@ -31,6 +35,7 @@ def render_patch(data):
     formatter = CodeHtmlFormatter(encoding='utf-8')
     return Markup(highlight(data, lexer, formatter).decode('utf-8'))
 
+
 class EmailLexer(RegexLexer):
     tokens = {
         'root': [
@@ -39,6 +44,7 @@ class EmailLexer(RegexLexer):
             (r'.*\n', Text)
         ]
     }
+
 
 def render_headers(data):
     lexer = EmailLexer()

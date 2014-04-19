@@ -1,15 +1,18 @@
+import re
+
 from app import db
-from datetime import date, datetime
+from datetime import datetime
 from sqlalchemy.orm import backref
 
 ROLE_USER = 0
 ROLE_ADMIN = 1
 
+
 class User(db.Model):
-    id       = db.Column(db.Integer, primary_key = True)
-    name     = db.Column(db.String(128), index = True)
-    email    = db.Column(db.String(120), index = True, unique = True)
-    role     = db.Column(db.SmallInteger, default = ROLE_USER)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), index=True)
+    email = db.Column(db.String(120), index=True, unique=True)
+    role = db.Column(db.SmallInteger, default=ROLE_USER)
     password = db.Column(db.String(64))
 
     # Flask-Login integration
@@ -39,19 +42,20 @@ class User(db.Model):
     def get_by_id(userid):
         return db.session.query(User).filter_by(id=userid).first()
 
+
 class Submitter(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(128), index = True)
-    email = db.Column(db.String(120), index = True, unique = True)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), index=True)
+    email = db.Column(db.String(120), index=True, unique=True)
 
     # Required for administrative interface
     def __unicode__(self):
         if not self.name:
-            return  "<" + self.email + ">"
+            return "<" + self.email + ">"
         return self.name + "<" + self.email + ">"
 
     def __init__(self, name, email):
-        self.name  = name
+        self.name = name
         self.email = email
 
     @classmethod
@@ -65,10 +69,10 @@ class Submitter(db.Model):
 
 
 class Project(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     linkname = db.Column(db.String(128))
     name = db.Column(db.String(128))
-    listid = db.Column(db.String(128),unique=True)
+    listid = db.Column(db.String(128), unique=True)
     listemail = db.Column(db.String(128))
     web_url = db.Column(db.String(128))
     scm_url = db.Column(db.String(128))
@@ -82,24 +86,27 @@ class Project(db.Model):
     def get_all():
         return Project.query.all()
 
+
 class EmailMixin(object):
-    msgid   = db.Column(db.String(255))
-    name    = db.Column(db.String(255))
-    date    = db.Column(db.DateTime(), default=datetime.now)
+    msgid = db.Column(db.String(255))
+    name = db.Column(db.String(255))
+    date = db.Column(db.DateTime(), default=datetime.now)
     headers = db.Column(db.Text)
     content = db.Column(db.Text)
 
     def __unicode__(self):
         return self.name
 
+
 class Patch(EmailMixin, db.Model):
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     submitter_id = db.Column(db.Integer, db.ForeignKey('submitter.id'))
     submitter = db.relationship('Submitter', backref='patches')
     pull_url = db.Column(db.String(255))
     commit_ref = db.Column(db.String(255), default=None)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
-    project = db.relationship('Project', backref=backref('patches', lazy='dynamic'))
+    project = db.relationship('Project',
+                              backref=backref('patches', lazy='dynamic'))
     ancestor_id = db.Column(db.Integer, db.ForeignKey('patch.id'))
     ancestor = db.relationship('Patch', backref="successor", remote_side=[id])
     serie_id = db.Column(db.Integer, db.ForeignKey('serie.id'))
@@ -115,8 +122,6 @@ class Patch(EmailMixin, db.Model):
     def mbox(self):
         from email.mime.nonmultipart import MIMENonMultipart
         from email.encoders import encode_7or8bit
-        from email.parser import HeaderParser
-        from email.header import Header
 
         body = ''
         if self.comments[0].msgid == self.msgid:
@@ -142,12 +147,14 @@ class Patch(EmailMixin, db.Model):
         self.headers = headers
         self.tags = tags
 
+
 class Comment(EmailMixin, db.Model):
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     submitter_id = db.Column(db.Integer, db.ForeignKey('submitter.id'))
     submitter = db.relationship('Submitter', backref='comments')
     patch_id = db.Column(db.Integer, db.ForeignKey('patch.id'))
-    patch = db.relationship('Patch', backref='comments', order_by='Comment.date')
+    patch = db.relationship('Patch', backref='comments',
+                            order_by='Comment.date')
 
 '''
 class PatchSerie(db.Model):
@@ -159,10 +166,11 @@ class PatchSerie(db.Model):
 )
 '''
 
+
 class Serie(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
-    uid  = db.Column(db.String(255), unique=True, nullable=True)
+    uid = db.Column(db.String(255), unique=True, nullable=True)
     date = db.Column(db.DateTime(), default=datetime.now)
 
     @classmethod
@@ -176,26 +184,25 @@ class Serie(db.Model):
             db.session.commit()
         return instance
 
-##    def next(self):
 
 topics = db.Table('topics',
-    db.Column('patch_id', db.Integer, db.ForeignKey('patch.id')),
-    db.Column('topic.id', db.Integer, db.ForeignKey('topic.id')),
-)
+                  db.Column('patch_id', db.Integer, db.ForeignKey('patch.id')),
+                  db.Column('topic.id', db.Integer, db.ForeignKey('topic.id')))
+
 
 class Topic(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     patches = db.relationship("Patch", secondary=topics, backref="topics")
 
 
 tags = db.Table('tags',
-    db.Column('patch_id', db.Integer, db.ForeignKey('patch.id')),
-    db.Column('tag.id', db.Integer, db.ForeignKey('tag.id')),
-)
+                db.Column('patch_id', db.Integer, db.ForeignKey('patch.id')),
+                db.Column('tag.id', db.Integer, db.ForeignKey('tag.id')))
+
 
 class Tag(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     patches = db.relationship("Patch", secondary=tags, backref="tags")
 
@@ -207,4 +214,3 @@ class Tag(db.Model):
             db.session.add(instance)
             db.session.commit()
         return instance
-

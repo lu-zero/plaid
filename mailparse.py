@@ -1,13 +1,10 @@
 from flask.ext.script import Manager
-from flask.ext.migrate import Migrate, MigrateCommand
+from flask.ext.migrate import Migrate
 
 import re
-import sys
-import time
 import datetime
 import operator
 
-from email import message_from_file
 from email.header import Header, decode_header
 from email.utils import parsedate_tz, mktime_tz
 
@@ -17,8 +14,9 @@ from app.models import Submitter, Patch, Comment, Project, Serie, Tag
 
 import mailbox
 
+
 def import_mailbox(path):
-    mbox = mailbox.mbox(path,create=False)
+    mbox = mailbox.mbox(path, create=False)
     for mail in mbox:
         import_mail(mail)
     return None
@@ -35,6 +33,7 @@ gitsendemail_re = re.compile("<(\d+-\d+)-(\d+)-git-send-email-(.+)")
 def normalise_space(str):
     return whitespace_re.sub(' ', str).strip()
 
+
 def clean_header(header):
     """ Decode (possibly non-ascii) headers """
 
@@ -47,8 +46,8 @@ def clean_header(header):
     fragments = map(decode, decode_header(header))
     return normalise_space(u' '.join(fragments))
 
+
 def find_project_name(mail):
-    project = None
     listid_res = [re.compile('.*<([^>]+)>.*', re.S),
                   re.compile('^([\S]+)$', re.S)]
 
@@ -74,19 +73,22 @@ def find_project(mail):
     else:
         return None
 
+
 def derive_tag_names(subject):
     # skip the parts indicating the index in series (e.g., [1/2])
-    if subject.find(']')!=-1:        
-        subject = subject[subject.index(']')+1:] 
+    if subject.find(']') != -1:
+        subject = subject[subject.index(']')+1:]
 
     parts = subject.split(":")
-    if len(parts)<2:
-        # no colon 
+    if len(parts) < 2:
+        # no colon
         return []
-    return [x.strip() for x in parts [0:-1] if x.strip().find(' ')==-1]
+    return [x.strip() for x in parts[0:-1] if x.strip().find(' ') == -1]
+
 
 def find_or_create_tags(tag_names):
     return [Tag.get_or_create(tag_name) for tag_name in tag_names]
+
 
 def find_submitter_name_and_email(mail):
     from_header = clean_header(mail.get('From'))
@@ -97,13 +99,13 @@ def find_submitter_name_and_email(mail):
     #    from re.match().groups()
     from_res = [
         # for "Firstname Lastname" <example@example.com> style addresses
-       (re.compile('"?(.*?)"?\s*<([^>]+)>'), (lambda g: (g[0], g[1]))),
+        (re.compile('"?(.*?)"?\s*<([^>]+)>'), (lambda g: (g[0], g[1]))),
 
-       # for example@example.com (Firstname Lastname) style addresses
-       (re.compile('"?(.*?)"?\s*\(([^\)]+)\)'), (lambda g: (g[1], g[0]))),
+        # for example@example.com (Firstname Lastname) style addresses
+        (re.compile('"?(.*?)"?\s*\(([^\)]+)\)'), (lambda g: (g[1], g[0]))),
 
-       # everything else
-       (re.compile('(.*)'), (lambda g: (None, g[0]))),
+        # everything else
+        (re.compile('(.*)'), (lambda g: (None, g[0]))),
     ]
 
     for regex, fn in from_res:
@@ -119,7 +121,8 @@ def find_submitter_name_and_email(mail):
     if name is not None:
         name = name.strip()
 
-    return (name,email)
+    return (name, email)
+
 
 def find_submitter(mail):
     (name, email) = find_submitter_name_and_email(mail)
@@ -127,27 +130,31 @@ def find_submitter(mail):
 
     return submitter
 
+
 def mail_date(mail):
     t = parsedate_tz(mail.get('Date', ''))
     if not t:
         return datetime.datetime.utcnow()
     return datetime.datetime.utcfromtimestamp(mktime_tz(t))
 
+
 def mail_headers(mail):
     return reduce(operator.__concat__,
-            ['%s: %s\n' % (k, Header(v, header_name = k, \
-                    continuation_ws = '\t').encode()) \
-                for (k, v) in mail.items()])
+                  ['%s: %s\n' % (k, Header(v, header_name=k,
+                                           continuation_ws='\t').encode())
+                   for (k, v) in mail.items()])
+
 
 def find_pull_request(content):
     git_re = re.compile('^The following changes since commit.*' +
                         '^are available in the git repository at:\n'
                         '^\s*([\S]+://[^\n]+)$',
-                           re.DOTALL | re.MULTILINE)
+                        re.DOTALL | re.MULTILINE)
     match = git_re.search(content)
     if match:
         return match.group(1)
     return None
+
 
 def find_content(project, mail):
     patchbuf = None
@@ -189,10 +196,11 @@ def find_content(project, mail):
 
     if pullurl or patchbuf:
         name = clean_subject(mail.get('Subject'), [project.linkname])
-        tag_names = derive_tag_names(name)        
+        tag_names = derive_tag_names(name)
         tags = find_or_create_tags(tag_names)
-        patch = Patch(name = name, pull_url = pullurl, content = patchbuf,
-                    date = mail_date(mail), headers = mail_headers(mail), tags = tags)
+        patch = Patch(name=name, pull_url=pullurl, content=patchbuf,
+                      date=mail_date(mail), headers=mail_headers(mail),
+                      tags=tags)
 
     if commentbuf:
         if patch:
@@ -201,11 +209,12 @@ def find_content(project, mail):
             cpatch = find_patch_for_comment(project, mail)
             if not cpatch:
                 return (None, None)
-        comment = Comment(patch = cpatch, date = mail_date(mail),
-                content = clean_content(commentbuf),
-                headers = mail_headers(mail))
+        comment = Comment(patch=cpatch, date=mail_date(mail),
+                          content=clean_content(commentbuf),
+                          headers=mail_headers(mail))
 
     return (patch, comment)
+
 
 def find_patch_for_comment(project, mail):
     # construct a list of possible reply message ids
@@ -228,13 +237,14 @@ def find_patch_for_comment(project, mail):
 
         # see if we have comments that refer to a patch
         if not patch:
-            comment = Comment.query.filter_by(msgid = ref).first()
+            comment = Comment.query.filter_by(msgid=ref).first()
             if comment:
                 return comment.patch
 
     return patch
 
 split_re = re.compile('[,\s]+')
+
 
 def split_prefixes(prefix):
     """ Turn a prefix string into a list of prefix tokens
@@ -255,12 +265,13 @@ def split_prefixes(prefix):
     ['PATCH', '1/2']
     """
     matches = split_re.split(prefix)
-    return [ s for s in matches if s != '' ]
+    return [s for s in matches if s != '']
 
 re_re = re.compile('^(re|fwd?)[:\s]\s*', re.I)
 prefix_re = re.compile('^\[([^\]]*)\]\s*(.*)$')
 
-def clean_subject(subject, drop_prefixes = None):
+
+def clean_subject(subject, drop_prefixes=None):
     """ Clean a Subject: header from an incoming patch.
 
     Removes Re: and Fwd: strings, as well as [PATCH]-style prefixes. By
@@ -305,7 +316,7 @@ def clean_subject(subject, drop_prefixes = None):
     if drop_prefixes is None:
         drop_prefixes = []
     else:
-        drop_prefixes = [ s.lower() for s in drop_prefixes ]
+        drop_prefixes = [s.lower() for s in drop_prefixes]
 
     drop_prefixes.append('patch')
 
@@ -320,8 +331,8 @@ def clean_subject(subject, drop_prefixes = None):
 
     while match:
         prefix_str = match.group(1)
-        prefixes += [ p for p in split_prefixes(prefix_str) \
-                        if p.lower() not in drop_prefixes]
+        prefixes += [p for p in split_prefixes(prefix_str)
+                     if p.lower() not in drop_prefixes]
 
         subject = match.group(2)
         match = prefix_re.match(subject)
@@ -335,10 +346,13 @@ def clean_subject(subject, drop_prefixes = None):
     return subject
 
 sig_re = re.compile('^(-- |_+)\n.*', re.S | re.M)
+
+
 def clean_content(str):
     """ Try to remove signature (-- ) and list footer (_____) cruft """
     str = sig_re.sub('', str)
     return str.strip()
+
 
 def import_mail(mail):
 
@@ -354,7 +368,7 @@ def import_mail(mail):
 
     hint = mail.get('X-Patchwork-Hint', '').lower()
     if hint == 'ignore':
-        return 0;
+        return 0
 
     project = find_project(mail)
     if project is None:
@@ -395,7 +409,6 @@ def import_mail(mail):
 
     db.session.commit()
     return 0
-
 
 
 if __name__ == '__main__':
