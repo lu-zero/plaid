@@ -1,15 +1,14 @@
 {% extends "base.html" %}
-{% from "macros.html" import paginate, render_tags %}
+{% from "macros.html" import paginate, render_tag %}
 
 {% block breadcrumb %}
 {% endblock %}
 
 {% block content %}
 
-<ul>
+<div>
 {% for tag in tags %}
-    <li>{{render_tags([tag])}}</li>
+    {{render_tag(tag)}}
 {% endfor %}
-</ul>
-
+</div>
 {% endblock %}
