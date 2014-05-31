@@ -1,4 +1,20 @@
-from app import app, db, login_manager
+from flask import Response
+from flask import flash
+from flask import redirect
+from flask import render_template
+from flask import request
+from flask import url_for
+
+from flask.ext import admin
+from flask.ext import login
+from flask.ext.admin import helpers
+from flask.ext.admin.base import expose
+from flask.ext.admin.contrib import sqla
+
+from jinja2 import Markup
+
+from app import app
+from app import db
 from app.forms import LoginForm
 from app.forms import RegistrationForm
 from app.models import Patch
@@ -6,15 +22,6 @@ from app.models import Project
 from app.models import Serie
 from app.models import Tag
 from app.models import User
-from flask import Response
-from flask import url_for, redirect, render_template, request, flash
-
-from flask.ext import admin, login
-from flask.ext.admin import helpers
-from flask.ext.admin.base import expose
-from flask.ext.admin.contrib import sqla
-
-from jinja2 import Markup
 
 
 class Accessible(object):
@@ -179,11 +186,6 @@ def register_view():
 def logout_view():
     login.logout_user()
     return redirect(url_for('index'))
-
-
-@login_manager.user_loader
-def load_user(userid):
-    return User.get_by_id(userid)
 
 
 crud = admin.Admin(app, 'CRUD', endpoint="crud", url="/",

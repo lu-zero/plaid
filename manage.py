@@ -6,7 +6,9 @@ from email import message_from_file
 from flask.ext.script import Manager, Command, Option
 from flask.ext.migrate import Migrate, MigrateCommand
 
-from app import app, db
+from app import app
+from app import db
+from app.models import Role
 from app.models import User
 
 from mailparse import Project
@@ -44,16 +46,14 @@ class CreateUser(Command):
                help="Set the user's password to PASSWORD."),
         Option('--role', '-r', required=False, dest="role", default="0",
                type=unicode,
-               help="Role (0 or 1)")
+               help="Role (admin, maintainer)")
     )
 
     def run(self, name, email, password, role):
-        if role != "0" and role != "1":
-            raise Exception('Role should be 0 or 1')
-        u = User(name=name,
+        u = User(username=name,
                  password=password,
-                 email=email,
-                 role=int(role))
+                 email=email)
+        u.roles.append(Role(name=role))
         print('Creating user %s' % u)
         db.session.add(u)
         db.session.commit()

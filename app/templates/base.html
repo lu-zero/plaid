@@ -13,7 +13,7 @@
         {% endblock %}
         <div class="breadcrumb">
         {% if user!=None and user.is_authenticated() and not user.is_anonymous(): %}
-        Logged in as {{user.get_name()}} - <a href="/logout">Logout</a>
+        Logged in as {{user.get_username()}} - <a href="/logout">Logout</a>
         {% else %}
         User not authenticated. <a href="/login">Login</a> or <a href="/register">register</a>.
         {% endif %}
@@ -24,10 +24,10 @@
         <div class="container">
             <div class="flash">
                 {% with messages = get_flashed_messages(with_categories=True) %}
-                  {% if messages %}                    
-                    <ul class="list-group"> 
-                    {% for category, message in messages %} 
-                        {% if category in ['success','warning','info','debug']%}    
+                  {% if messages %}
+                    <ul class="list-group">
+                    {% for category, message in messages %}
+                        {% if category in ['success','warning','info','debug']%}
                             <li class="list-group-item list-group-item-{{category}}">{{ message }}</li>
                         {% else %}
                             <li class="list-group-item list-group-item-warning">{{ message }}</li>
@@ -35,7 +35,7 @@
                     {% endfor %}
                     </ul>
                   {% endif %}
-                {% endwith %}       
+                {% endwith %}
             </div>
             {% block content %}{% endblock %}
             {% block body %}{% endblock %}
