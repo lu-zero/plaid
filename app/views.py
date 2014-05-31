@@ -128,7 +128,7 @@ def patch(patch_id, format='html'):
     if format == 'patch':
         return Response(patch.content, mimetype='text/x-patch')
 
-    if len(serie.patches) > 1:
+    if serie and len(serie.patches) > 1:
         return render_template('patch.html',
                                title=patch.name,
                                user=login.current_user,
