@@ -1,6 +1,8 @@
 import sys
 import traceback
 
+from email import message_from_file
+
 from flask.ext.script import Manager, Command, Option
 from flask.ext.migrate import Migrate, MigrateCommand
 
@@ -10,7 +12,6 @@ from app.models import User
 from mailparse import Project
 from mailparse import import_mail
 from mailparse import import_mailbox
-from mailparse import message_from_file
 
 
 class CreateProject(Command):
