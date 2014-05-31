@@ -1,3 +1,5 @@
+from app import app
+
 import pygments.lexers as lexers
 
 from jinja2 import Markup
@@ -52,8 +54,6 @@ def render_headers(data):
     formatter = HtmlFormatter(encoding='utf-8')
     return Markup(highlight(data, lexer, formatter).decode('utf-8'))
 
-
-class RenderBuilder(object):
-    def __init__(self, app):
-        app.jinja_env.globals.update(render_headers=render_headers)
-        app.jinja_env.globals.update(render_patch=render_patch)
+@app.context_processor
+def render_helpers():
+    return dict(render_headers=render_headers, render_patch=render_patch)
