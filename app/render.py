@@ -1,5 +1,3 @@
-from app import app
-
 import pygments.lexers as lexers
 
 from jinja2 import Markup
@@ -12,6 +10,8 @@ from pygments.token import Keyword
 from pygments.token import Name
 from pygments.token import Operator
 from pygments.token import Text
+
+from app import app
 
 
 class CodeHtmlFormatter(HtmlFormatter):
@@ -53,6 +53,7 @@ def render_headers(data):
     lexer = EmailLexer()
     formatter = HtmlFormatter(encoding='utf-8')
     return Markup(highlight(data, lexer, formatter).decode('utf-8'))
+
 
 @app.context_processor
 def render_helpers():
