@@ -26,10 +26,14 @@ class CreateProject(Command):
         Option('--linkname', '-l', required=True, dest="linkname",
                type=unicode,
                help="Set the project linkname to LINKNAME."),
+        Option('--description', '-d', required=True, dest='description',
+               type=unicode,
+               help="Set the project description to DESCRIPTION."),
     )
 
-    def run(self, name, listid, linkname):
-        p = Project(name=name, listid=listid, linkname=linkname)
+    def run(self, name, listid, linkname, description):
+        p = Project(name=name, listid=listid, linkname=linkname,
+                    description=description)
         db.session.add(p)
         db.session.commit()
 
