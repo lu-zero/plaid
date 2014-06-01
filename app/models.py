@@ -113,6 +113,7 @@ class Project(db.Model):
     web_url = db.Column(db.String(128))
     scm_url = db.Column(db.String(128))
     webscm_url = db.Column(db.String(128))
+    description = db.Column(db.String(256))
     notifications = db.Column(db.Boolean())
 
     def __unicode__(self):
