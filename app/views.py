@@ -87,23 +87,21 @@ def project(project_name):
                            user=login.current_user,
                            project=project)
 
-
+@app.route('/tag')
 @app.route('/tag/<tag_name>')
-def tag(tag_name):
-    tag = Tag.query.filter_by(name=tag_name).first_or_404()
-    return render_template('tag.html',
-                           title="Tag %s" % tag.name,
-                           user=login.current_user,
-                           tag=tag)
-
-
-@app.route('/tags')
-def tags():
-    tags = Tag.query.all()
-    return render_template('tags.html',
-                           title="All tags",
-                           user=login.current_user,
-                           tags=tags)
+def tag(tag_name=None):
+    if (tag_name):
+        tag = Tag.query.filter_by(name=tag_name).first_or_404()
+        return render_template('tag.html',
+                               title="Tag %s" % tag.name,
+                               user=login.current_user,
+                               tag=tag)
+    else:
+        tags = Tag.query.all()
+        return render_template('tags.html',
+                               title="All tags",
+                               user=login.current_user,
+                               tags=tags)
 
 
 @app.route('/patchset/<int:patch_set_id>')
