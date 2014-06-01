@@ -4,23 +4,48 @@
         <title>Plaid - {{title}}</title>
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap.css')}}" />
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap-theme.css')}}" />
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/plaid.css')}}" />
         <link href="{{ url_for('admin.static', filename='admin/css/admin.css') }}" rel="stylesheet">
         {% block head %}{% endblock %}
     </head>
+
     <body>
+        <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+            <div class="container">
+                <ul class="nav navbar-nav navbar-right">
+                    {% block breadcrumb %}
+                    {% endblock %}
+
+                    {% if user!=None and user.is_authenticated() and not user.is_anonymous(): %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-user icons-padding"></span>
+                            {{user.get_username()}} <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#"><span class="glyphicon glyphicon-wrench icons-padding"></span> Profile settings</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li><a href="/login"><span class="glyphicon glyphicon-log-in icons-padding"></span> Login</a></li>
+                    <li><a href="/register"><span class="glyphicon glyphicon-edit icons-padding"></span> Register</a></li>
+                    {% endif %}
+                    <li><a href="#"><span class="glyphicon glyphicon-info-sign icons-padding"></span> Help</a></li>
+                    {% if user!=None and user.is_authenticated() and not user.is_anonymous(): %}
+                    <li><a href="/logout"><span class="glyphicon glyphicon-off icons-padding"></span> Exit</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+
         {% block subject %}
-        <h1>{{title|truncate(80)}}</h1>
-        {% endblock %}
-        <div class="breadcrumb">
-        {% if user!=None and user.is_authenticated() and not user.is_anonymous(): %}
-        Logged in as {{user.get_username()}} - <a href="/logout">Logout</a>
-        {% else %}
-        User not authenticated. <a href="/login">Login</a> or <a href="/register">register</a>.
+        {% if title is defined %}
+        <div class="page-header">
+            <h1>{{title|truncate(80)}}</h1>
+        </div>
         {% endif %}
-        {% block breadcrumb %}
         {% endblock %}
 
-        </div>
         <div class="container">
             <div class="flash">
                 {% with messages = get_flashed_messages(with_categories=True) %}

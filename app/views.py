@@ -114,7 +114,6 @@ def patch_set(patch_set_id, page_index=1):
                        page_index=page_index)
 
     return render_template('patch.html',
-                           title=patch.name,
                            user=login.current_user,
                            patch=page.items[0],
                            patch_set=patch_set,
@@ -136,13 +135,12 @@ def patch(patch_id, format='html'):
 
     if patch_set is not None and len(patch_set.patches) > 1:
         return render_template('patch.html',
-                               title=patch.name,
                                user=login.current_user,
                                patch=patch,
                                patch_set=patch_set)
+
     else:
         return render_template('patch.html',
-                               title=patch.name,
                                user=login.current_user,
                                patch=patch)
 

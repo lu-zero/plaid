@@ -1,4 +1,11 @@
 {% extends "base.html" %}
+
+{% block breadcrumb %}
+<ol class="breadcrumb list-inline">
+    <li>{{ project.name }}</li>
+</ol>
+{% endblock %}
+
 {% block content %}
 <ul>
 {% for patch in project.patches %}
