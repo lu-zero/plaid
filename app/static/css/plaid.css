@@ -1,6 +1,11 @@
 .nav .breadcrumb {
     margin: 0 7px;
 }
+
+#patchheaders {
+    max-width: 80em;
+}
+
 @media (min-width: 768px) {
     .nav .breadcrumb {
         float: left;
