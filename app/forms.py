@@ -1,4 +1,7 @@
-from wtforms import form, fields, validators
+from wtforms import fields
+from wtforms import form
+from wtforms import validators
+
 from app import db
 from app.models import User
 
@@ -40,3 +43,24 @@ class RegistrationForm(form.Form):
         if db.session.query(User).filter_by(email=self.email.data).count() > 0:
             raise validators.ValidationError('E-Mail already used. Did you '
                                              'forget your password?')
+
+
+class ProfileForm(form.Form):
+    old_password = fields.PasswordField('Old Password', [
+        validators.Optional(),
+    ])
+    password = fields.PasswordField('New Password', [
+        validators.Optional(),
+        validators.EqualTo('confirm', message='Passwords must match')
+    ])
+    confirm = fields.PasswordField('Repeat Password')
+    submit = fields.SubmitField('Apply')
+
+    def validate_password(self, field):
+        user = self.get_user()
+        if user and user.is_valid_password(self.old_password.data):
+            raise validators.ValidationError('Old password is incorrect!')
+
+    def merge_user(self, user):
+        if self.password.validate():
+            user.set_password(self.password.data)

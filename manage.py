@@ -50,7 +50,7 @@ class CreateUser(Command):
     )
 
     def run(self, name, email, password, role):
-        u = User(username=name,
+        u = User(name=name,
                  password=password,
                  email=email)
         u.roles.append(Role(name=role))

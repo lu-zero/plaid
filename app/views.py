@@ -10,18 +10,24 @@ from flask.ext import login
 from flask.ext.admin import helpers
 from flask.ext.admin.base import expose
 from flask.ext.admin.contrib import sqla
+from flask.ext.user import login_required
 
 from jinja2 import Markup
 
 from app import app
 from app import db
 from app.forms import LoginForm
+from app.forms import ProfileForm
 from app.forms import RegistrationForm
 from app.models import Patch
 from app.models import PatchSet
 from app.models import Project
 from app.models import Tag
 from app.models import User
+
+
+def redirect_url(default='index'):
+    return request.args.get('next') or request.referrer or url_for(default)
 
 
 class Accessible(object):
@@ -177,6 +183,31 @@ def register_view():
 
     return render_template('register.html', form=form, user=login.current_user,
                            title='Registration')
+
+
+@app.route('/profile/<user_name>', methods=('GET', 'POST'))
+@login_required
+def profile_view(user_name):
+    user = login.current_user
+    profile = user
+    if user.name != user_name:
+        if not user.has_roles('admin'):
+            return redirect(redirect_url())
+        profile = User.get_by_name(user_name)
+
+    if profile is None:
+        return redirect(redirect_url())
+
+    form = ProfileForm(request.form)
+    if helpers.validate_form_on_submit(form):
+        form.merge_user(user)
+        db.session.commit()
+        return redirect(redirect_url())
+
+    return render_template('profile.html',
+                           user=user,
+                           profile=profile,
+                           form=form)
 
 
 @app.route('/logout/')

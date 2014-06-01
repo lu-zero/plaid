@@ -23,7 +23,7 @@ class Role(db.Model):
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     active = db.Column(db.Boolean(), nullable=False, default=False)
-    username = db.Column(db.String(50), nullable=False, unique=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
     email = db.Column(db.String(255), nullable=False, index=True, unique=True)
     confirmed_at = db.Column(db.DateTime())
     password = db.Column(db.String(255), nullable=False, default='')
@@ -58,8 +58,12 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User %r>' % (self.email)
 
-    def get_username(self):
-        return self.username
+    def get_name(self):
+        return self.name
+
+    def set_password(self, password):
+        from app import user_manager
+        self.password = user_manager.hash_password(password)
 
     def is_valid_password(self, password):
         from app import user_manager
@@ -69,6 +73,10 @@ class User(UserMixin, db.Model):
     @staticmethod
     def get_by_id(userid):
         return db.session.query(User).filter_by(id=userid).first()
+
+    @staticmethod
+    def get_by_name(user_name):
+        return db.session.query(User).filter_by(name=user_name).first()
 
 
 class Submitter(db.Model):
