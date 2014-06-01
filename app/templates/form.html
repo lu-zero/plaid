@@ -1,8 +1,9 @@
 {%- macro form_field_label(field) -%}
-<label class="control-label" for="{{ field.id }}">{{ field.label.text }}
+<label class="col-sm-2 control-label" for="{{ field.id }}">{{ field.label.text }}
 {%- if field.flags.required -%}
 <abbr title="Required">*</abbr>
-{%- endif %}</label>
+{%- endif %}
+</label>
 {% endmacro %}
 
 {%- macro form_field_description(field) -%}
@@ -22,15 +23,25 @@
 {%- endmacro -%}
 
 {%- macro form_field_boolean(field) -%}
+<div class="col-sm-offset-2 col-sm-8">
+<div class="checkbox">
 <label>
 {{ field(**kwargs) }}
 <span>{{ field.label.text }}</span>
 {{ form_field_description(field) }}
 {{ form_field_errors(field) }}
 </label>
+</div>
+</div>
 {%- endmacro -%}
 
-{%- macro action_buttons(submit_title, cancel_title="Cancel", submit_class="primary") -%}
+{%- macro form_field_submit(field) -%}
+<div class="col-sm-offset-2 col-sm-8">
+    {{ field(class="btn btn-default", **kwargs) }}
+</div>
+{%- endmacro -%}
+
+{%- macro action_buttons(submit_title, cancel_title="Cancel", submit_class="btn-default") -%}
 <div class="actions">
 <input type="submit" class="btn {{submit_class}}" value="{{submit_title}}">
 &nbsp;
@@ -39,30 +50,14 @@
 {%- endmacro -%}
 
 {%- macro form_field(field) -%}
-<div class="control-group">
-{% if field.type == 'HiddenField' %}
-    {{ field() }}
-{% else %}
-    {% if field.type == 'BooleanField' %}
-        {{ form_field_boolean(field, **kwargs) }}
-    {% else %}
-        {% if field.type != 'SubmitField' %}
-            {{ form_field_label(field) }}
-        {% endif %}
-        <div class="controls">
-        {% if field.type == 'RadioField' %}
-            {{ field(class='radio-group', **kwargs) }}
-        {% elif field.type == 'SubmitField' %}
-            {{ field(class='btn', **kwargs) }}
-        {% else %}
-            {{ field(**kwargs) }}
-        {% endif %}
-        {{ form_field_description(field) }}
-        {{ form_field_errors(field) }}
-        </div>
+    {% if field.type != 'SubmitField' %}
+        {{ form_field_label(field) }}
     {% endif %}
-{% endif %}
-</div>
+    <div class="col-sm-8">
+    {{ field(class='form-control', **kwargs) }}
+    {{ form_field_description(field) }}
+    {{ form_field_errors(field) }}
+    </div>
 {%- endmacro -%}
 
 {%- macro form_fields(fields, class=None, legend=None) -%}
@@ -71,11 +66,21 @@
 <legend>{{legend}}</legend>
 {% endif %}
 {% for field in fields %}
-{% if field.type == 'HiddenField' %}
-{{ field() }}
-{% else %}
-{{ form_field(field) }}
-{% endif %}
+    {% if field.type == 'HiddenField' %}
+        {{ field() }}
+    {% else %}
+    <div class="form-group">
+        {% if field.type == 'BooleanField' %}
+            {{ form_field_boolean(field, **kwargs) }}
+        {% elif field.type == 'RadioField' %}
+            {{ field(class='radio-group', **kwargs) }}
+        {% elif field.type == 'SubmitField' %}
+            {{ form_field_submit(field, **kwargs) }}
+        {% else %}
+            {{ form_field(field) }}
+        {% endif %}
+    </div>
+    {% endif %}
 {% endfor %}
 </fieldset>
 {%- endmacro -%}

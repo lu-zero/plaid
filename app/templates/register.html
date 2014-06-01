@@ -2,7 +2,7 @@
 {% from "form.html" import form_fields %}
 {% block content %}
 <h2>New user registration</h2>
-<form method="post" action="/register" class="form-horizontal">
+<form method="post" action="/register" class="form-horizontal" role="form">
     {{ form_fields(form) }}
 </form>
 {% endblock %}
