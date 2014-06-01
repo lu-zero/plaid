@@ -39,16 +39,10 @@
             </div>
         </nav>
 
-        {% block subject %}
-        {% if title is defined %}
-        <div class="page-header">
-            <h1>{{title|truncate(80)}}</h1>
-        </div>
-        {% endif %}
-        {% endblock %}
-
         <div class="container">
-            <div class="flash">
+           {% block subject %}
+           {% endblock %}
+           <div class="flash">
                 {% with messages = get_flashed_messages(with_categories=True) %}
                   {% if messages %}
                     <ul class="list-group">
