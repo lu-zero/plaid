@@ -1,9 +1,21 @@
 {% extends "base.html" %}
+
 {% block content %}
-<span>Welcome</span>
-<ul>
-{% for p in projects %}
-	<li><a href="{{url_for('project',project_name=p.name)}}">{{p.name}}</a></li>
-{% endfor %}
-</ul>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Projects tracked</div>
+    <div class="panel-body">
+        <div class="list-group">
+            {% for p in projects %}
+                <a class="list-group-item"
+                   href="{{url_for('project',project_name=p.name)}}">
+                    <span class="badge"> {{ p.patches.count() }}</span>
+                    <h4 class="list-group-item-heading">{{p.name}}</h4>
+                    <p class="list-group-text-item">{{p.description}}</p>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
 {% endblock %}
