@@ -1,20 +1,11 @@
 {% extends "base.html" %}
-{% from "form.html" import form_field, form_field_boolean %}
+{% from "form.html" import form_fields %}
+{% block breadcrumb %}
+<li>login</li>
+{% endblock %}
+
 {% block content %}
 <form method=post action="/login" class="form-horizontal">
-    <fieldset>
-    {{ form_field(form.email) }}
-    {{ form_field(form.password) }}
-    <div class="control-group">
-        <div class="controls input-append">
-        <span class="add-on">
-        <div class="checkbox">
-            <span>{{ form.remember_me.label.text }}<span>
-            {{ form.remember_me() }}
-        </div>
-        </span>
-        <button class="btn">Login</button>
-        </div>
-    </div>
+    {{ form_fields(form) }}
 </form>
 {% endblock %}
