@@ -13,8 +13,11 @@
         <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
             <div class="container">
                 <ul class="nav navbar-nav navbar-right">
-                    {% block breadcrumb %}
-                    {% endblock %}
+                    <ol class="breadcrumb list-inline">
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        {% block breadcrumb %}
+                        {% endblock %}
+                    </ol>
 
                     {% if user!=None and user.is_authenticated() and not user.is_anonymous(): %}
                     <li class="dropdown">

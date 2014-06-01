@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 {% from "form.html" import form_fields %}
+
+{% block breadcrumb %}
+<li>Profile</li>
+<li>{{ profile.name }}</li>
+{% endblock %}
+
 {% block content %}
 <h2>{{ profile.name }}'s Profile</h2>
 <form method="post" action="/profile/{{ profile.name }}" class="form-horizontal">
