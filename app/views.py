@@ -18,8 +18,8 @@ from app import db
 from app.forms import LoginForm
 from app.forms import RegistrationForm
 from app.models import Patch
+from app.models import PatchSet
 from app.models import Project
-from app.models import Serie
 from app.models import Tag
 from app.models import User
 
@@ -100,25 +100,24 @@ def tags():
                            tags=tags)
 
 
-@app.route('/serie/<int:serie_id>')
-@app.route('/serie/<int:serie_id>/<int:patch_index>')
-def serie(serie_id, patch_index=1):
-    serie = Serie.query.filter_by(id=serie_id).first_or_404()
-
-    page = Patch.query.filter_by(serie_id=serie_id).order_by(Patch.date)
-
-    page = page.paginate(patch_index, 1)
-
+@app.route('/patchset/<int:patch_set_id>')
+@app.route('/patchset/<int:patch_set_id>/<int:page_index>')
+def patch_set(patch_set_id, page_index=1):
+    patch_set = PatchSet.query.filter_by(id=patch_set_id).first_or_404()
+    page = Patch.query.filter_by(set_id=patch_set_id)
+    page = page.order_by(Patch.date)
+    page = page.paginate(page_index, 1)
     patch = page.items[0]
 
     def endpoint(page_index):
-        return url_for('serie', serie_id=serie_id, patch_index=page_index)
+        return url_for('patch_set', patch_set_id=patch_set_id,
+                       page_index=page_index)
 
     return render_template('patch.html',
                            title=patch.name,
                            user=login.current_user,
                            patch=page.items[0],
-                           serie=serie,
+                           patch_set=patch_set,
                            page=page,
                            endpoint=endpoint)
 
@@ -127,7 +126,7 @@ def serie(serie_id, patch_index=1):
 @app.route('/patch/<patch_id>/<format>')
 def patch(patch_id, format='html'):
     patch = Patch.query.filter_by(id=patch_id).first_or_404()
-    serie = patch.serie
+    patch_set = patch.set
 
     if format == 'mbox':
         return Response(patch.mbox, mimetype='application/mbox')
@@ -135,12 +134,12 @@ def patch(patch_id, format='html'):
     if format == 'patch':
         return Response(patch.content, mimetype='text/x-patch')
 
-    if serie and len(serie.patches) > 1:
+    if patch_set is not None and len(patch_set.patches) > 1:
         return render_template('patch.html',
                                title=patch.name,
                                user=login.current_user,
                                patch=patch,
-                               serie=serie)
+                               patch_set=patch_set)
     else:
         return render_template('patch.html',
                                title=patch.name,

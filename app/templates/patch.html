@@ -6,9 +6,9 @@
 
 
 {% block breadcrumb %}
-{% if serie is defined %}
+{% if patch_set is defined %}
 <span class="pull-right">
-    Part of <a href="{{ url_for('serie', serie_id=serie.id) }}"> {{ serie.name }}</a>
+    Part of <a href="{{ url_for('patch_set', patch_set_id=patch_set.id) }}"> {{ patch_set.name }}</a>
 </span>
 {% endif %}
 {% endblock %}

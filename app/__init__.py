@@ -18,6 +18,7 @@ babel = Babel(app)
 mail = Mail(app)
 db = SQLAlchemy(app)
 
+
 from app import render
 from app import views
 from app import models

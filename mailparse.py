@@ -9,8 +9,13 @@ from email.header import Header, decode_header
 from email.utils import parsedate_tz, mktime_tz
 
 from app import app, db
+from app.models import Comment
+from app.models import Patch
+from app.models import PatchSet
+from app.models import Project
+from app.models import Submitter
+from app.models import Tag
 from app.parser import parse_patch
-from app.models import Submitter, Patch, Comment, Project, Serie, Tag
 
 import mailbox
 
@@ -75,7 +80,7 @@ def find_project(mail):
 
 
 def derive_tag_names(subject):
-    # skip the parts indicating the index in series (e.g., [1/2])
+    # skip the parts indicating the index in patchset (e.g., [1/2])
     if subject.find(']') != -1:
         subject = subject[subject.index(']')+1:]
 
@@ -386,9 +391,9 @@ def import_mail(mail):
         match = gitsendemail_re.match(msgid)
         if match:
             (uid, num, email) = match.groups()
-            serie = Serie.get_or_create(uid)
-            serie.patches.append(patch)
-            db.session.add(serie)
+            patch_set = PatchSet.get_or_create(uid)
+            patch_set.patches.append(patch)
+            db.session.add(patch_set)
         patch.submitter = submitter
         patch.msgid = msgid
         patch.project = project

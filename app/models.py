@@ -137,8 +137,9 @@ class Patch(EmailMixin, db.Model):
                               backref=backref('patches', lazy='dynamic'))
     ancestor_id = db.Column(db.Integer, db.ForeignKey('patch.id'))
     ancestor = db.relationship('Patch', backref="successor", remote_side=[id])
-    serie_id = db.Column(db.Integer, db.ForeignKey('serie.id'))
-    serie = db.relationship('Serie', backref='patches', order_by='Patch.date')
+    set_id = db.Column(db.Integer, db.ForeignKey('patch_set.id'))
+    set = db.relationship('PatchSet', backref='patches',
+                          order_by='Patch.date')
     state = db.Column(db.Integer, default=0)
 
     def filename(self):
@@ -184,18 +185,8 @@ class Comment(EmailMixin, db.Model):
     patch = db.relationship('Patch', backref='comments',
                             order_by='Comment.date')
 
-'''
-class PatchSerie(db.Model):
-    serie_id = db.Column(db.Integer, db.ForeignKey('serie.id'))
-    serie = relationship('Serie')
-    patch_id = db.Column(db.Integer, db.ForeignKey('patch.id'))
-    patch = relationship('Patch', backref=backref("patch_serie"))
-    serial = db.Column(db.Integer)
-)
-'''
 
-
-class Serie(db.Model):
+class PatchSet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     uid = db.Column(db.String(255), unique=True, nullable=True)
@@ -207,7 +198,7 @@ class Serie(db.Model):
         if not instance:
             if not name:
                 name = "git-send-email-" + uid
-            instance = Serie(name=name, uid=uid)
+            instance = PatchSet(name=name, uid=uid)
             db.session.add(instance)
             db.session.commit()
         return instance
