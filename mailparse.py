@@ -143,6 +143,64 @@ class SubjectParser(object):
         return tags, subject
 
 
+class ContentParser(object):
+    sig_re = re.compile('^(-- |_+)\n.*', re.S | re.M)
+    git_re = re.compile('^The following changes since commit.*' +
+                        '^are available in the git repository at:\n'
+                        '^\s*([\S]+://[^\n]+)$',
+                        re.DOTALL | re.MULTILINE)
+
+    def __init__(self, project, mail):
+        self.patch = None
+        self.comment = ''
+        self.pull_url = None
+        self._find_content(project, mail)
+
+    def _find_pull_request(self, content):
+        match = self.git_re.search(content)
+        if match:
+            return match.group(1)
+        return None
+
+    def _clean_content(self, s):
+        """ Try to remove signature (-- ) and list footer (_____) cruft """
+        str = self.sig_re.sub('', s)
+        return str.strip()
+
+    def _find_content(self, project, mail):
+        for part in mail.walk():
+            if part.get_content_maintype() != 'text':
+                continue
+
+            payload = part.get_payload(decode=True)
+            charset = part.get_content_charset()
+            subtype = part.get_content_subtype()
+
+            # if we don't have a charset, assume utf-8
+            if charset is None:
+                charset = 'utf-8'
+
+            if not isinstance(payload, unicode):
+                payload = unicode(payload, charset)
+
+            if subtype in ['x-patch', 'x-diff']:
+                self.patch = payload
+
+            elif subtype == 'plain':
+                c = payload
+
+                if not self.patch:
+                    (self.patch, c) = parse_patch(payload)
+
+                if not self.pull_url:
+                    self.pull_url = self._find_pull_request(payload)
+
+                if c is not None:
+                    self.comment += c.strip() + '\n'
+
+        self.comment = self._clean_content(self.comment)
+
+
 def import_mailbox(path):
     mbox = mailbox.mbox(path, create=False)
     for mail in mbox:
@@ -261,77 +319,6 @@ def mail_headers(mail):
                    for (k, v) in mail.items()])
 
 
-def find_pull_request(content):
-    git_re = re.compile('^The following changes since commit.*' +
-                        '^are available in the git repository at:\n'
-                        '^\s*([\S]+://[^\n]+)$',
-                        re.DOTALL | re.MULTILINE)
-    match = git_re.search(content)
-    if match:
-        return match.group(1)
-    return None
-
-
-def find_content(project, mail):
-    patchbuf = None
-    commentbuf = ''
-    pullurl = None
-
-    for part in mail.walk():
-        if part.get_content_maintype() != 'text':
-            continue
-
-        payload = part.get_payload(decode=True)
-        charset = part.get_content_charset()
-        subtype = part.get_content_subtype()
-
-        # if we don't have a charset, assume utf-8
-        if charset is None:
-            charset = 'utf-8'
-
-        if not isinstance(payload, unicode):
-            payload = unicode(payload, charset)
-
-        if subtype in ['x-patch', 'x-diff']:
-            patchbuf = payload
-
-        elif subtype == 'plain':
-            c = payload
-
-            if not patchbuf:
-                (patchbuf, c) = parse_patch(payload)
-
-            if not pullurl:
-                pullurl = find_pull_request(payload)
-
-            if c is not None:
-                commentbuf += c.strip() + '\n'
-
-    patch = None
-    comment = None
-
-    if pullurl or patchbuf:
-        subject_parser = SubjectParser(mail.get('Subject'), [project.linkname])
-        name = subject_parser.name
-        tags = find_or_create_tags(subject_parser.tags)
-        patch = Patch(name=name, pull_url=pullurl, content=patchbuf,
-                      date=mail_date(mail), headers=mail_headers(mail),
-                      tags=tags)
-
-    if commentbuf:
-        if patch:
-            cpatch = patch
-        else:
-            cpatch = find_patch_for_comment(project, mail)
-            if not cpatch:
-                return (None, None)
-        comment = Comment(patch=cpatch, date=mail_date(mail),
-                          content=clean_content(commentbuf),
-                          headers=mail_headers(mail))
-
-    return (patch, comment)
-
-
 def find_patch_for_comment(project, mail):
     # construct a list of possible reply message ids
     refs = []
@@ -360,17 +347,7 @@ def find_patch_for_comment(project, mail):
     return patch
 
 
-sig_re = re.compile('^(-- |_+)\n.*', re.S | re.M)
-
-
-def clean_content(str):
-    """ Try to remove signature (-- ) and list footer (_____) cruft """
-    str = sig_re.sub('', str)
-    return str.strip()
-
-
 def import_mail(mail):
-
     # some basic sanity checks
     if 'From' not in mail:
         return 0
@@ -394,9 +371,27 @@ def import_mail(mail):
 
     submitter = find_submitter(mail)
 
-    (patch, comment) = find_content(project, mail)
+    content_parser = ContentParser(project, mail)
+    patch = None
+    if content_parser.pull_url or content_parser.patch:
+        subject_parser = SubjectParser(mail.get('Subject'),
+                                       [project.linkname])
+        name = subject_parser.name
+        tags = find_or_create_tags(subject_parser.tags)
+        patch = Patch(name=name, pull_url=content_parser.pull_url,
+                      content=content_parser.patch, date=mail_date(mail),
+                      headers=mail_headers(mail), tags=tags)
+    if patch is None:
+        patch = find_patch_for_comment(project, mail)
 
-    if patch:
+    comment = None
+    if content_parser.comment:
+        if patch is not None:
+            comment = Comment(patch=patch, date=mail_date(mail),
+                              content=content_parser.comment,
+                              headers=mail_headers(mail))
+
+    if patch is not None:
         # we delay the saving until we know we have a patch.
         match = gitsendemail_re.match(msgid)
         if match:
@@ -407,12 +402,9 @@ def import_mail(mail):
         patch.submitter = submitter
         patch.msgid = msgid
         patch.project = project
-#        patch.state = get_state(mail.get('X-Patchwork-State', '').strip())
-#        patch.delegate = get_delegate(
-#                mail.get('X-Patchwork-Delegate', '').strip())
         db.session.add(patch)
 
-    if comment:
+    if comment is not None:
         # looks like the original constructor for Comment takes the pk
         # when the Comment is created. reset it here.
         if patch:
