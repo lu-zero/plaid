@@ -91,7 +91,7 @@ class SubjectParser(object):
         '[bar] meep'
         """
 
-        subject = clean_header(subject)
+        subject = HeaderParser.clean_header(subject)
 
         if drop_prefixes is None:
             drop_prefixes = []
@@ -201,13 +201,83 @@ class ContentParser(object):
         self.comment = self._clean_content(self.comment)
 
 
+class HeaderParser(object):
+    list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
+    listid_res = [re.compile('.*<([^>]+)>.*', re.S),
+                  re.compile('^([\S]+)$', re.S)]
+    # tuple of (regex, fn)
+    #  - where fn returns a (name, email) tuple from the match groups
+    #    resulting from re.match().groups()
+    from_res = [
+        # for "Firstname Lastname" <example@example.com> style addresses
+        (re.compile('"?(.*?)"?\s*<([^>]+)>'), (lambda g: (g[0], g[1]))),
+        # for example@example.com (Firstname Lastname) style addresses
+        (re.compile('"?(.*?)"?\s*\(([^\)]+)\)'), (lambda g: (g[1], g[0]))),
+        # everything else
+        (re.compile('(.*)'), (lambda g: (None, g[0]))),
+    ]
+
+    def __init__(self, mail):
+        self.message_id = mail.get('Message-Id').strip()
+        submitter = self._find_submitter_name_and_email(mail)
+        self.from_name = submitter[0]
+        self.from_email = submitter[1]
+        self.project_name = self._find_project_name(mail)
+
+    @staticmethod
+    def clean_header(header):
+        """ Decode (possibly non-ascii) headers """
+
+        def decode(fragment):
+            (frag_str, frag_encoding) = fragment
+            if frag_encoding:
+                return frag_str.decode(frag_encoding)
+            return frag_str.decode()
+
+        fragments = map(decode, decode_header(header))
+        return normalise_space(u' '.join(fragments))
+
+    def _find_submitter_name_and_email(self, mail):
+        from_header = self.clean_header(mail.get('From'))
+        (name, email) = (None, None)
+
+        for regex, fn in self.from_res:
+            match = regex.match(from_header)
+            if match:
+                (name, email) = fn(match.groups())
+                break
+
+        if email is None:
+            raise Exception("Could not parse From: header")
+
+        email = email.strip()
+        if name is not None:
+            name = name.strip()
+
+        return (name, email)
+
+    def _find_project_name(self, mail):
+        for header in self.list_id_headers:
+            if header in mail:
+
+                for listid_re in self.listid_res:
+                    match = listid_re.match(mail.get(header))
+                    if match:
+                        break
+
+                if not match:
+                    continue
+
+                listid = match.group(1)
+                return listid
+
+
 def import_mailbox(path):
     mbox = mailbox.mbox(path, create=False)
     for mail in mbox:
         import_mail(mail)
     return None
 
-list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
 
 migrate = Migrate(app, db)
 manager = Manager(app)
@@ -220,40 +290,7 @@ def normalise_space(str):
     return whitespace_re.sub(' ', str).strip()
 
 
-def clean_header(header):
-    """ Decode (possibly non-ascii) headers """
-
-    def decode(fragment):
-        (frag_str, frag_encoding) = fragment
-        if frag_encoding:
-            return frag_str.decode(frag_encoding)
-        return frag_str.decode()
-
-    fragments = map(decode, decode_header(header))
-    return normalise_space(u' '.join(fragments))
-
-
-def find_project_name(mail):
-    listid_res = [re.compile('.*<([^>]+)>.*', re.S),
-                  re.compile('^([\S]+)$', re.S)]
-
-    for header in list_id_headers:
-        if header in mail:
-
-            for listid_re in listid_res:
-                match = listid_re.match(mail.get(header))
-                if match:
-                    break
-
-            if not match:
-                continue
-
-            listid = match.group(1)
-            return listid
-
-
-def find_project(mail):
-    project_name = find_project_name(mail)
+def find_project(project_name):
     if project_name:
         return Project.query.filter_by(listid=project_name).first()
     else:
@@ -262,47 +299,6 @@ def find_project(mail):
 
 def find_or_create_tags(tag_names):
     return [Tag.get_or_create(tag_name) for tag_name in tag_names]
-
-
-def find_submitter_name_and_email(mail):
-    from_header = clean_header(mail.get('From'))
-    (name, email) = (None, None)
-
-    # tuple of (regex, fn)
-    #  - where fn returns a (name, email) tuple from the match groups resulting
-    #    from re.match().groups()
-    from_res = [
-        # for "Firstname Lastname" <example@example.com> style addresses
-        (re.compile('"?(.*?)"?\s*<([^>]+)>'), (lambda g: (g[0], g[1]))),
-
-        # for example@example.com (Firstname Lastname) style addresses
-        (re.compile('"?(.*?)"?\s*\(([^\)]+)\)'), (lambda g: (g[1], g[0]))),
-
-        # everything else
-        (re.compile('(.*)'), (lambda g: (None, g[0]))),
-    ]
-
-    for regex, fn in from_res:
-        match = regex.match(from_header)
-        if match:
-            (name, email) = fn(match.groups())
-            break
-
-    if email is None:
-        raise Exception("Could not parse From: header")
-
-    email = email.strip()
-    if name is not None:
-        name = name.strip()
-
-    return (name, email)
-
-
-def find_submitter(mail):
-    (name, email) = find_submitter_name_and_email(mail)
-    submitter = Submitter.get_or_create(name=name, email=email)
-
-    return submitter
 
 
 def mail_date(mail):
@@ -362,14 +358,14 @@ def import_mail(mail):
     if hint == 'ignore':
         return 0
 
-    project = find_project(mail)
+    header_parser = HeaderParser(mail)
+    submitter = Submitter.get_or_create(name=header_parser.from_name,
+                                        email=header_parser.from_email)
+
+    project = find_project(header_parser.project_name)
     if project is None:
-        print "No project for %s found" % find_project_name(mail)
+        print 'No project for %s found' % header_parser.project_name
         return 0
-
-    msgid = mail.get('Message-Id').strip()
-
-    submitter = find_submitter(mail)
 
     content_parser = ContentParser(project, mail)
     patch = None
@@ -393,14 +389,14 @@ def import_mail(mail):
 
     if patch is not None:
         # we delay the saving until we know we have a patch.
-        match = gitsendemail_re.match(msgid)
+        match = gitsendemail_re.match(header_parser.message_id)
         if match:
             (uid, num, email) = match.groups()
             patch_set = PatchSet.get_or_create(uid)
             patch_set.patches.append(patch)
             db.session.add(patch_set)
         patch.submitter = submitter
-        patch.msgid = msgid
+        patch.msgid = header_parser.message_id
         patch.project = project
         db.session.add(patch)
 
@@ -410,7 +406,7 @@ def import_mail(mail):
         if patch:
             comment.patch = patch
         comment.submitter = submitter
-        comment.msgid = msgid
+        comment.msgid = header_parser.message_id
 
         db.session.add(comment)
 
