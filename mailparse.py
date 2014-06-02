@@ -1,12 +1,15 @@
-from flask.ext.script import Manager
-from flask.ext.migrate import Migrate
-
-import re
 import datetime
+import mailbox
 import operator
+import re
 
-from email.header import Header, decode_header
-from email.utils import parsedate_tz, mktime_tz
+from email.header import Header
+from email.header import decode_header
+from email.utils import mktime_tz
+from email.utils import parsedate_tz
+
+from flask.ext.migrate import Migrate
+from flask.ext.script import Manager
 
 from app import app, db
 from app.models import Comment
@@ -17,7 +20,127 @@ from app.models import Submitter
 from app.models import Tag
 from app.parser import parse_patch
 
-import mailbox
+
+class SubjectParser(object):
+    re_re = re.compile('^(re|fwd?)[:\s]\s*', re.I)
+    prefix_re = re.compile('^\[([^\]]*)\]\s*(.*)$')
+    split_re = re.compile('[,\s]+')
+
+    def __init__(self, subject, drop_prefixes=None):
+        self.subject = self._clean_subject(subject, drop_prefixes)
+        self.tags, self.name = self._derive_tag_names(self.subject)
+
+    def _split_prefixes(self, prefix):
+        """ Turn a prefix string into a list of prefix tokens
+
+        >>> split_prefixes('PATCH')
+        ['PATCH']
+        >>> split_prefixes('PATCH,RFC')
+        ['PATCH', 'RFC']
+        >>> split_prefixes('')
+        []
+        >>> split_prefixes('PATCH,')
+        ['PATCH']
+        >>> split_prefixes('PATCH ')
+        ['PATCH']
+        >>> split_prefixes('PATCH,RFC')
+        ['PATCH', 'RFC']
+        >>> split_prefixes('PATCH 1/2')
+        ['PATCH', '1/2']
+        """
+        matches = self.split_re.split(prefix)
+        return [s for s in matches if s != '']
+
+    def _clean_subject(self, subject, drop_prefixes=None):
+        """ Clean a Subject: header from an incoming patch.
+
+        Removes Re: and Fwd: strings, as well as [PATCH]-style prefixes. By
+        default, only [PATCH] is removed, and we keep any other bracketed data
+        in the subject. If drop_prefixes is provided, remove those too,
+        comparing case-insensitively.
+
+        >>> clean_subject('meep')
+        'meep'
+        >>> clean_subject('Re: meep')
+        'meep'
+        >>> clean_subject('[PATCH] meep')
+        'meep'
+        >>> clean_subject('[PATCH] meep \\n meep')
+        'meep meep'
+        >>> clean_subject('[PATCH RFC] meep')
+        '[RFC] meep'
+        >>> clean_subject('[PATCH,RFC] meep')
+        '[RFC] meep'
+        >>> clean_subject('[PATCH,1/2] meep')
+        '[1/2] meep'
+        >>> clean_subject('[PATCH RFC 1/2] meep')
+        '[RFC,1/2] meep'
+        >>> clean_subject('[PATCH] [RFC] meep')
+        '[RFC] meep'
+        >>> clean_subject('[PATCH] [RFC,1/2] meep')
+        '[RFC,1/2] meep'
+        >>> clean_subject('[PATCH] [RFC] [1/2] meep')
+        '[RFC,1/2] meep'
+        >>> clean_subject('[PATCH] rewrite [a-z] regexes')
+        'rewrite [a-z] regexes'
+        >>> clean_subject('[PATCH] [RFC] rewrite [a-z] regexes')
+        '[RFC] rewrite [a-z] regexes'
+        >>> clean_subject('[foo] [bar] meep', ['foo'])
+        '[bar] meep'
+        >>> clean_subject('[FOO] [bar] meep', ['foo'])
+        '[bar] meep'
+        """
+
+        subject = clean_header(subject)
+
+        if drop_prefixes is None:
+            drop_prefixes = []
+        else:
+            drop_prefixes = [s.lower() for s in drop_prefixes]
+
+        drop_prefixes.append('patch')
+
+        # remove Re:, Fwd:, etc
+        subject = self.re_re.sub(' ', subject)
+
+        subject = normalise_space(subject)
+
+        prefixes = []
+
+        match = self.prefix_re.match(subject)
+
+        while match:
+            prefix_str = match.group(1)
+            prefixes += [p for p in self._split_prefixes(prefix_str)
+                         if p.lower() not in drop_prefixes]
+
+            subject = match.group(2)
+            match = self.prefix_re.match(subject)
+
+        subject = normalise_space(subject)
+
+        subject = subject.strip()
+        if prefixes:
+            subject = '[%s] %s' % (','.join(prefixes), subject)
+
+        return subject
+
+    def _derive_tag_names(self, subject):
+        # skip the parts indicating the index in patchset (e.g., [1/2])
+        if subject.find(']') != -1:
+            index_end = subject.index(']')
+            subject = subject[index_end + 1:]
+
+        parts = subject.split(':')
+        if len(parts) < 2:
+            # no colon
+            return [], subject
+
+        tags = [x.strip()
+                for x in parts[0:-1]
+                if x.strip().find(' ') == -1]
+        subject = ':'.join(parts[len(tags):])
+        return tags, subject
 
 
 def import_mailbox(path):
@@ -77,18 +200,6 @@ def find_project(mail):
         return Project.query.filter_by(listid=project_name).first()
     else:
         return None
-
-
-def derive_tag_names(subject):
-    # skip the parts indicating the index in patchset (e.g., [1/2])
-    if subject.find(']') != -1:
-        subject = subject[subject.index(']')+1:]
-
-    parts = subject.split(":")
-    if len(parts) < 2:
-        # no colon
-        return []
-    return [x.strip() for x in parts[0:-1] if x.strip().find(' ') == -1]
 
 
 def find_or_create_tags(tag_names):
@@ -200,9 +311,9 @@ def find_content(project, mail):
     comment = None
 
     if pullurl or patchbuf:
-        name = clean_subject(mail.get('Subject'), [project.linkname])
-        tag_names = derive_tag_names(name)
-        tags = find_or_create_tags(tag_names)
+        subject_parser = SubjectParser(mail.get('Subject'), [project.linkname])
+        name = subject_parser.name
+        tags = find_or_create_tags(subject_parser.tags)
         patch = Patch(name=name, pull_url=pullurl, content=patchbuf,
                       date=mail_date(mail), headers=mail_headers(mail),
                       tags=tags)
@@ -248,107 +359,6 @@ def find_patch_for_comment(project, mail):
 
     return patch
 
-split_re = re.compile('[,\s]+')
-
-
-def split_prefixes(prefix):
-    """ Turn a prefix string into a list of prefix tokens
-
-    >>> split_prefixes('PATCH')
-    ['PATCH']
-    >>> split_prefixes('PATCH,RFC')
-    ['PATCH', 'RFC']
-    >>> split_prefixes('')
-    []
-    >>> split_prefixes('PATCH,')
-    ['PATCH']
-    >>> split_prefixes('PATCH ')
-    ['PATCH']
-    >>> split_prefixes('PATCH,RFC')
-    ['PATCH', 'RFC']
-    >>> split_prefixes('PATCH 1/2')
-    ['PATCH', '1/2']
-    """
-    matches = split_re.split(prefix)
-    return [s for s in matches if s != '']
-
-re_re = re.compile('^(re|fwd?)[:\s]\s*', re.I)
-prefix_re = re.compile('^\[([^\]]*)\]\s*(.*)$')
-
-
-def clean_subject(subject, drop_prefixes=None):
-    """ Clean a Subject: header from an incoming patch.
-
-    Removes Re: and Fwd: strings, as well as [PATCH]-style prefixes. By
-    default, only [PATCH] is removed, and we keep any other bracketed data
-    in the subject. If drop_prefixes is provided, remove those too,
-    comparing case-insensitively.
-
-    >>> clean_subject('meep')
-    'meep'
-    >>> clean_subject('Re: meep')
-    'meep'
-    >>> clean_subject('[PATCH] meep')
-    'meep'
-    >>> clean_subject('[PATCH] meep \\n meep')
-    'meep meep'
-    >>> clean_subject('[PATCH RFC] meep')
-    '[RFC] meep'
-    >>> clean_subject('[PATCH,RFC] meep')
-    '[RFC] meep'
-    >>> clean_subject('[PATCH,1/2] meep')
-    '[1/2] meep'
-    >>> clean_subject('[PATCH RFC 1/2] meep')
-    '[RFC,1/2] meep'
-    >>> clean_subject('[PATCH] [RFC] meep')
-    '[RFC] meep'
-    >>> clean_subject('[PATCH] [RFC,1/2] meep')
-    '[RFC,1/2] meep'
-    >>> clean_subject('[PATCH] [RFC] [1/2] meep')
-    '[RFC,1/2] meep'
-    >>> clean_subject('[PATCH] rewrite [a-z] regexes')
-    'rewrite [a-z] regexes'
-    >>> clean_subject('[PATCH] [RFC] rewrite [a-z] regexes')
-    '[RFC] rewrite [a-z] regexes'
-    >>> clean_subject('[foo] [bar] meep', ['foo'])
-    '[bar] meep'
-    >>> clean_subject('[FOO] [bar] meep', ['foo'])
-    '[bar] meep'
-    """
-
-    subject = clean_header(subject)
-
-    if drop_prefixes is None:
-        drop_prefixes = []
-    else:
-        drop_prefixes = [s.lower() for s in drop_prefixes]
-
-    drop_prefixes.append('patch')
-
-    # remove Re:, Fwd:, etc
-    subject = re_re.sub(' ', subject)
-
-    subject = normalise_space(subject)
-
-    prefixes = []
-
-    match = prefix_re.match(subject)
-
-    while match:
-        prefix_str = match.group(1)
-        prefixes += [p for p in split_prefixes(prefix_str)
-                     if p.lower() not in drop_prefixes]
-
-        subject = match.group(2)
-        match = prefix_re.match(subject)
-
-    subject = normalise_space(subject)
-
-    subject = subject.strip()
-    if prefixes:
-        subject = '[%s] %s' % (','.join(prefixes), subject)
-
-    return subject
 
 sig_re = re.compile('^(-- |_+)\n.*', re.S | re.M)
 
