@@ -24,6 +24,7 @@ from app.models import PatchSet
 from app.models import Project
 from app.models import Tag
 from app.models import User
+from app.models import Submitter
 
 
 def redirect_url(default='index'):
@@ -53,6 +54,7 @@ class PatchesView(ModelView):
     column_formatters = dict(submitter=_render_submitter)
     column_sortable_list = (('submitter', 'submitter.name'),
                             ('name', Patch.name))
+    column_searchable_list = [Patch.name, Submitter.name]
 
     @expose('/')
     def index_view(self):
