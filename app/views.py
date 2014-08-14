@@ -78,11 +78,19 @@ def index():
                            user=login.current_user,
                            projects=Project.get_all())
 
-
 @app.route('/project/<project_name>')
+@app.route('/project/<project_name>/')
 def project(project_name):
     project = Project.query.filter_by(name=project_name).first_or_404()
     return render_template('project.html',
+                           title="Project %s" % project.name,
+                           user=login.current_user,
+                           project=project)
+
+@app.route('/project/<project_name>/list')
+def project_list(project_name):
+    project = Project.query.filter_by(name=project_name).first_or_404()
+    return render_template('project_list.html',
                            title="Project %s" % project.name,
                            user=login.current_user,
                            project=project)

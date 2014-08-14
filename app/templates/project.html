@@ -1,13 +1,71 @@
 {% extends "base.html" %}
 
+{%- macro render_item(name, item) -%}
+    {%- if item -%}
+        <tr>
+            <th>{{name}}</th>
+            <td><a href="{{ item }}">{{ item }}</a></td>
+        </tr>
+    {% endif %}
+{% endmacro %}
+
 {% block breadcrumb %}
 <li>{{ project.name }}</li>
 {% endblock %}
 
 {% block content %}
-<ul>
-{% for patch in project.patches %}
-<li><a href="{{url_for('patch',patch_id=patch.id)}}">{{patch.name}}</a></li>
-{% endfor%}
-</ul>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Project details</div>
+    <div class="panel-body">
+    <table class="table">
+    <tbody>
+        <tr>
+        <th>Name</th> <td>{{ project.name }}</td>
+        </tr>
+        <tr>
+        <th>List address</th>
+        <td>{{ project.listemail }}</td>
+        </tr>
+        <tr>
+        <th>Maintainers</th>
+        <td>
+            <div class="list-group">
+            {%- for m in project.maintainers %}
+              <a href="{{ url_for('profile', m.id) }}"
+                 class="list-group-item">
+                {{ m.name }}
+                <a href="mailto:{{ m.email }}">
+                    <span class="glyphicon glyphicon-envelope"></span>
+                </a>
+              </a>
+            {% endfor %}
+        </td>
+        </tr>
+        <tr>
+            <th>Patch count</th>
+            <td>
+                <span class="badge alert-info">
+                    New {{ project.patches.count() }}
+                </span>
+                <span class="badge alert-success">
+                    Committed {{ project.patches.count() }}
+                </span>
+                <span class="badge alert-warning">
+                    Pending {{ project.patches.count() }}
+                </span>
+                <span class="badge alert-danger">
+                    Unreviewed {{ project.patches.count() }}
+                </span>
+            </td>
+        </tr>
+        {{ render_item("Website", project.web_url) }}
+        {{ render_item("Source Code Web Interface",  project.webscm_url) }}
+        {{ render_item("Source Code Manager URL", project.scm_url) }}
+        </tr>
+    </tbody>
+    </table>
+    </div>
+    </div>
+</div>
 {% endblock %}
