@@ -104,6 +104,13 @@ class Submitter(db.Model):
         return instance
 
 
+project_maintainers = db.Table('project_maintainers',
+                      db.Column('id', db.Integer(), primary_key=True),
+                      db.Column('user_id', db.Integer(),
+                                db.ForeignKey('user.id', ondelete='CASCADE')),
+                      db.Column('project_id', db.Integer(),
+                                db.ForeignKey('project.id', ondelete='CASCADE')))
+
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     linkname = db.Column(db.String(128))
@@ -115,6 +122,8 @@ class Project(db.Model):
     webscm_url = db.Column(db.String(128))
     description = db.Column(db.String(256))
     notifications = db.Column(db.Boolean())
+    maintainers = db.relationship('User', secondary=project_maintainers,
+                                   backref=backref('projects', lazy='dynamic'))
 
     def __unicode__(self):
         return self.name
