@@ -19,6 +19,14 @@ class Role(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50), unique=True)
 
+    @classmethod
+    def get_or_create(self, name):
+        role = self.query.filter_by(name=name).first()
+        if not role:
+            role = Role(name=name)
+            db.session.add(role)
+            db.session.commit()
+        return role
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -57,7 +57,7 @@ class CreateUser(Command):
         u = User(name=name,
                  password=password,
                  email=email)
-        u.roles.append(Role(name=role))
+        u.roles.append(Role.get_or_create(role))
         print('Creating user %s' % u)
         db.session.add(u)
         db.session.commit()
