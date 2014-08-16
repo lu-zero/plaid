@@ -1,8 +1,10 @@
 import re
 
 from datetime import datetime
+from datetime import timedelta
 from flask.ext.user import UserMixin
 from sqlalchemy.orm import backref
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from app import db
 
@@ -136,6 +138,18 @@ class Project(db.Model):
     def __unicode__(self):
         return self.name
 
+    @hybrid_property
+    def unreviewed_patches(self):
+        return self.patches.filter_by(state = 0,
+                                      ancestor_id = None)
+    @hybrid_property
+    def new_patches(self):
+        q = self.unreviewed_patches(self)
+        return q.filter(Patch.date > datetime.now() - timedelta(days=5))
+    @hybrid_property
+    def stale_patches(self):
+        q = self.unreviewed_patches
+        return q.filter(Patch.date < datetime.now() - timedelta(days=10))
     @staticmethod
     def get_all():
         return Project.query.all()
