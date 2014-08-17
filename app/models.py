@@ -4,10 +4,11 @@ from datetime import datetime
 from datetime import timedelta
 from flask.ext.user import UserMixin
 from sqlalchemy.orm import backref
+from sqlalchemy.sql import or_
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from app import db
-
+from app.enum import *
 
 user_roles = db.Table('user_roles',
                       db.Column('id', db.Integer(), primary_key=True),
@@ -121,6 +122,12 @@ project_maintainers = db.Table('project_maintainers',
                       db.Column('project_id', db.Integer(),
                                 db.ForeignKey('project.id', ondelete='CASCADE')))
 
+class PatchState(DeclEnum):
+    unreviewed = "U", "Unreviewed"
+    comments   = "C", "Comments"
+    accepted   = "A", "Accepted"
+    rejected   = "R", "Rejected"
+
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     linkname = db.Column(db.String(128))
@@ -138,18 +145,31 @@ class Project(db.Model):
     def __unicode__(self):
         return self.name
 
+
+    @hybrid_property
+    def current_patches(self):
+        return self.patches.filter_by(successor_id = None)
+
     @hybrid_property
     def unreviewed_patches(self):
-        return self.patches.filter_by(state = 0,
-                                      ancestor_id = None)
+        q = self.current_patches()
+        return q.filter_by(state = PatchState.unreviewed)
+
+    @hybrid_property
+    def pending_patches(self):
+        q = self.current_patches()
+        return q.filter(or_(Patch.state == PatchState.unreviewed,
+                            Patch.state == PatchState.comments))
     @hybrid_property
     def new_patches(self):
         q = self.unreviewed_patches(self)
         return q.filter(Patch.date > datetime.now() - timedelta(days=5))
+
     @hybrid_property
     def stale_patches(self):
-        q = self.unreviewed_patches
+        q = self.pending_patches
         return q.filter(Patch.date < datetime.now() - timedelta(days=10))
+
     @staticmethod
     def get_all():
         return Project.query.all()
@@ -165,7 +185,6 @@ class EmailMixin(object):
     def __unicode__(self):
         return self.name
 
-
 class Patch(EmailMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     submitter_id = db.Column(db.Integer, db.ForeignKey('submitter.id'))
@@ -175,12 +194,12 @@ class Patch(EmailMixin, db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
     project = db.relationship('Project',
                               backref=backref('patches', lazy='dynamic'))
-    ancestor_id = db.Column(db.Integer, db.ForeignKey('patch.id'))
-    ancestor = db.relationship('Patch', backref="successor", remote_side=[id])
+    successor_id = db.Column(db.Integer, db.ForeignKey('patch.id'))
+    successor = db.relationship('Patch', backref="ancestor", remote_side=[id])
     set_id = db.Column(db.Integer, db.ForeignKey('patch_set.id'))
     set = db.relationship('PatchSet', backref='patches',
                           order_by='Patch.date')
-    state = db.Column(db.Integer, default=0)
+    state = db.Column(PatchState.db_type(), default=PatchState.unreviewed)
 
     def filename(self):
         fname_re = re.compile('[^-_A-Za-z0-9\.]+')
