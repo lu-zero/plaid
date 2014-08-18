@@ -10,26 +10,9 @@ from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from app import db
 from app.enum import *
 
-user_roles = db.Table('user_roles',
-                      db.Column('id', db.Integer(), primary_key=True),
-                      db.Column('user_id', db.Integer(),
-                                db.ForeignKey('user.id', ondelete='CASCADE')),
-                      db.Column('role_id', db.Integer(),
-                                db.ForeignKey('role.id', ondelete='CASCADE')))
-
-
-class Role(db.Model):
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(50), unique=True)
-
-    @classmethod
-    def get_or_create(self, name):
-        role = self.query.filter_by(name=name).first()
-        if not role:
-            role = Role(name=name)
-            db.session.add(role)
-            db.session.commit()
-        return role
+class Role(DeclEnum):
+    user  = "U", "user"
+    admin = "A", "admin"
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -40,8 +23,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(255), nullable=False, default='')
     reset_password_token = db.Column(db.String(100), nullable=False,
                                      default='')
-    roles = db.relationship('Role', secondary=user_roles,
-                            backref=db.backref('users', lazy='dynamic'))
+    role = db.Column(Role.db_type(), default=Role.user)
 
     def __init__(self, **kwargs):
         from app import user_manager

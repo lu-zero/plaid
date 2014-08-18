@@ -4,6 +4,7 @@ import traceback
 from email import message_from_file
 
 from flask.ext.script import Manager, Command, Option
+from flask.ext.script.commands import InvalidCommand
 from flask.ext.migrate import Migrate, MigrateCommand
 
 from app import app
@@ -48,7 +49,7 @@ class CreateUser(Command):
         Option('--password', '-p', required=True, dest="password",
                type=unicode,
                help="Set the user's password to PASSWORD."),
-        Option('--role', '-r', required=False, dest="role", default="0",
+        Option('--role', '-r', required=False, dest="role", default="user",
                type=unicode,
                help="Role (admin, maintainer)")
     )
@@ -57,7 +58,11 @@ class CreateUser(Command):
         u = User(name=name,
                  password=password,
                  email=email)
-        u.roles.append(Role.get_or_create(role))
+        try:
+            u.role = getattr(Role, role)
+        except:
+            raise InvalidCommand("The role %s is not supported." % (role))
+
         print('Creating user %s' % u)
         db.session.add(u)
         db.session.commit()
