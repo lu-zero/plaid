@@ -134,23 +134,33 @@ class Project(db.Model):
 
     @hybrid_property
     def unreviewed_patches(self):
-        q = self.current_patches()
+        q = self.current_patches
         return q.filter_by(state = PatchState.unreviewed)
 
     @hybrid_property
     def pending_patches(self):
-        q = self.current_patches()
+        q = self.current_patches
         return q.filter(or_(Patch.state == PatchState.unreviewed,
                             Patch.state == PatchState.comments))
     @hybrid_property
     def new_patches(self):
-        q = self.unreviewed_patches(self)
+        q = self.unreviewed_patches
         return q.filter(Patch.date > datetime.now() - timedelta(days=5))
+
+    @hybrid_property
+    def reviewed_patches(self):
+        q = self.current_patches
+        return q.filter_by(state = PatchState.comments)
 
     @hybrid_property
     def stale_patches(self):
         q = self.pending_patches
         return q.filter(Patch.date < datetime.now() - timedelta(days=10))
+
+    @hybrid_property
+    def committed_patches(self):
+        q = self.current_patches
+        return q.filter_by(state = PatchState.accepted)
 
     @staticmethod
     def get_all():

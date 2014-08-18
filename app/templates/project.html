@@ -46,16 +46,16 @@
             <th>Patch count</th>
             <td>
                 <span class="badge alert-info">
-                    New {{ project.patches.count() }}
+                    New {{ project.new_patches.count() }}
                 </span>
                 <span class="badge alert-success">
-                    Committed {{ project.patches.count() }}
+                    Committed {{ project.committed_patches.count() }}
                 </span>
                 <span class="badge alert-warning">
-                    Pending {{ project.patches.count() }}
+                    Reviewed {{ project.reviewed_patches.count() }}
                 </span>
                 <span class="badge alert-danger">
-                    Unreviewed {{ project.patches.count() }}
+                    Stale {{ project.stale_patches.count() }}
                 </span>
             </td>
         </tr>
