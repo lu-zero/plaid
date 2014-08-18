@@ -118,6 +118,41 @@ def drop(name):
     db.session.delete(p)
     db.session.commit()
 
+@project_manager.command
+def list():
+    "List all the projects"
+    print("{0:12} {1:30} {2:10}".format("Name", "List-Id", "Maintainers"))
+    for p in Project.query.all():
+        print("{0:12} {1:30} {2:10}".format(p.name, p.listid, p.maintainers))
+
+@project_manager.option('-a', '--add', dest='add', default='',
+                        help="Set the users as project maintainers")
+@project_manager.option('-r', '--remove', dest='remove', default='',
+                        help="Remove the users as project mantainers")
+@project_manager.command
+def maintainer(name, **kwargs):
+    "Manage project maintainers"
+    p = Project.query.filter_by(name=name).first()
+    add = (name for name in kwargs['add'].split(',') if name)
+    for name in add:
+        u = User.query.filter_by(name=name).first()
+        if not u:
+            raise InvalidCommand("Cannot add %s: user not exists" % (name))
+        try:
+            p.maintainers.append(u)
+        except:
+            pass
+    remove = (name for name in kwargs['remove'].split(',') if name)
+    for name in remove:
+        u = User.query.filter_by(name=name).first()
+        if not u:
+            raise InvalidCommand("Cannot remove %s: user not exists" % (name))
+        try:
+            p.maintainers.remove(u)
+        except:
+            pass
+    db.session.commit()
+
 manager.add_command('db', MigrateCommand)
 manager.add_command('user', user_manager)
 manager.add_command('project', project_manager)
