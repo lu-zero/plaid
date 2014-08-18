@@ -30,16 +30,17 @@
         <tr>
         <th>Maintainers</th>
         <td>
-            <div class="list-group">
+            <ul class="list-inline">
             {%- for m in project.maintainers %}
-              <a href="{{ url_for('profile', m.id) }}"
-                 class="list-group-item">
-                {{ m.name }}
-                <a href="mailto:{{ m.email }}">
-                    <span class="glyphicon glyphicon-envelope"></span>
-                </a>
-              </a>
+                <li>
+                    <a href="{{ url_for('profile', user_name=m.name) }}">
+                        {{ m.name }}</a>&nbsp;
+                    <a href="mailto:{{ m.email }}">
+                        <span class="glyphicon glyphicon-envelope"></span>
+                    </a>
+                </li>
             {% endfor %}
+            </ul>
         </td>
         </tr>
         <tr>

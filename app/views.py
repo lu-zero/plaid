@@ -195,7 +195,7 @@ def register_view():
 
 @app.route('/profile/<user_name>', methods=('GET', 'POST'))
 @login_required
-def profile_view(user_name):
+def profile(user_name):
     user = login.current_user
     profile = user
     if user.name != user_name:
