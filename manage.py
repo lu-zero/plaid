@@ -18,7 +18,7 @@ from mailparse import import_mailbox
 
 
 class CreateProject(Command):
-    description = 'This command allows you to create a project'
+    """Create a new project"""
     option_list = (
         Option('--name', '-n', required=True, dest='name', type=unicode,
                help="Set the project name to NAME."),
@@ -40,7 +40,7 @@ class CreateProject(Command):
 
 
 class CreateUser(Command):
-    description = 'This command allows you to create a user account'
+    """Create a new user account"""
     option_list = (
         Option('--name', '-n', required=False, dest='name', type=unicode,
                help="Set the user name to NAME."),
@@ -91,9 +91,36 @@ class ImportMails(Command):
 migrate = Migrate(app, db)
 
 manager = Manager(app)
+user_manager = Manager(usage="Create/Edit/Drop users")
+user_manager.add_command('create', CreateUser())
+
+@user_manager.command
+def drop(name):
+    "Drop the user from the database"
+    u = User.query.filter_by(name=name).first()
+    db.session.delete(u)
+    db.session.commit()
+
+@user_manager.command
+def list():
+    "List all the users"
+    print("{0:12} {1:16} {2:5}".format("Name", "Email", "Role"))
+    for u in User.query.all():
+        print("{0:12} {1:16} {2:5}".format(u.name, u.email, u.role))
+
+project_manager = Manager(usage="Create/Edit/Drop projects")
+project_manager.add_command('create', CreateProject())
+
+@project_manager.command
+def drop(name):
+    "Drop the project from the database"
+    p = Project.query.filter_by(name=name).first()
+    db.session.delete(p)
+    db.session.commit()
+
 manager.add_command('db', MigrateCommand)
-manager.add_command('user', CreateUser())
-manager.add_command('project', CreateProject())
+manager.add_command('user', user_manager)
+manager.add_command('project', project_manager)
 manager.add_command('import', ImportMails())
 
 if __name__ == '__main__':
