@@ -11,8 +11,8 @@ from app import app
 from app import db
 from app.models import Role
 from app.models import User
+from app.models import Project
 
-from mailparse import Project
 from mailparse import import_mail
 from mailparse import import_mailbox
 
