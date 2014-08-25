@@ -20,7 +20,7 @@ from app.forms import LoginForm
 from app.forms import ProfileForm
 from app.forms import RegistrationForm
 from app.models import Patch
-from app.models import PatchSet
+from app.models import Series
 from app.models import Project
 from app.models import Tag
 from app.models import User
@@ -114,23 +114,23 @@ def tag(tag_name=None):
                                tags=tags)
 
 
-@app.route('/patchset/<int:patch_set_id>')
-@app.route('/patchset/<int:patch_set_id>/<int:page_index>')
-def patch_set(patch_set_id, page_index=1):
-    patch_set = PatchSet.query.filter_by(id=patch_set_id).first_or_404()
-    page = Patch.query.filter_by(set_id=patch_set_id)
+@app.route('/series/<int:series_id>')
+@app.route('/series/<int:series_id>/<int:page_index>')
+def series(series_id, page_index=1):
+    series = Series.query.filter_by(id=series_id).first_or_404()
+    page = Patch.query.filter_by(series_id=series_id)
     page = page.order_by(Patch.date)
     page = page.paginate(page_index, 1)
     patch = page.items[0]
 
     def endpoint(page_index):
-        return url_for('patch_set', patch_set_id=patch_set_id,
+        return url_for('series', series_id=series_id,
                        page_index=page_index)
 
     return render_template('patch.html',
                            user=login.current_user,
                            patch=page.items[0],
-                           patch_set=patch_set,
+                           series=series,
                            page=page,
                            endpoint=endpoint)
 
@@ -139,7 +139,7 @@ def patch_set(patch_set_id, page_index=1):
 @app.route('/patch/<patch_id>/<format>')
 def patch(patch_id, format='html'):
     patch = Patch.query.filter_by(id=patch_id).first_or_404()
-    patch_set = patch.set
+    series = patch.series
 
     if format == 'mbox':
         return Response(patch.mbox, mimetype='application/mbox')
@@ -147,11 +147,11 @@ def patch(patch_id, format='html'):
     if format == 'patch':
         return Response(patch.content, mimetype='text/x-patch')
 
-    if patch_set is not None and len(patch_set.patches) > 1:
+    if series is not None and len(series.patches) > 1:
         return render_template('patch.html',
                                user=login.current_user,
                                patch=patch,
-                               patch_set=patch_set)
+                               series=series)
 
     else:
         return render_template('patch.html',

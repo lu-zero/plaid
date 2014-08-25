@@ -14,7 +14,7 @@ from flask.ext.script import Manager
 from app import app, db
 from app.models import Comment
 from app.models import Patch
-from app.models import PatchSet
+from app.models import Series
 from app.models import Project
 from app.models import Submitter
 from app.models import Tag
@@ -392,9 +392,9 @@ def import_mail(mail):
         match = gitsendemail_re.match(header_parser.message_id)
         if match:
             (uid, num, email) = match.groups()
-            patch_set = PatchSet.get_or_create(uid)
-            patch_set.patches.append(patch)
-            db.session.add(patch_set)
+            series = Series.get_or_create(uid)
+            series.patches.append(patch)
+            db.session.add(series)
         patch.submitter = submitter
         patch.msgid = header_parser.message_id
         patch.project = project

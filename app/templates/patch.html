@@ -7,8 +7,8 @@
 
 {% block breadcrumb %}
 <li><a href="{{ url_for('project', project_name=patch.project.name) }}">{{ patch.project.name }}</a></li>
-{% if patch_set is defined %}
-<li><a href="{{ url_for('patch_set', patch_set_id=patch_set.id) }}">{{ patch_set.name }}</a></li>
+{% if serie is defined %}
+<li><a href="{{ url_for('serie', serie_id=serie.id) }}">{{ serie.name }}</a></li>
 {% endif %}
 <li>{{ patch.name|truncate(80) }}</li>
 {% endblock %}
