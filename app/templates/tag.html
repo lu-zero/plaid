@@ -2,15 +2,15 @@
 {% from "macros.html" import paginate, render_tags %}
 
 {% block breadcrumb %}
-<li><a href="{{ url_for('tag') }}">tag</a></li>
+<li><a href="{{ url_for('project.tags', project_name=g.project.name) }}">tag</a></li>
 <li>{{ tag.name }}</li>
 {% endblock %}
 
 {% block content %}
 
 <ul>
-{% for patch in tag.patches %}
-    <li><a href="{{url_for('patch',patch_id=patch.id)}}">{{patch.name}}</a></li>
+{% for patch in patches %}
+    <li><a href="{{url_for('patch.index',patch_id=patch.id)}}">{{patch.name}}</a></li>
 {% endfor %}
 </ul>
 

@@ -8,7 +8,7 @@
         <div class="list-group">
             {% for p in projects %}
                 <a class="list-group-item"
-                   href="{{url_for('project',project_name=p.name)}}">
+                   href="{{url_for('project.index',project_name=p.name)}}">
                     <span class="badge"> {{ p.patches.count() }}</span>
                     <h4 class="list-group-item-heading">{{p.name}}</h4>
                     <p class="list-group-text-item">{{p.description}}</p>

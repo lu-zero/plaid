@@ -2,7 +2,7 @@
     <ul class="pagination">
     {%- for page in pagination.iter_pages() %}
         {% if page %}
-            <li {{ 'class="active"' if page == pagination.page }} >
+            <li {{ 'class=active' if page == pagination.page }} >
                 <a href="{{ endpoint(page) }}"
                    title="">{{ page }}</a>
             </li>
@@ -13,12 +13,12 @@
     </ul>
 {% endmacro %}
 
-{%- macro render_tag(tag) -%}
-    <a class="btn btn-xs btn-info" href="{{ url_for('tag',tag_name=tag.name) }}">{{tag.name}}</a>
+{%- macro render_tag(tag, project) -%}
+    <a class="btn btn-xs btn-info" href="{{ url_for('project.tag', project_name=project.name, tag_name=tag.name) }}">{{tag.name}}</a>
 {% endmacro %}
 
-{%- macro render_tags(tags) -%}
+{%- macro render_tags(tags, project) -%}
     {%- for tag in tags %}
-        {{ render_tag(tag) }}
+        {{ render_tag(tag, project) }}
     {% endfor %}
 {% endmacro %}

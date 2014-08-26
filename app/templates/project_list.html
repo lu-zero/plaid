@@ -7,7 +7,7 @@
 {% block content %}
 <ul>
 {% for patch in project.patches %}
-<li><a href="{{url_for('patch',patch_id=patch.id)}}">{{patch.name}}</a></li>
+<li><a href="{{url_for('patch.index',patch_id=patch.id)}}">{{patch.name}}</a></li>
 {% endfor%}
 </ul>
 {% endblock %}

@@ -6,9 +6,9 @@
 
 
 {% block breadcrumb %}
-<li><a href="{{ url_for('project', project_name=patch.project.name) }}">{{ patch.project.name }}</a></li>
-{% if serie is defined %}
-<li><a href="{{ url_for('serie', serie_id=serie.id) }}">{{ serie.name }}</a></li>
+<li><a href="{{ url_for('project.index', project_name=patch.project.name) }}">{{ patch.project.name }}</a></li>
+{% if series is defined %}
+<li><a href="{{ url_for('project.series', project_name=patch.project.name, series_id=series.id) }}">{{ series.name }}</a></li>
 {% endif %}
 <li>{{ patch.name|truncate(80) }}</li>
 {% endblock %}
@@ -35,21 +35,21 @@
 <tr>
     <th>Tags</th>
     <td>
-        {{render_tags(patch.tags)}}
+        {{render_tags(patch.tags, patch.project)}}
     </td>
 </tr>
 {% endif %}
 <tr>
     <th>Download</th>
     <td>
-    <a href="{{url_for('patch', patch_id=patch.id, format='mbox')}}">mbox</a> |
-    <a href="{{url_for('patch', patch_id=patch.id, format='patch')}}">patch</a>
+    <a href="{{url_for('patch.mbox', patch_id=patch.id)}}">mbox</a> |
+    <a href="{{url_for('patch.patch', patch_id=patch.id)}}">patch</a>
     </td>
 </tr>
 <tr>
     <th>Permalink</th>
-    <td><a href="{{url_for('patch', patch_id=patch.id)}}">
-        {{url_for('patch', patch_id=patch.id)}}</a>
+    <td><a href="{{url_for('patch.index', patch_id=patch.id)}}">
+        {{url_for('patch.index', patch_id=patch.id)}}</a>
     </td>
 </tr>
 <tr>
