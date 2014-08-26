@@ -389,12 +389,16 @@ def import_mail(mail):
 
     if patch is not None:
         # we delay the saving until we know we have a patch.
+        serie = None
         match = gitsendemail_re.match(header_parser.message_id)
         if match:
             (uid, num, email) = match.groups()
             series = Series.get_or_create(uid)
-            series.patches.append(patch)
-            db.session.add(series)
+        else:
+            series = Series.get_or_create(header_parser.message_id)
+        series.patches.append(patch)
+        db.session.add(series)
+
         patch.submitter = submitter
         patch.msgid = header_parser.message_id
         patch.project = project
