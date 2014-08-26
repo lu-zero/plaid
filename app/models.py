@@ -193,8 +193,7 @@ class Patch(EmailMixin, db.Model):
     successor_id = db.Column(db.Integer, db.ForeignKey('patch.id'))
     successor = db.relationship('Patch', backref="ancestor", remote_side=[id])
     series_id = db.Column(db.Integer, db.ForeignKey('series.id'))
-    series = db.relationship('Series', backref='patches',
-                            order_by='Patch.date')
+    series = db.relationship('Series', backref='patches')
     state = db.Column(PatchState.db_type(), default=PatchState.unreviewed)
 
     def filename(self):
@@ -278,7 +277,7 @@ tags = db.Table('tags',
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
-    patches = db.relationship("Patch", secondary=tags, backref="tags")
+    patches = db.relationship("Patch", secondary=tags, backref="tags", lazy="dynamic")
 
     @classmethod
     def get_or_create(self, name):
