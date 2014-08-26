@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
 {% block breadcrumb %}
-<li>{{ project.name }}</li>
+<li>{{ g.project.name }}</li>
 {% endblock %}
 
 {% block content %}
 <ul>
-{% for patch in project.patches %}
+{% for patch in g.project.patches %}
 <li><a href="{{url_for('patch.index',patch_id=patch.id)}}">{{patch.name}}</a></li>
 {% endfor%}
 </ul>

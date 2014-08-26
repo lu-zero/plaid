@@ -1,37 +1,29 @@
 {% extends "base.html" %}
-
-{%- macro render_item(name, item) -%}
-    {%- if item -%}
-        <tr>
-            <th>{{name}}</th>
-            <td><a href="{{ item }}">{{ item }}</a></td>
-        </tr>
-    {% endif %}
-{% endmacro %}
+{% from "macros.html" import render_item, render_status %}
 
 {% block breadcrumb %}
-<li>{{ project.name }}</li>
+<li>{{ g.project.name }}</li>
 {% endblock %}
 
 {% block content %}
 
-<div class="panel panel-default">
+<div class="panel panel-primary">
     <div class="panel-heading">Project details</div>
     <div class="panel-body">
     <table class="table">
     <tbody>
         <tr>
-        <th>Name</th> <td>{{ project.name }}</td>
+        <th>Name</th> <td>{{ g.project.name }}</td>
         </tr>
         <tr>
         <th>List address</th>
-        <td>{{ project.listemail }}</td>
+        <td>{{ g.project.listemail }}</td>
         </tr>
         <tr>
         <th>Maintainers</th>
         <td>
             <ul class="list-inline">
-            {%- for m in project.maintainers %}
+            {%- for m in g.project.maintainers %}
                 <li>
                     <a href="{{ url_for('profile', user_name=m.name) }}">
                         {{ m.name }}</a>&nbsp;
@@ -46,27 +38,51 @@
         <tr>
             <th>Patch count</th>
             <td>
-                <span class="badge alert-info">
-                    New {{ project.new_patches.count() }}
-                </span>
-                <span class="badge alert-success">
-                    Committed {{ project.committed_patches.count() }}
-                </span>
-                <span class="badge alert-warning">
-                    Reviewed {{ project.reviewed_patches.count() }}
-                </span>
-                <span class="badge alert-danger">
-                    Stale {{ project.stale_patches.count() }}
-                </span>
+            {{ render_status(g.project) }}
             </td>
         </tr>
-        {{ render_item("Website", project.web_url) }}
-        {{ render_item("Source Code Web Interface",  project.webscm_url) }}
-        {{ render_item("Source Code Manager URL", project.scm_url) }}
+        {{ render_item("Website", g.project.web_url) }}
+        {{ render_item("Source Code Web Interface",  g.project.webscm_url) }}
+        {{ render_item("Source Code Manager URL", g.project.scm_url) }}
         </tr>
     </tbody>
     </table>
     </div>
-    </div>
 </div>
+
+
+{%- macro patch_row_tiny(patch) -%}
+    <tr>
+        <td>
+            <a href="{{url_for('patch.index', patch_id=patch.id)}}">
+                {{ patch.name| truncate(79, True) }}
+            </a>
+        </td>
+        <td>
+            {{ patch.date }}
+        </td>
+        <td>
+            {{ patch.state }}
+        </td>
+    </tr>
+{% endmacro %}
+
+{%- if g.project.stale_patches -%}
+<div class="panel panel-danger">
+    <div class="panel-heading">Stale Patches</div>
+    <table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Patch</th><th>Date</th><th>State</th>
+        </tr>
+    </thead>
+    <tbody>
+    {%- for patch in g.project.stale_patches %}
+        {{ patch_row_tiny(patch) }}
+    {% endfor %}
+    </tbody>
+    </table>
+</div>
+{% endif %}
+
 {% endblock %}

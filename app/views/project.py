@@ -1,8 +1,6 @@
 from flask import Blueprint
 from flask import render_template, g
 
-from flask.ext import login
-
 from app.models import Project, Tag
 
 bp = Blueprint('project', __name__, url_prefix='/project/<project_name>')
@@ -15,24 +13,19 @@ def get_project(endpoint, values):
 @bp.route('/')
 def index():
     return render_template('project.html',
-                           title="Project %s" % g.project.name,
-                           user=login.current_user,
-                           project=g.project)
+                           title="Project %s" % g.project.name)
 
 @bp.route('/list')
 def list():
     return render_template('project_list.html',
-                           title="Project %s" % g.project.name,
-                           user=login.current_user,
-                           project=g.project)
+                           title="Project %s" % g.project.name)
 
 @bp.route('/tag/')
 def tags():
     tags = g.project.tags
     return render_template('tags.html',
-                               title="All tags",
-                               user=login.current_user,
-                               tags=tags)
+                           title="All tags",
+                           tags=tags)
 
 @bp.route('/tag/<tag_name>')
 def tag(tag_name):
@@ -42,7 +35,6 @@ def tag(tag_name):
     patches = tag.patches.filter_by(project_id=g.project.id)
     return render_template('tag.html',
                            title="Tag %s" % tag.name,
-                           user=login.current_user,
                            patches=patches,
                            tag=tag)
 

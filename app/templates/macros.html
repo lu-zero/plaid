@@ -22,3 +22,25 @@
         {{ render_tag(tag, project) }}
     {% endfor %}
 {% endmacro %}
+
+{%- macro render_item(name, item) -%}
+    {%- if item -%}
+        <tr>
+            <th>{{name}}</th>
+            <td><a href="{{ item }}">{{ item }}</a></td>
+        </tr>
+    {% endif %}
+{% endmacro %}
+
+{%- macro render_badge(text, item, css_class, url) -%}
+    <a href="{{ url }}" class="badge {{css_class}}">
+        {{ text }} {{ item.count() }}
+    </a>
+{% endmacro %}
+
+{%- macro render_status(p) -%}
+    {{ render_badge("New", p.new_patches, "alert-info") }}
+    {{ render_badge("Committed", p.committed_patches, "alert-success") }}
+    {{ render_badge("Reviewed", p.reviewed_patches, "alert-warning") }}
+    {{ render_badge("Stale", p.stale_patches, "alert-danger") }}
+{% endmacro %}
