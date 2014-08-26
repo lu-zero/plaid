@@ -162,6 +162,10 @@ class Project(db.Model):
         q = self.current_patches
         return q.filter_by(state = PatchState.accepted)
 
+    @hybrid_property
+    def tags(self):
+        return Tag.query.join(tags).join(Patch).filter_by(project_id=self.id)
+
     @staticmethod
     def get_all():
         return Project.query.all()
