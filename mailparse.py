@@ -15,6 +15,7 @@ from app import app, db
 from app.models import Comment
 from app.models import Patch
 from app.models import Series
+from app.models import PatchState
 from app.models import Project
 from app.models import Submitter
 from app.models import Tag
@@ -379,6 +380,8 @@ def import_mail(mail):
                       headers=mail_headers(mail), tags=tags)
     if patch is None:
         patch = find_patch_for_comment(project, mail)
+        if patch is not None:
+            patch.state = PatchState.comments
 
     comment = None
     if content_parser.comment:
