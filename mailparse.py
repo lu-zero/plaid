@@ -260,7 +260,6 @@ class HeaderParser(object):
     def _find_project_name(self, mail):
         for header in self.list_id_headers:
             if header in mail:
-
                 for listid_re in self.listid_res:
                     match = listid_re.match(mail.get(header))
                     if match:
@@ -329,9 +328,8 @@ def find_patch_for_comment(project, mail):
             if r not in refs:
                 refs.append(r)
 
+    patch = None
     for ref in refs:
-        patch = None
-
         # first, check for a direct reply
         patch = Patch.query.filter_by(project=project, msgid=ref).first()
 
@@ -343,6 +341,14 @@ def find_patch_for_comment(project, mail):
 
     return patch
 
+def dump_mail(mail, message_id):
+    import os
+    try:
+        os.mkdir('rej/')
+    except:
+        pass
+    with open('rej/' + message_id, 'w') as f:
+        f.write(str(mail))
 
 def import_mail(mail):
     # some basic sanity checks
@@ -366,9 +372,15 @@ def import_mail(mail):
     project = find_project(header_parser.project_name)
     if project is None:
         print 'No project for %s found' % header_parser.project_name
+        dump_mail(mail, header_parser.message_id)
+        return 0
+    try:
+        content_parser = ContentParser(project, mail)
+    except:
+        print 'Email %s is not parsable' % (header_parser.message_id)
+        dump_mail(mail, header_parser.message_id)
         return 0
 
-    content_parser = ContentParser(project, mail)
     patch = None
     if content_parser.pull_url or content_parser.patch:
         subject_parser = SubjectParser(mail.get('Subject'),
