@@ -5,14 +5,22 @@
 {% endblock %}
 
 
+
+
 {% block breadcrumb %}
 <li><a href="{{ url_for('project.index', project_name=patch.project.name) }}">{{ patch.project.name }}</a></li>
 {% if series is defined %}
 <li><a href="{{ url_for('project.series', project_name=patch.project.name, series_id=series.id) }}">{{ series.name }}</a></li>
 {% endif %}
-<li>{{ patch.name|truncate(80) }}</li>
+<li>{{ patch.name|truncate(80) }}
+{% for a in patch.ancestors %}
+    <a class="text-info" href="{{ url_for('patch.index', patch_id=a.id) }}">[old revision]</a>
+{% endfor %}
+{% for s in patch.successors %}
+    <a class="text-success"href="{{ url_for('patch.index', patch_id=s.id) }}">[new revision]</a>
+{% endfor %}
+</li>
 {% endblock %}
-
 
 {% block content %}
 <table class="table">

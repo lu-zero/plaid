@@ -130,7 +130,7 @@ class Project(db.Model):
 
     @hybrid_property
     def current_patches(self):
-        return self.patches.filter_by(successor_id = None)
+        return self.patches.filter(~Patch.successors.any())
 
     @hybrid_property
     def unreviewed_patches(self):
@@ -181,6 +181,10 @@ class EmailMixin(object):
     def __unicode__(self):
         return self.name
 
+ancestry = db.Table('ancestry',
+                    db.Column('successor_id', db.Integer, db.ForeignKey('patch.id')),
+                    db.Column('ancestor_id', db.Integer, db.ForeignKey('topic.id')))
+
 class Patch(EmailMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     submitter_id = db.Column(db.Integer, db.ForeignKey('submitter.id'))
@@ -190,8 +194,10 @@ class Patch(EmailMixin, db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
     project = db.relationship('Project',
                               backref=backref('patches', lazy='dynamic'))
-    successor_id = db.Column(db.Integer, db.ForeignKey('patch.id'))
-    successor = db.relationship('Patch', backref="ancestor", remote_side=[id])
+    successors = db.relationship('Patch', backref="ancestors",
+                                secondary=ancestry,
+                                primaryjoin=ancestry.c.successor_id==id,
+                                secondaryjoin=ancestry.c.ancestor_id==id)
     series_id = db.Column(db.Integer, db.ForeignKey('series.id'))
     series = db.relationship('Series', backref='patches')
     state = db.Column(PatchState.db_type(), default=PatchState.unreviewed)

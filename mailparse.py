@@ -315,7 +315,7 @@ def mail_headers(mail):
                    for (k, v) in mail.items()])
 
 
-def find_patch_for_comment(project, mail):
+def find_patch_for_mail(project, mail):
     # construct a list of possible reply message ids
     refs = []
     if 'In-Reply-To' in mail:
@@ -349,6 +349,14 @@ def dump_mail(mail, message_id):
         pass
     with open('rej/' + message_id, 'w') as f:
         f.write(str(mail))
+
+def find_ancestor(project, mail, patch):
+    ancestor = find_patch_for_mail(project, mail)
+
+    if ancestor and ancestor.series != patch.series:
+        return ancestor
+
+    return None
 
 def import_mail(mail):
     # some basic sanity checks
@@ -390,8 +398,26 @@ def import_mail(mail):
         patch = Patch(name=name, pull_url=content_parser.pull_url,
                       content=content_parser.patch, date=mail_date(mail),
                       headers=mail_headers(mail), tags=tags)
+
+        match = gitsendemail_re.match(header_parser.message_id)
+        if match:
+            (uid, num, email) = match.groups()
+            series = Series.get_or_create(uid)
+        else:
+            series = Series.get_or_create(header_parser.message_id)
+
+        series.patches.append(patch)
+        db.session.add(series)
+
+        patch.submitter = submitter
+        patch.msgid = header_parser.message_id
+        patch.project = project
+        ancestor = find_ancestor(project, mail, patch)
+        if ancestor:
+            patch.ancestors.append(ancestor)
+
     if patch is None:
-        patch = find_patch_for_comment(project, mail)
+        patch = find_patch_for_mail(project, mail)
         if patch is not None:
             patch.state = PatchState.comments
 
@@ -404,19 +430,6 @@ def import_mail(mail):
 
     if patch is not None:
         # we delay the saving until we know we have a patch.
-        serie = None
-        match = gitsendemail_re.match(header_parser.message_id)
-        if match:
-            (uid, num, email) = match.groups()
-            series = Series.get_or_create(uid)
-        else:
-            series = Series.get_or_create(header_parser.message_id)
-        series.patches.append(patch)
-        db.session.add(series)
-
-        patch.submitter = submitter
-        patch.msgid = header_parser.message_id
-        patch.project = project
         db.session.add(patch)
 
     if comment is not None:

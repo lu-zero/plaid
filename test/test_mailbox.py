@@ -9,7 +9,7 @@ from mailparse import mail_date
 
 
 class TestMailbox(unittest.TestCase):
-    libavmbox = mailbox.mbox('test/data/livav_1_99.mbox')
+    libavmbox = mailbox.mbox('test/data/livav_ancestor.mbox')
     email1 = email.message_from_file(open('test/data/someemails/1.eml'))
     email2 = email.message_from_file(open('test/data/someemails/2.eml'))
 
@@ -36,3 +36,6 @@ class TestMailbox(unittest.TestCase):
         d2 = datetime.datetime.strptime('2011-03-16 18:53:16',
                                         "%Y-%m-%d %H:%M:%S")
         self.assertEqual(d2, mail_date(self.email2))
+
+    def test_ancestor(self):
+        pass
