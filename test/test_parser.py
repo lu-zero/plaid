@@ -81,5 +81,3 @@ class TestParser(unittest.TestCase):
         subject_parser = SubjectParser("[WIP]a: b: subject ", [""])
         self.assertEqual(['a', 'b'], subject_parser.tags)
 
-if __name__ == "__main__":
-    unittest.main()
