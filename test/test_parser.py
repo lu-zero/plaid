@@ -1,6 +1,6 @@
 import unittest
 from app.parser import parse_patch
-from mailparse import derive_tag_names
+from mailparse import SubjectParser
 
 
 class TestParser(unittest.TestCase):
@@ -74,10 +74,12 @@ class TestParser(unittest.TestCase):
         self.assertEqual("""Nice patch, eh?""", comment.strip())
 
     def test_derive_tag_names(self):
-        self.assertEqual(['a', 'b'], derive_tag_names("a: b: ciao"))
-        self.assertEqual(['a', 'b'], derive_tag_names("[1/2]a: b: ciao"))
-        self.assertEqual(['a', 'b'],
-                         derive_tag_names("a: I am not a tag: b: ciao"))
+        subject_parser = SubjectParser("a: b: subject", [""])
+        self.assertEqual(['a', 'b'], subject_parser.tags)
+        subject_parser = SubjectParser("[1/2]a: b: subject", [""])
+        self.assertEqual(['a', 'b'], subject_parser.tags)
+        subject_parser = SubjectParser("[WIP]a: b: subject ", [""])
+        self.assertEqual(['a', 'b'], subject_parser.tags)
 
 if __name__ == "__main__":
     unittest.main()
