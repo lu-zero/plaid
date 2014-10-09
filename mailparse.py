@@ -421,22 +421,13 @@ def import_mail(mail):
         if patch is not None:
             patch.state = PatchState.comments
 
-    comment = None
-    if content_parser.comment:
-        if patch is not None:
-            comment = Comment(patch=patch, date=mail_date(mail),
-                              content=content_parser.comment,
-                              headers=mail_headers(mail))
-
     if patch is not None:
-        # we delay the saving until we know we have a patch.
         db.session.add(patch)
 
-    if comment is not None:
-        # looks like the original constructor for Comment takes the pk
-        # when the Comment is created. reset it here.
-        if patch:
-            comment.patch = patch
+    if content_parser.comment and patch is not None:
+        comment = Comment(patch=patch, date=mail_date(mail),
+                          content=content_parser.comment,
+                          headers=mail_headers(mail))
         comment.submitter = submitter
         comment.msgid = header_parser.message_id
 
