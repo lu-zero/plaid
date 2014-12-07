@@ -203,7 +203,7 @@ class ContentParser(object):
 
 
 class HeaderParser(object):
-    list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
+    list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list', 'To', 'CC']
     listid_res = [re.compile('.*<([^>]+)>.*', re.S),
                   re.compile('^([\S]+)$', re.S)]
     # tuple of (regex, fn)
