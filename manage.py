@@ -73,20 +73,22 @@ class ImportMails(Command):
 
     option_list = (
         Option('--mailbox', '-m', dest='mailbox'),
+        Option('--project', '-p', dest='project',
+               help="Override the project"),
     )
 
-    def import_mail_from_stdin(self):
+    def import_mail_from_stdin(self, project):
         mail = message_from_file(sys.stdin)
-        import_mail(mail)
+        import_mail(mail, project)
 
-    def run(self, mailbox):
+    def run(self, mailbox, project):
         if mailbox:
             try:
-                import_mailbox(mailbox)
+                import_mailbox(mailbox, project)
             except Exception as e:
                 traceback.print_exc(e)
         else:
-            self.import_mail_from_stdin()
+            self.import_mail_from_stdin(project)
 
 migrate = Migrate(app, db)
 

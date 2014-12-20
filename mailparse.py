@@ -272,10 +272,10 @@ class HeaderParser(object):
                 return listid
 
 
-def import_mailbox(path):
+def import_mailbox(path, project):
     mbox = mailbox.mbox(path, create=False)
     for mail in mbox:
-        import_mail(mail)
+        import_mail(mail, project)
     return None
 
 
@@ -358,7 +358,7 @@ def find_ancestor(project, mail, patch):
 
     return None
 
-def import_mail(mail):
+def import_mail(mail, project_name=None):
     # some basic sanity checks
     if 'From' not in mail:
         return 0
@@ -377,7 +377,10 @@ def import_mail(mail):
     submitter = Submitter.get_or_create(name=header_parser.from_name,
                                         email=header_parser.from_email)
 
-    project = find_project(header_parser.project_name)
+    if not project_name:
+        project_name = header_parser.project_name
+
+    project = find_project(project_name)
     if project is None:
         print 'No project for %s found' % header_parser.project_name
         dump_mail(mail, header_parser.message_id)
