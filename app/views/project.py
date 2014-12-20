@@ -15,10 +15,18 @@ def index():
     return render_template('project.html',
                            title="Project %s" % g.project.name)
 
-@bp.route('/list')
-def list():
+@bp.route('/patches/')
+@bp.route('/patches/<group>')
+def patches(group=None):
+    if group:
+        patches = getattr(g.project, group+"_patches", [])
+    else:
+        group = 'patches'
+        patches = g.project.patches
     return render_template('project_list.html',
-                           title="Project %s" % g.project.name)
+                           title="Project %s" % g.project.name,
+                           patches=patches,
+                           group=group)
 
 @bp.route('/tag/')
 def tags():

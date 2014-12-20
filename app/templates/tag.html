@@ -2,6 +2,9 @@
 {% from "macros.html" import paginate, render_tags %}
 
 {% block breadcrumb %}
+<li><a href="{{ url_for('project.index', project_name=g.project.name) }}">
+    {{ g.project.name }}
+</a></li>
 <li><a href="{{ url_for('project.tags', project_name=g.project.name) }}">tag</a></li>
 <li>{{ tag.name }}</li>
 {% endblock %}

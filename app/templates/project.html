@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import render_item, render_status %}
+{% from "macros.html" import render_item, render_status, render_tag %}
 
 {% block breadcrumb %}
 <li>{{ g.project.name }}</li>
@@ -41,6 +41,23 @@
             {{ render_status(g.project) }}
             </td>
         </tr>
+        <tr>
+            <th>Tags</th>
+            <td>
+                <a href="#" data-toggle="collapse" data-target="#taglist">
+                {{ g.project.tags.count() }}
+                </a>
+            </td>
+        <tr>
+            <td colspan=2>
+                <div class="collapse" id="taglist">
+                    {% for tag in g.project.tags %}
+                        {{render_tag(tag, g.project)}}
+                    {% endfor %}
+                </div>
+            </td>
+        </tr>
+
         {{ render_item("Website", g.project.web_url) }}
         {{ render_item("Source Code Web Interface",  g.project.webscm_url) }}
         {{ render_item("Source Code Manager URL", g.project.scm_url) }}
@@ -67,22 +84,28 @@
     </tr>
 {% endmacro %}
 
-{%- if g.project.stale_patches -%}
-<div class="panel panel-danger">
-    <div class="panel-heading">Stale Patches</div>
-    <table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Patch</th><th>Date</th><th>State</th>
-        </tr>
-    </thead>
-    <tbody>
-    {%- for patch in g.project.stale_patches %}
-        {{ patch_row_tiny(patch) }}
-    {% endfor %}
-    </tbody>
-    </table>
-</div>
-{% endif %}
+{%- macro patch_panel(highlight, heading, data, page) -%}
+    {%- if data.count() -%}
+    <div class="panel panel-{{highlight}}">
+        <div class="panel-heading">{{heading}}</div>
+        <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Patch</th><th>Date</th><th>State</th>
+            </tr>
+        </thead>
+        <tbody>
+        {%- for patch in data[:page] %}
+            {{ patch_row_tiny(patch) }}
+        {% endfor %}
+        </tbody>
+        </table>
+    </div>
+    {% endif %}
+{% endmacro %}
+
+
+{{ patch_panel('danger', "Stale Patches", g.project.stale_patches, 20) }}
+{{ patch_panel('info', "New Patches", g.project.new_patches, 20) }}
 
 {% endblock %}

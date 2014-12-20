@@ -39,8 +39,12 @@
 {% endmacro %}
 
 {%- macro render_status(p) -%}
-    {{ render_badge("New", p.new_patches, "alert-info") }}
-    {{ render_badge("Committed", p.committed_patches, "alert-success") }}
-    {{ render_badge("Reviewed", p.reviewed_patches, "alert-warning") }}
-    {{ render_badge("Stale", p.stale_patches, "alert-danger") }}
+    {{ render_badge("New", p.new_patches, "alert-info",
+                    url_for('project.patches', group='new')) }}
+    {{ render_badge("Committed", p.committed_patches, "alert-success",
+                    url_for('project.patches', group='committed')) }}
+    {{ render_badge("Reviewed", p.reviewed_patches, "alert-warning",
+                    url_for('project.patches', group='reviewed')) }}
+    {{ render_badge("Stale", p.stale_patches, "alert-danger",
+                    url_for('project.patches', group='stale')) }}
 {% endmacro %}

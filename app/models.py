@@ -155,7 +155,7 @@ class Project(db.Model):
     @hybrid_property
     def stale_patches(self):
         q = self.pending_patches
-        return q.filter(Patch.date < datetime.now() - timedelta(days=10))
+        return q.filter(Patch.date < datetime.now() - timedelta(days=20))
 
     @hybrid_property
     def committed_patches(self):
