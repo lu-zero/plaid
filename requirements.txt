@@ -1,5 +1,6 @@
 Flask==0.10.1
 Flask-Admin==1.0.7
+Flask-Babel==0.9
 Flask-Migrate==0.1.4
 Flask-SQLAlchemy==1.0
 Flask-Script==0.6.2
