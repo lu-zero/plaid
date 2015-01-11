@@ -12,6 +12,12 @@ def get_patch(endpoint, values):
     patch_id = values.pop('patch_id')
     g.patch = Patch.query.filter_by(id=patch_id).first_or_404()
 
+@bp.url_defaults
+def add_patch(endpoint, values):
+    if 'patch_id' in values or not g.patch:
+        return
+    values['project_name'] = g.patch.id
+
 @bp.route('/')
 def index():
     series = g.patch.series
