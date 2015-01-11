@@ -1,4 +1,3 @@
-from flask import Response
 from flask import flash
 from flask import redirect
 from flask import render_template
@@ -6,9 +5,7 @@ from flask import request
 from flask import url_for
 
 from flask.ext import login
-from flask.ext.user import login_required
-
-from jinja2 import Markup
+from flask.ext.admin import helpers
 
 from app import app
 from app import db
@@ -22,8 +19,10 @@ from . import project, patch
 app.register_blueprint(project.bp)
 app.register_blueprint(patch.bp)
 
+
 def redirect_url(default='index'):
     return request.args.get('next') or request.referrer or url_for(default)
+
 
 @app.route('/')
 @app.route('/index')
@@ -32,6 +31,7 @@ def index():
                            title="Homepage",
                            user=login.current_user,
                            projects=Project.get_all())
+
 
 @app.route('/login', methods=('GET', 'POST'))
 def login_view():
@@ -49,6 +49,7 @@ def login_view():
                            user=login.current_user,
                            form=form)
 
+
 @app.route('/register', methods=('GET', 'POST'))
 def register_view():
     form = RegistrationForm(request.form)
@@ -64,6 +65,7 @@ def register_view():
 
     return render_template('register.html', form=form, user=login.current_user,
                            title='Registration')
+
 
 @app.route('/logout/')
 def logout_view():

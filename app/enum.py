@@ -7,6 +7,7 @@ import re
     workarounds for Alembic from Jan Wasak
 """
 
+
 class EnumSymbol(object):
     """Define a fixed symbol tied to a parent class."""
 
@@ -27,6 +28,7 @@ class EnumSymbol(object):
     def __repr__(self):
         return "<%s>" % self.name
 
+
 class EnumMeta(type):
     """Generate new DeclEnum classes."""
 
@@ -41,6 +43,7 @@ class EnumMeta(type):
     def __iter__(cls):
         return iter(cls._reg.values())
 
+
 class DeclEnum(object):
     """Declarative enumeration."""
 
@@ -53,9 +56,9 @@ class DeclEnum(object):
             return cls._reg[value]
         except KeyError:
             raise ValueError(
-                    "Invalid value for %r: %r" %
-                    (cls.__name__, value)
-                )
+                "Invalid value for %r: %r" %
+                (cls.__name__, value)
+            )
 
     @classmethod
     def values(cls):
@@ -65,9 +68,10 @@ class DeclEnum(object):
     def db_type(cls):
         return Enum(cls)
 
+
 class Enum(SchemaType, TypeDecorator):
     def __init__(self, enum):
-        name = re.sub('([A-Z])', lambda m:"_" + m.group(1).lower(),
+        name = re.sub('([A-Z])', lambda m: "_" + m.group(1).lower(),
                       enum.__name__)
         self.enum = enum
         self.impl = SaEnum(*enum.values(), name="ck%s" % name)
@@ -91,6 +95,7 @@ class Enum(SchemaType, TypeDecorator):
     def create(self, bind=None, checkfirst=False):
         super(Enum, self).create(bind, checkfirst)
         t = self.dialect_impl(bind.dialect)
-        if t.impl.__class__ is not self.__class__ and isinstance(t, SchemaType):
+        should_create = (t.impl.__class__ is not self.__class__
+                         and isinstance(t, SchemaType))
+        if should_create:
             t.impl.create(bind=bind, checkfirst=checkfirst)
-

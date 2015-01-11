@@ -96,12 +96,14 @@ manager = Manager(app)
 user_manager = Manager(usage="Create/Edit/Drop users")
 user_manager.add_command('create', CreateUser())
 
+
 @user_manager.command
 def drop(name):
     "Drop the user from the database"
     u = User.query.filter_by(name=name).first()
     db.session.delete(u)
     db.session.commit()
+
 
 @user_manager.command
 def list():
@@ -113,6 +115,7 @@ def list():
 project_manager = Manager(usage="Create/Edit/Drop projects")
 project_manager.add_command('create', CreateProject())
 
+
 @project_manager.command
 def drop(name):
     "Drop the project from the database"
@@ -120,12 +123,14 @@ def drop(name):
     db.session.delete(p)
     db.session.commit()
 
+
 @project_manager.command
 def list():
     "List all the projects"
     print("{0:12} {1:30} {2:10}".format("Name", "List-Id", "Maintainers"))
     for p in Project.query.all():
         print("{0:12} {1:30} {2:10}".format(p.name, p.listid, p.maintainers))
+
 
 @project_manager.option('-a', '--add', dest='add', default='',
                         help="Set the users as project maintainers")

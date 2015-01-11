@@ -5,14 +5,16 @@ from datetime import timedelta
 from flask.ext.user import UserMixin
 from sqlalchemy.orm import backref
 from sqlalchemy.sql import or_
-from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from app import db
-from app.enum import *
+from app.enum import DeclEnum
+
 
 class Role(DeclEnum):
-    user  = "U", "user"
+    user = "U", "user"
     admin = "A", "admin"
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -98,17 +100,21 @@ class Submitter(db.Model):
 
 
 project_maintainers = db.Table('project_maintainers',
-                      db.Column('id', db.Integer(), primary_key=True),
-                      db.Column('user_id', db.Integer(),
-                                db.ForeignKey('user.id', ondelete='CASCADE')),
-                      db.Column('project_id', db.Integer(),
-                                db.ForeignKey('project.id', ondelete='CASCADE')))
+                               db.Column('id', db.Integer(), primary_key=True),
+                               db.Column('user_id', db.Integer(),
+                                         db.ForeignKey('user.id',
+                                                       ondelete='CASCADE')),
+                               db.Column('project_id', db.Integer(),
+                                         db.ForeignKey('project.id',
+                                                       ondelete='CASCADE')))
+
 
 class PatchState(DeclEnum):
     unreviewed = "U", "Unreviewed"
-    comments   = "C", "Comments"
-    accepted   = "A", "Accepted"
-    rejected   = "R", "Rejected"
+    comments = "C", "Comments"
+    accepted = "A", "Accepted"
+    rejected = "R", "Rejected"
+
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -122,11 +128,10 @@ class Project(db.Model):
     description = db.Column(db.String(256))
     notifications = db.Column(db.Boolean())
     maintainers = db.relationship('User', secondary=project_maintainers,
-                                   backref=backref('projects', lazy='dynamic'))
+                                  backref=backref('projects', lazy='dynamic'))
 
     def __unicode__(self):
         return self.name
-
 
     @hybrid_property
     def current_patches(self):
@@ -135,13 +140,14 @@ class Project(db.Model):
     @hybrid_property
     def unreviewed_patches(self):
         q = self.current_patches
-        return q.filter_by(state = PatchState.unreviewed)
+        return q.filter_by(state=PatchState.unreviewed)
 
     @hybrid_property
     def pending_patches(self):
         q = self.current_patches
         return q.filter(or_(Patch.state == PatchState.unreviewed,
                             Patch.state == PatchState.comments))
+
     @hybrid_property
     def new_patches(self):
         q = self.unreviewed_patches
@@ -150,7 +156,7 @@ class Project(db.Model):
     @hybrid_property
     def reviewed_patches(self):
         q = self.current_patches
-        return q.filter_by(state = PatchState.comments)
+        return q.filter_by(state=PatchState.comments)
 
     @hybrid_property
     def stale_patches(self):
@@ -160,7 +166,7 @@ class Project(db.Model):
     @hybrid_property
     def committed_patches(self):
         q = self.current_patches
-        return q.filter_by(state = PatchState.accepted)
+        return q.filter_by(state=PatchState.accepted)
 
     @hybrid_property
     def tags(self):
@@ -182,8 +188,11 @@ class EmailMixin(object):
         return self.name
 
 ancestry = db.Table('ancestry',
-                    db.Column('successor_id', db.Integer, db.ForeignKey('patch.id')),
-                    db.Column('ancestor_id', db.Integer, db.ForeignKey('topic.id')))
+                    db.Column('successor_id', db.Integer,
+                              db.ForeignKey('patch.id')),
+                    db.Column('ancestor_id', db.Integer,
+                              db.ForeignKey('topic.id')))
+
 
 class Patch(EmailMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -195,9 +204,9 @@ class Patch(EmailMixin, db.Model):
     project = db.relationship('Project',
                               backref=backref('patches', lazy='dynamic'))
     successors = db.relationship('Patch', backref="ancestors",
-                                secondary=ancestry,
-                                primaryjoin=ancestry.c.successor_id==id,
-                                secondaryjoin=ancestry.c.ancestor_id==id)
+                                 secondary=ancestry,
+                                 primaryjoin=ancestry.c.successor_id == id,
+                                 secondaryjoin=ancestry.c.ancestor_id == id)
     series_id = db.Column(db.Integer, db.ForeignKey('series.id'))
     series = db.relationship('Series', backref='patches')
     state = db.Column(PatchState.db_type(), default=PatchState.unreviewed)
@@ -283,7 +292,8 @@ tags = db.Table('tags',
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
-    patches = db.relationship("Patch", secondary=tags, backref="tags", lazy="dynamic")
+    patches = db.relationship("Patch", secondary=tags, backref="tags",
+                              lazy="dynamic")
 
     @classmethod
     def get_or_create(self, name):

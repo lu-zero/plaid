@@ -341,6 +341,7 @@ def find_patch_for_mail(project, mail):
 
     return patch
 
+
 def dump_mail(mail, message_id):
     import os
     try:
@@ -350,6 +351,7 @@ def dump_mail(mail, message_id):
     with open('rej/' + message_id, 'w') as f:
         f.write(str(mail))
 
+
 def find_ancestor(project, mail, patch):
     ancestor = find_patch_for_mail(project, mail)
 
@@ -357,6 +359,7 @@ def find_ancestor(project, mail, patch):
         return ancestor
 
     return None
+
 
 def import_mail(mail, project_name=None):
     # some basic sanity checks

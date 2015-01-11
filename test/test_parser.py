@@ -66,7 +66,7 @@ class TestParser(unittest.TestCase):
 
     def test_parse_comment_before_patch(self):
         (patch, comment) = parse_patch(self.comment_before_patch)
-     	self.assertEqual("""I send you my beautiful patch.
+        self.assertEqual("""I send you my beautiful patch.
                      I hope you like it""", comment.strip())
 
     def test_parse_comment_after_patch(self):
@@ -80,4 +80,3 @@ class TestParser(unittest.TestCase):
         self.assertEqual(['a', 'b'], subject_parser.tags)
         subject_parser = SubjectParser("[WIP]a: b: subject ", [""])
         self.assertEqual(['a', 'b'], subject_parser.tags)
-

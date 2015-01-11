@@ -7,16 +7,19 @@ from app.models import Patch
 
 bp = Blueprint('patch', __name__, url_prefix='/patch/<patch_id>')
 
+
 @bp.url_value_preprocessor
 def get_patch(endpoint, values):
     patch_id = values.pop('patch_id')
     g.patch = Patch.query.filter_by(id=patch_id).first_or_404()
+
 
 @bp.url_defaults
 def add_patch(endpoint, values):
     if 'patch_id' in values or not g.patch:
         return
     values['project_name'] = g.patch.id
+
 
 @bp.route('/')
 def index():
@@ -25,6 +28,7 @@ def index():
 
     if patches.count() > 1:
         patches = patches.order_by(Patch.date)
+
         def endpoint(page_index):
             patch = patches.paginate(page_index, 1).items[0]
             return url_for('patch.index', patch_id=patch.id)
@@ -46,7 +50,7 @@ def index():
 def mbox():
     return Response(g.patch.mbox, mimetype='application/mbox')
 
+
 @bp.route('/patch')
 def patch():
     return Response(g.patch.content, mimetype='text/x-patch')
-

@@ -1,10 +1,10 @@
 import datetime
 import email
-import mailbox
 import unittest
 
 from mailparse import HeaderParser
 from mailparse import mail_date
+
 
 class TestMailbox(unittest.TestCase):
     email1 = email.message_from_file(open('test/data/someemails/1.eml'))
