@@ -6,6 +6,7 @@ from flask import url_for
 
 from flask.ext import login
 from flask.ext.admin import helpers
+from flask.ext.user import login_required
 
 from app import app
 from app import db
