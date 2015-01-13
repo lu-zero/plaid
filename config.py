@@ -23,7 +23,7 @@ class Config(object):
 
     # Flask-Security
     SECURITY_PASSWORD_HASH = 'bcrypt'
-    SECURITY_PASSWORD_SALT = 'changeme'
+    SECURITY_PASSWORD_SALT = '123456'
     SECURITY_REGISTERABLE = True
 
     USER_ENABLE_USERNAME = False
