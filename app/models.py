@@ -2,7 +2,8 @@ import re
 
 from datetime import datetime
 from datetime import timedelta
-from flask.ext.user import UserMixin
+from flask.ext.security import RoleMixin
+from flask.ext.security import UserMixin
 from sqlalchemy.orm import backref
 from sqlalchemy.sql import or_
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -11,9 +12,17 @@ from app import db
 from app.enum import DeclEnum
 
 
-class Role(DeclEnum):
-    user = "U", "user"
-    admin = "A", "admin"
+roles_users = db.Table('roles_users',
+                       db.Column('user_id', db.Integer(),
+                                 db.ForeignKey('user.id')),
+                       db.Column('role_id', db.Integer(),
+                                 db.ForeignKey('role.id')))
+
+
+class Role(RoleMixin, db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(80), unique=True)
+    description = db.Column(db.String(255))
 
 
 class User(UserMixin, db.Model):
@@ -25,13 +34,8 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(255), nullable=False, default='')
     reset_password_token = db.Column(db.String(100), nullable=False,
                                      default='')
-    role = db.Column(Role.db_type(), default=Role.user)
-
-    def __init__(self, **kwargs):
-        from app import user_manager
-        if 'password' in kwargs:
-            kwargs['password'] = user_manager.hash_password(kwargs['password'])
-        super(User, self).__init__(**kwargs)
+    roles = db.relationship('Role', secondary=roles_users,
+                            backref=db.backref('users', lazy='dynamic'))
 
     # Flask-Login integration
     def is_authenticated(self):
@@ -55,15 +59,6 @@ class User(UserMixin, db.Model):
 
     def get_name(self):
         return self.name
-
-    def set_password(self, password):
-        from app import user_manager
-        self.password = user_manager.hash_password(password)
-
-    def is_valid_password(self, password):
-        from app import user_manager
-        password = user_manager.hash_password(password)
-        return user_manager.verify_password(password, self.password)
 
     @staticmethod
     def get_by_id(userid):

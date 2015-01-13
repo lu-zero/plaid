@@ -3,13 +3,16 @@ import traceback
 
 from email import message_from_file
 
-from flask.ext.script import Manager, Command, Option
+from flask.ext.script import Command
+from flask.ext.script import Manager
+from flask.ext.script import Option
 from flask.ext.script.commands import InvalidCommand
-from flask.ext.migrate import Migrate, MigrateCommand
+from flask.ext.migrate import Migrate
+from flask.ext.migrate import MigrateCommand
 
 from app import app
 from app import db
-from app.models import Role
+from app import user_datastore
 from app.models import User
 from app.models import Project
 
@@ -49,19 +52,36 @@ class CreateUser(Command):
         Option('--password', '-p', required=True, dest="password",
                type=unicode,
                help="Set the user's password to PASSWORD."),
-        Option('--role', '-r', required=False, dest="role", default="user",
-               type=unicode,
-               help="Role (admin, maintainer)")
+        Option('--role', '-r', required=False, dest="role", type=unicode,
+               help="Role (admin, reviewer)")
     )
+
+    _roles = {
+        'admin': lambda: user_datastore.find_or_create_role(
+            name='admin',
+            description='Plaid administrator.'
+        ),
+        'user': lambda: user_datastore.find_or_create_role(
+            name='reviewer',
+            description='Patch reviewer.'
+        )
+    }
+
+    def _get_or_create_role(self, role):
+        r = self._roles[role]
+        return r()
 
     def run(self, name, email, password, role):
         u = User(name=name,
                  password=password,
                  email=email)
-        try:
-            u.role = getattr(Role, role)
-        except:
-            raise InvalidCommand("The role %s is not supported." % (role))
+        if role is not None:
+            try:
+                r = self._get_or_create_role(role)
+                user_datastore.add_role_to_user(u, r)
+            except:
+                raise InvalidCommand("The role %s is not supported."
+                                     % (role))
 
         print('Creating user %s' % u)
         db.session.add(u)

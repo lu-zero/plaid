@@ -21,7 +21,11 @@ class Config(object):
     MAIL_PASSWORD = None
     MAIL_DEFAULT_SENDER = None
 
-    # Flask-User
+    # Flask-Security
+    SECURITY_PASSWORD_HASH = 'bcrypt'
+    SECURITY_PASSWORD_SALT = 'changeme'
+    SECURITY_REGISTERABLE = True
+
     USER_ENABLE_USERNAME = False
     USER_ENABLE_CHANGE_USERNAME = False
     USER_ENABLE_EMAIL = True
