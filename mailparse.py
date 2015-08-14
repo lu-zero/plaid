@@ -372,6 +372,11 @@ def import_mail(mail, project_name=None):
     if 'Message-Id' not in mail:
         return 0
 
+    message_id = mail.get('Message-Id').strip()
+    if db.session.query(Patch).filter(Patch.msgid == message_id).count() > 0:
+        print('We have already imported a message with id "%s"' % message_id)
+        return
+
     hint = mail.get('X-Patchwork-Hint', '').lower()
     if hint == 'ignore':
         return 0
