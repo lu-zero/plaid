@@ -385,7 +385,7 @@ def import_mail(mail, project_name=None):
 
     project = find_project(project_name)
     if project is None:
-        print 'No project for %s found' % header_parser.project_name
+        print 'No project for %s found' % project_name
         dump_mail(mail, header_parser.message_id)
         return 0
     try:
