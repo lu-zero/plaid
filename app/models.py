@@ -24,6 +24,9 @@ class Role(RoleMixin, db.Model):
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
 
+    def can_change_patch_state(self):
+        return self.name == 'reviewer' or self.name == 'admin'
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -59,6 +62,12 @@ class User(UserMixin, db.Model):
 
     def get_name(self):
         return self.name
+
+    def can_change_patch_state(self):
+        for role in self.roles:
+            if role.can_change_patch_state():
+                return True
+        return False
 
     @staticmethod
     def get_by_id(userid):

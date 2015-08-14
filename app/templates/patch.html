@@ -80,6 +80,20 @@
 </tbody>
 </table>
 
+{% if current_user.can_change_patch_state() %}
+    <form action="{{ url_for('patch.change_state', patch_id=patch.id) }}" method="POST">
+        <select id="states" name="new_state">
+            <option value='U' {% if patch.state.name == 'unreviewed' %}SELECTED{% endif %}>unreviewed</option>
+            <option value="C" {% if patch.state.name == 'comments' %}SELECTED{% endif %}>commented</option>
+            <option value="A" {% if patch.state.name == 'accepted' %}SELECTED{% endif %}>accepted</option>
+            <option value="R" {% if patch.state.name == 'rejected' %}SELECTED{% endif %}>rejected</option>
+        </select>
+        <input class="success button" type=submit value="Change state">
+    </form>
+{% else %}
+<p><i>You cannot change the state of this patch</i></p>
+{% endif %}
+
 {% if page is defined %}
     {{paginate(page, endpoint)}}
 {% endif %}

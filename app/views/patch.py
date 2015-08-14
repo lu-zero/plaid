@@ -1,9 +1,13 @@
 from flask import Response, Blueprint
 from flask import g, render_template, url_for
+from flask import request, abort, redirect
 
 from flask.ext import login
 
-from app.models import Patch
+from flask.ext.security import current_user
+
+from app.models import Patch, PatchState
+from app import db
 
 bp = Blueprint('patch', __name__, url_prefix='/patch/<patch_id>')
 
@@ -45,6 +49,17 @@ def index():
                                user=login.current_user,
                                patch=g.patch)
 
+
+@bp.route('/change_state', methods=['POST'])
+def change_state():
+    if not current_user or not current_user.can_change_patch_state():
+        abort(401)
+
+    new_state_str = request.form['new_state']
+    new_state = PatchState.from_string(new_state_str)
+    g.patch.state = new_state
+    db.session.commit()
+    return redirect(url_for('patch.index',patch_id=g.patch.id))
 
 @bp.route('/mbox')
 def mbox():
