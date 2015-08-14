@@ -1,5 +1,6 @@
 from flask import Blueprint
 from flask import render_template, g
+from flask import request
 
 from app.models import Project, Tag
 
@@ -21,8 +22,18 @@ def add_project(endpoint, values):
 
 @bp.route('/')
 def index():
+    stale_page = request.args.get('stale_page')
+    if not stale_page:
+        stale_page = 1
+    else:
+        stale_page = int(stale_page)
+    new_page = request.args.get('new_page')
+    if not new_page:
+        new_page = 1
+    else:
+        new_page = int(new_page)
     return render_template('project.html',
-                           title="Project %s" % g.project.name)
+                           title="Project %s" % g.project.name, stale_page=stale_page, new_page=new_page)
 
 
 @bp.route('/patches/')
