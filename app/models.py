@@ -195,7 +195,7 @@ ancestry = db.Table('ancestry',
                     db.Column('successor_id', db.Integer,
                               db.ForeignKey('patch.id')),
                     db.Column('ancestor_id', db.Integer,
-                              db.ForeignKey('topic.id')))
+                              db.ForeignKey('patch.id')))
 
 
 class Patch(EmailMixin, db.Model):
