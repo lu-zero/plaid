@@ -45,7 +45,7 @@ class CreateProject(Command):
 class CreateUser(Command):
     """Create a new user account"""
     option_list = (
-        Option('--name', '-n', required=False, dest='name', type=unicode,
+        Option('--name', '-n', required=True, dest='name', type=unicode,
                help="Set the user name to NAME."),
         Option('--email', '-e', required=True, dest='email', type=unicode,
                help="Set the user's email address to EMAIL."),
