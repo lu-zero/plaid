@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import render_patches %}
 
 {% block breadcrumb %}
 <li><a href="{{ url_for('project.index', project_name=g.project.name) }}">{{ g.project.name }}</a></li>
@@ -6,9 +7,7 @@
 {% endblock %}
 
 {% block content %}
-<ul>
-{% for patch in patches %}
-<li><a href="{{url_for('patch.index',patch_id=patch.id)}}">{{patch.name}}</a></li>
-{% endfor%}
-</ul>
+
+{{ render_patches(patches, endpoint) }}
+
 {% endblock %}

@@ -1,5 +1,6 @@
 {%- macro paginate(pagination, endpoint) -%}
-    <ul class="pagination">
+    {% if pagination.pages > 1 %}
+    <ul class="pagination pagination-sm">
     {%- for page in pagination.iter_pages() %}
         {% if page %}
             <li {{ 'class=active' if page == pagination.page }} >
@@ -11,6 +12,48 @@
         {% endif %}
     {%- endfor %}
     </ul>
+    {% endif %}
+{% endmacro %}
+
+{%- macro patch_row_tiny(patch) -%}
+    <tr>
+        <td>
+            <a href="{{url_for('patch.index', patch_id=patch.id)}}">
+                {{ patch.name| truncate(79, True) }}
+            </a>
+        </td>
+        <td>
+            {{ patch.date }}
+        </td>
+        <td>
+            {{ patch.state }}
+        </td>
+    </tr>
+{% endmacro %}
+
+{%- macro patch_list(patches) -%}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Patch</th><th>Date</th><th>State</th>
+            </tr>
+        </thead>
+        <tbody>
+        {%- for patch in patches %}
+            {{ patch_row_tiny(patch) }}
+        {% endfor %}
+        </tbody>
+    </table>
+{% endmacro %}
+
+{%- macro render_patches(patches, endpoint) -%}
+
+{{ paginate(patches, endpoint) }}
+
+{{ patch_list(patches.items) }}
+
+{{ paginate(patches, endpoint) }}
+
 {% endmacro %}
 
 {%- macro render_tag(tag, project) -%}

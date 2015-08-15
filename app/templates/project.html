@@ -84,8 +84,9 @@
     </tr>
 {% endmacro %}
 
-{%- macro patch_panel(highlight, heading, data, pagination_arg) -%}
-    {%- if data.items.count -%}
+{%- macro patch_panel(highlight, heading, group, page) -%}
+    {% set patches = g.project[group+"_patches"] %}
+    {%- if patches.count() -%}
     <div class="panel panel-{{highlight}}">
         <div class="panel-heading">{{heading}}</div>
         <table class="table table-striped">
@@ -95,30 +96,26 @@
             </tr>
         </thead>
         <tbody>
-        {%- for patch in data.items %}
+        {%- for patch in patches[:page] %}
             {{ patch_row_tiny(patch) }}
         {% endfor %}
+        {% if patches.count() > page %}
+        <tfoot>
+            <tr><th colspan="0">
+            <a
+               href="{{ url_for("project.patches", group=group) }}">
+               more...
+            <a/>
+            </th></tr>
+        </div>
+        {% endif %}
         </tbody>
         </table>
     </div>
     {% endif %}
-    {%- if data.has_prev  -%}
-        <a href="{{ url_for('project.index', **{pagination_arg:data.page-1}) }}">Prev page</a>
-    {% else %}
-        <i>No prev page</i>
-    {% endif %}
-    - Page {{ data.page }} -
-    {%- if data.has_next  -%}
-        <a href="{{ url_for('project.index', **{pagination_arg:data.page+1}) }}">Next page</a>
-    {% else %}
-        <i>No next page</i>
-    {% endif %}
-    <br/><br/>
 {% endmacro %}
 
-
-{{ patch_panel('danger', "Stale Patches", g.project.stale_patches.paginate(stale_page, per_page=10), 'stale_page') }}
-
-{{ patch_panel('info', "New Patches", g.project.new_patches.paginate(new_page, per_page=10), 'new_page' ) }}
+{{ patch_panel('danger', "Stale Patches", "stale", 10) }}
+{{ patch_panel('info', "New Patches", "new", 10) }}
 
 {% endblock %}

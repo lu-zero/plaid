@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask import render_template, g
-from flask import request
+from flask import request, url_for
 
 from app.models import Project, Tag
 
@@ -22,32 +22,31 @@ def add_project(endpoint, values):
 
 @bp.route('/')
 def index():
-    stale_page = request.args.get('stale_page')
-    if not stale_page:
-        stale_page = 1
-    else:
-        stale_page = int(stale_page)
-    new_page = request.args.get('new_page')
-    if not new_page:
-        new_page = 1
-    else:
-        new_page = int(new_page)
     return render_template('project.html',
-                           title="Project %s" % g.project.name, stale_page=stale_page, new_page=new_page)
+                           title="Project %s" % g.project.name)
 
 
 @bp.route('/patches/')
 @bp.route('/patches/<group>')
-def patches(group=None):
+@bp.route('/patches/<group>/<int:page>')
+def patches(group=None, page=1):
     if group:
         patches = getattr(g.project, group+"_patches", [])
     else:
         group = 'patches'
         patches = g.project.patches
+
+
+    patches = patches.paginate(page, 50, False)
+
+    def endpoint(page_index):
+        return url_for('project.patches', group=group, page=page_index)
+
     return render_template('project_list.html',
                            title="Project %s" % g.project.name,
                            patches=patches,
-                           group=group)
+                           group=group,
+                           endpoint=endpoint)
 
 
 @bp.route('/tag/')
@@ -59,15 +58,23 @@ def tags():
 
 
 @bp.route('/tag/<tag_name>')
-def tag(tag_name):
+@bp.route('/tag/<tag_name>/<int:page>')
+def tag(tag_name, page=1):
     tags = g.project.tags
 
     tag = tags.filter(Tag.name == tag_name).first_or_404()
     patches = tag.patches.filter_by(project_id=g.project.id)
+
+    patches = patches.paginate(page, 50, False)
+
+    def endpoint(page_index):
+        return url_for('project.tag', tag_name=tag_name, page=page_index)
+
     return render_template('tag.html',
                            title="Tag %s" % tag.name,
                            patches=patches,
-                           tag=tag)
+                           tag=tag,
+                           endpoint=endpoint)
 
 
 @bp.route('/series/<series_id>')
