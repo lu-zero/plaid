@@ -53,7 +53,7 @@ class CreateUser(Command):
                type=unicode,
                help="Set the user's password to PASSWORD."),
         Option('--role', '-r', required=False, dest="role", type=unicode,
-               help="Role (admin, reviewer)")
+               help="Role (admin or committer)")
     )
 
     _roles = {
@@ -61,9 +61,9 @@ class CreateUser(Command):
             name='admin',
             description='Plaid administrator.'
         ),
-        'user': lambda: user_datastore.find_or_create_role(
-            name='reviewer',
-            description='Patch reviewer.'
+        'committer': lambda: user_datastore.find_or_create_role(
+            name='committer',
+            description='Patch committer.'
         )
     }
 
