@@ -4,7 +4,7 @@ from flask import request, abort, redirect
 
 from flask.ext import login
 
-from flask.ext.security import current_user
+from flask.ext.security import current_user, roles_accepted
 
 from app.models import Patch, PatchState
 from app import db
@@ -50,14 +50,11 @@ def index():
                                patch=g.patch)
 
 
-@bp.route('/change_state', methods=['POST'])
+@bp.route('/change_state/', methods=['POST'])
+@roles_accepted('admin', 'committer')
 def change_state():
-    if not current_user or not current_user.can_change_patch_state():
-        abort(401)
-
-    new_state_str = request.form['new_state']
-    new_state = PatchState.from_string(new_state_str)
-    g.patch.state = new_state
+    new_state = request.form['new_state']
+    g.patch.state = PatchState.from_string(new_state)
     db.session.commit()
     return redirect(url_for('patch.index',patch_id=g.patch.id))
 
