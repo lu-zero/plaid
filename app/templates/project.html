@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import render_item, render_status, render_tag %}
+{% from "macros.html" import render_item, render_status, render_tag, patch_row_tiny %}
 
 {% block breadcrumb %}
 <li>{{ g.project.name }}</li>
@@ -66,23 +66,6 @@
     </table>
     </div>
 </div>
-
-
-{%- macro patch_row_tiny(patch) -%}
-    <tr>
-        <td>
-            <a href="{{url_for('patch.index', patch_id=patch.id)}}">
-                {{ patch.name| truncate(79, True) }}
-            </a>
-        </td>
-        <td>
-            {{ patch.date }}
-        </td>
-        <td>
-            {{ patch.state }}
-        </td>
-    </tr>
-{% endmacro %}
 
 {%- macro patch_panel(highlight, heading, group, page) -%}
     {% set patches = g.project[group+"_patches"].order_by("Patch.date desc") %}

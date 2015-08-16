@@ -15,9 +15,21 @@
     {% endif %}
 {% endmacro %}
 
+{%- macro render_tag(tag, project) -%}
+    <a class="btn btn-xs btn-info"i
+       href="{{ url_for('project.tag', project_name=project.name, tag_name=tag.name) }}">{{tag.name}}</a>
+{% endmacro %}
+
+{%- macro render_tags(tags, project) -%}
+    {%- for tag in tags %}
+        {{ render_tag(tag, project) }}
+    {% endfor %}
+{% endmacro %}
+
 {%- macro patch_row_tiny(patch) -%}
     <tr>
         <td>
+            {{ render_tags(patch.tags, patch.project) }}
             <a href="{{url_for('patch.index', patch_id=patch.id)}}">
                 {{ patch.name| truncate(79, True) }}
             </a>
@@ -54,16 +66,6 @@
 
 {{ paginate(patches, endpoint) }}
 
-{% endmacro %}
-
-{%- macro render_tag(tag, project) -%}
-    <a class="btn btn-xs btn-info" href="{{ url_for('project.tag', project_name=project.name, tag_name=tag.name) }}">{{tag.name}}</a>
-{% endmacro %}
-
-{%- macro render_tags(tags, project) -%}
-    {%- for tag in tags %}
-        {{ render_tag(tag, project) }}
-    {% endfor %}
 {% endmacro %}
 
 {%- macro render_item(name, item) -%}
