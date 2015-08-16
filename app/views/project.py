@@ -37,7 +37,7 @@ def patches(group=None, page=1):
         patches = g.project.patches
 
 
-    patches = patches.paginate(page, 50, False)
+    patches = patches.order_by("Patch.date desc").paginate(page, 50, False)
 
     def endpoint(page_index):
         return url_for('project.patches', group=group, page=page_index)
@@ -65,7 +65,7 @@ def tag(tag_name, page=1):
     tag = tags.filter(Tag.name == tag_name).first_or_404()
     patches = tag.patches.filter_by(project_id=g.project.id)
 
-    patches = patches.paginate(page, 50, False)
+    patches = patches.order_by("Patch.date desc").paginate(page, 50, False)
 
     def endpoint(page_index):
         return url_for('project.tag', tag_name=tag_name, page=page_index)

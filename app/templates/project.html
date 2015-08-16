@@ -85,7 +85,7 @@
 {% endmacro %}
 
 {%- macro patch_panel(highlight, heading, group, page) -%}
-    {% set patches = g.project[group+"_patches"] %}
+    {% set patches = g.project[group+"_patches"].order_by("Patch.date desc") %}
     {%- if patches.count() -%}
     <div class="panel panel-{{highlight}}">
         <div class="panel-heading">{{heading}}</div>
