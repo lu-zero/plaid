@@ -332,6 +332,8 @@ def find_patch_for_mail(project, mail):
     for ref in refs:
         # first, check for a direct reply
         patch = Patch.query.filter_by(project=project, msgid=ref).first()
+        if patch:
+            return patch
 
         # see if we have comments that refer to a patch
         if not patch:
