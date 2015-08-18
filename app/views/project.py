@@ -1,12 +1,17 @@
 from flask import Blueprint, Response
 from flask import render_template, g
 from flask import request, url_for
+from flask import redirect
+
+from flask.ext.security import roles_accepted
 
 from app.models import Project, Tag, Series
 from app.mbox import mbox
 from app.slugify import slugify
 
 from StringIO import StringIO
+from app.models import Patch, PatchState
+from app import db
 
 bp = Blueprint('project', __name__, url_prefix='/project/<project_name>')
 
@@ -80,6 +85,18 @@ def tag(tag_name, page=1):
                            tag=tag,
                            endpoint=endpoint)
 
+@bp.route('/bulk_change_state', methods=['POST'])
+@roles_accepted('admin', 'committer')
+def bulk_change_state():
+    new_state_str = request.form['new_state']
+    new_state = PatchState.from_string(new_state_str)
+    patches_ids_str = request.form['patches']
+    ids = [int(id) for id in patches_ids_str.split(",")]
+    for id in ids:
+        for p in Patch.query.filter_by(id=id):
+            p.state = new_state
+    db.session.commit()
+    return redirect(request.referrer)
 
 @bp.route('/series/<series_id>')
 @bp.route('/series/<series_id>/<int:page>')

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import render_item, render_status, render_tag, patch_row_tiny %}
+{% from "macros.html" import render_item, render_status, render_tag, patch_row_tiny, patches_bulk_script, patches_bulk_table_line %}
 
 {% block breadcrumb %}
 <li>{{ g.project.name }}</li>
@@ -75,7 +75,12 @@
         <table class="table table-striped">
         <thead>
             <tr>
-                <th>Patch</th><th>Date</th><th>State</th>
+                {% if current_user.has_role('committer') or current_user.has_role('admin') %}
+                <th></th>
+                {% endif %}
+                <th>Patch</th>
+                <th>Date</th>
+                <th>State</th>
             </tr>
         </thead>
         <tbody>
