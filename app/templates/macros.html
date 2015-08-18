@@ -31,9 +31,43 @@
     <span class="badge {{css_class}}">{{ patch.state.name }} </span>
 {% endmacro %}
 
+{%- macro patches_bulk_table_line(current_user) -%}
+{% if current_user.has_role('committer') or current_user.has_role('admin') %}
+<tr><td colspan="4"><a href="javascript:$('.patch-checkbox').prop('checked', true);">select all</a> - <a href="javascript:$('.patch-checkbox').prop('checked', false);">clear</a> -
+    <select id="states" name="new_state">
+        <option value='' ></option>
+        <option value='U' >unreviewed</option>
+        <option value="C" >commented</option>
+        <option value="A" >accepted</option>
+        <option value="R" >rejected</option>
+    </select>
+    <a href="#" id="bulk_apply">apply</a>
+</td></tr>
+{% endif %}
+{% endmacro %}
 
-{%- macro patch_row_tiny(patch) -%}
+{%- macro patches_bulk_script() -%}
+<script>
+    $("#bulk_apply").click(function() {
+        var selected=$('.patch-checkbox').filter(function(i){return $('.patch-checkbox')[i].checked;});
+        var values=$.map(selected, function(el, i){return el.value;});
+        var newState = $( "#states option:selected" )[0].value;
+        if (values.length > 0 && newState.length > 0) {
+            var valuesStr = values.join(',');
+            $('<form action="{{ url_for('project.bulk_change_state') }}" method="POST">' +
+                '<input type="hidden" name="patches" value="' + valuesStr + '">' +
+                '<input type="hidden" name="new_state" value="' + newState + '">' +
+                '</form>').submit();
+        }
+    });
+</script>
+{% endmacro %}
+
+{%- macro patch_row_tiny(patch, current_user) -%}
     <tr>
+        {% if current_user.has_role('committer') or current_user.has_role('admin') %}
+        <td><input type="checkbox" class="patch-checkbox" name="patch" value="{{ patch.id }}"></td>
+        {% endif %}
         <td>
             {{ render_tags(patch.tags, patch.project) }}
             <a href="{{url_for('patch.index', patch_id=patch.id)}}">
@@ -49,19 +83,26 @@
     </tr>
 {% endmacro %}
 
-{%- macro patch_list(patches) -%}
+{%- macro patch_list(patches, current_user) -%}
     <table class="table table-striped">
         <thead>
+            {{ patches_bulk_table_line(current_user) }}
             <tr>
-                <th>Patch</th><th>Date</th><th>State</th>
+                {% if current_user.has_role('committer') or current_user.has_role('admin') %}
+                <th></th>
+                {% endif %}
+                <th>Patch</th>
+                <th>Date</th>
+                <th>State</th>
             </tr>
         </thead>
         <tbody>
         {%- for patch in patches %}
-            {{ patch_row_tiny(patch) }}
+            {{ patch_row_tiny(patch, current_user) }}
         {% endfor %}
         </tbody>
     </table>
+    {{ patches_bulk_script() }}
 {% endmacro %}
 
 {%- macro render_patches(patches, endpoint) -%}

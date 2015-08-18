@@ -56,7 +56,7 @@ def change_state():
     new_state = request.form['new_state']
     g.patch.state = PatchState.from_string(new_state)
     db.session.commit()
-    return redirect(url_for('patch.index',patch_id=g.patch.id))
+    return redirect(url_for('patch.index', patch_id=g.patch.id))
 
 @bp.route('/mbox')
 def mbox():

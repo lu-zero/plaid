@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import render_item, render_status, render_tag, patch_row_tiny %}
+{% from "macros.html" import render_item, render_status, render_tag, patch_row_tiny, patches_bulk_script, patches_bulk_table_line %}
 
 {% block breadcrumb %}
 <li>{{ g.project.name }}</li>
@@ -74,13 +74,19 @@
         <div class="panel-heading">{{heading}}</div>
         <table class="table table-striped">
         <thead>
+            {{ patches_bulk_table_line(current_user) }}
             <tr>
-                <th>Patch</th><th>Date</th><th>State</th>
+                {% if current_user.has_role('committer') or current_user.has_role('admin') %}
+                <th></th>
+                {% endif %}
+                <th>Patch</th>
+                <th>Date</th>
+                <th>State</th>
             </tr>
         </thead>
         <tbody>
         {%- for patch in patches[:page] %}
-            {{ patch_row_tiny(patch) }}
+            {{ patch_row_tiny(patch, current_user) }}
         {% endfor %}
         {% if patches.count() > page %}
         <tfoot>
@@ -96,6 +102,7 @@
         </table>
     </div>
     {% endif %}
+    {{ patches_bulk_script() }}
 {% endmacro %}
 
 {{ patch_panel('danger', "Stale Patches", "stale", 10) }}
