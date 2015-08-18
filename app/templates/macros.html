@@ -26,6 +26,12 @@
     {% endfor %}
 {% endmacro %}
 
+{%- macro render_patch_state(patch) -%}
+{% set css_class = 'alert-info' %}
+    <span class="badge {{css_class}}">{{ patch.state.name }} </span>
+{% endmacro %}
+
+
 {%- macro patch_row_tiny(patch) -%}
     <tr>
         <td>
@@ -38,7 +44,7 @@
             {{ patch.date }}
         </td>
         <td>
-            {{ patch.state }}
+            {{ render_patch_state(patch) }}
         </td>
     </tr>
 {% endmacro %}
