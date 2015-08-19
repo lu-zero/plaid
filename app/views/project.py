@@ -13,6 +13,7 @@ def get_project(endpoint, values):
     g.project = Project.query.filter_by(name=project_name).first_or_404()
 
 
+
 @bp.url_defaults
 def add_project(endpoint, values):
     if 'project_name' in values or not g.project:

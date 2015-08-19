@@ -24,6 +24,7 @@ class Role(RoleMixin, db.Model):
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
 
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     active = db.Column(db.Boolean(), nullable=False, default=False)
@@ -256,8 +257,8 @@ class Series(db.Model):
     date = db.Column(db.DateTime(), default=datetime.now)
 
     @classmethod
-    def get_or_create(self, uid, name=None):
-        instance = self.query.filter_by(uid=uid).first()
+    def get_or_create(cls, uid, name=None):
+        instance = cls.query.filter_by(uid=uid).first()
         if not instance:
             if not name:
                 name = "git-send-email-" + uid
@@ -290,8 +291,8 @@ class Tag(db.Model):
                               lazy="dynamic")
 
     @classmethod
-    def get_or_create(self, name):
-        instance = self.query.filter_by(name=name).first()
+    def get_or_create(cls, name):
+        instance = cls.query.filter_by(name=name).first()
         if not instance:
             instance = Tag(name=name)
             db.session.add(instance)
