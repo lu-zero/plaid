@@ -1,4 +1,9 @@
 {% extends 'admin/master.html' %}
 
 {% block body %}
+{% if current_user and current_user.has_role('admin') %}
+    Welcome admin!
+{% else %}
+    You are not an admin...
+{% endif %}
 {% endblock %}
