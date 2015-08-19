@@ -11,6 +11,8 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from app import db
 from app.enum import DeclEnum
 
+from flask.ext.security.utils import verify_password
+
 
 roles_users = db.Table('roles_users',
                        db.Column('user_id', db.Integer(),
@@ -67,6 +69,9 @@ class User(UserMixin, db.Model):
     @staticmethod
     def get_by_name(user_name):
         return db.session.query(User).filter_by(name=user_name).first()
+
+    def is_valid_password(self, password):
+        return verify_password(password, self.password)
 
 
 class Submitter(db.Model):

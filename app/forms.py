@@ -21,7 +21,7 @@ class ProfileForm(form.Form):
     submit = fields.SubmitField('Apply')
 
     def validate_password(self, field):
-        user = self.get_user()
+        user = current_user
         if user and user.is_valid_password(self.old_password.data):
             raise validators.ValidationError('Old password is incorrect!')
 
