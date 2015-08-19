@@ -9,6 +9,7 @@ from flask.ext.script import Option
 from flask.ext.script.commands import InvalidCommand
 from flask.ext.migrate import Migrate
 from flask.ext.migrate import MigrateCommand
+from flask.ext.security.utils import encrypt_password
 
 from app import app
 from app import db
@@ -73,7 +74,7 @@ class CreateUser(Command):
 
     def run(self, name, email, password, role):
         u = User(name=name,
-                 password=password,
+                 password=encrypt_password(password),
                  email=email)
         if role is not None:
             try:
