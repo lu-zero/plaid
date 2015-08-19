@@ -8,7 +8,7 @@
 
 {% block content %}
 <h2>{{ profile.name }}'s Profile</h2>
-<form method="post" action="/profile/{{ profile.name }}" class="form-horizontal">
+<form method="post" action="{{ url_for('user.settings') }}" class="form-horizontal">
     {{ form_fields(form) }}
 </form>
 {% endblock %}

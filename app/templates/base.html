@@ -24,7 +24,7 @@
                             {{current_user.get_name()}} <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a href="/profile/{{ current_user.name }}"><span class="glyphicon glyphicon-wrench icons-padding"></span> Profile settings</a></li>
+                            <li><a href="{{ url_for('user.settings') }}"><span class="glyphicon glyphicon-wrench icons-padding"></span> Profile settings</a></li>
                         </ul>
                     </li>
                     {% else %}

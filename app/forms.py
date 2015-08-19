@@ -2,8 +2,7 @@ from wtforms import fields
 from wtforms import form
 from wtforms import validators
 
-from flask.ext.security import RegisterForm
-
+from flask.ext.security import RegisterForm, current_user
 
 class ExtendedRegisterForm(RegisterForm):
     name = fields.TextField('Full Name', [validators.Required()])
@@ -20,9 +19,9 @@ class ProfileForm(form.Form):
     confirm = fields.PasswordField('Repeat Password')
     submit = fields.SubmitField('Apply')
 
-    def validate_password(self, field):
+    def validate_old_password(self, field):
         user = current_user
-        if user and user.is_valid_password(self.old_password.data):
+        if user and not user.is_valid_password(self.old_password.data):
             raise validators.ValidationError('Old password is incorrect!')
 
     def merge_user(self, user):

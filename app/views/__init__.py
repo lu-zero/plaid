@@ -9,9 +9,11 @@ from app.models import Project
 
 from . import patch
 from . import project
+from . import user
 
 app.register_blueprint(project.bp)
 app.register_blueprint(patch.bp)
+app.register_blueprint(user.bp)
 
 
 def redirect_url(default='index'):
