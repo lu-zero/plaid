@@ -138,7 +138,7 @@ class SubjectParser(object):
             return [], subject
 
         tags = [x.strip()
-                for x in parts[0:-1]
+                for p in parts[0:-1] for x in p.split('/')
                 if x.strip().find(' ') == -1]
         subject = ':'.join(parts[len(tags):])
         return tags, subject
