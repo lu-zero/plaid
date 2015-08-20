@@ -208,7 +208,7 @@ class Patch(EmailMixin, db.Model):
                                  primaryjoin=ancestry.c.successor_id == id,
                                  secondaryjoin=ancestry.c.ancestor_id == id)
     series_id = db.Column(db.Integer, db.ForeignKey('series.id'))
-    series = db.relationship('Series', backref='patches')
+    series = db.relationship('Series', backref=backref('patches', lazy='dynamic'))
     state = db.Column(PatchState.db_type(), default=PatchState.unreviewed)
 
     def filename(self):
@@ -260,6 +260,10 @@ class Series(db.Model):
     name = db.Column(db.String(255))
     uid = db.Column(db.String(255), unique=True, nullable=True)
     date = db.Column(db.DateTime(), default=datetime.now)
+
+    @property
+    def tags(self):
+        return Tag.query.filter(Tag.patches.any(series_id=self.id)).all()
 
     @classmethod
     def get_or_create(cls, uid, name=None):

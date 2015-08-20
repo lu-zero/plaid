@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_patches, render_tags %}
+{% set tags = series.tags %}
+
+{% block breadcrumb %}
+<li><a href="{{ url_for('project.index', project_name=g.project.name) }}">{{ g.project.name }}</a></li>
+<li>{{series.name}}</li>
+{% endblock %}
+
+{% block content %}
+{% set series_url = url_for('project.series', series_id=series.id) %}
+<table class="table">
+<tbody>
+<tr>
+    <th>Submitter</th>
+    <td>
+        <a href="{{series.patches[0].submitter.email}}">
+            {{series.patches[0].submitter.name}}
+        </a>
+    </td>
+</tr>
+<tr>
+    <th>Date</th>
+    <td>{{series.date}}</td>
+</tr>
+
+{% if tags|length %}
+<tr>
+    <th>Tags</th>
+    <td>
+        {{render_tags(tags, g.project)}}
+    </td>
+</tr>
+{% endif %}
+<tr>
+    <th>Download</th>
+    <td>
+    <a href="{{ url_for('project.series_mbox', series_id=series.id) }}">mbox</a>
+    </td>
+</tr>
+<tr>
+    <th>Permalink</th>
+    <td><a href="{{ series_url }}">{{ series_url }}</a>
+    </td>
+</tr>
+</tbody>
+</table>
+
+{{ render_patches(patches, endpoint) }}
+
+{% endblock %}

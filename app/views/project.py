@@ -1,8 +1,11 @@
-from flask import Blueprint
+from flask import Blueprint, Response
 from flask import render_template, g
 from flask import request, url_for
 
-from app.models import Project, Tag
+from app.models import Project, Tag, Series
+from app.mbox import mbox
+
+from StringIO import StringIO
 
 bp = Blueprint('project', __name__, url_prefix='/project/<project_name>')
 
@@ -36,7 +39,6 @@ def patches(group=None, page=1):
     else:
         group = 'patches'
         patches = g.project.patches
-
 
     patches = patches.order_by("Patch.date desc").paginate(page, 50, False)
 
@@ -79,9 +81,30 @@ def tag(tag_name, page=1):
 
 
 @bp.route('/series/<series_id>')
-def series(series_id=None):
-    return "TODO"
+@bp.route('/series/<series_id>/<int:page>')
+def series(series_id, page=1):
+    series = Series.query.filter_by(id=series_id).first_or_404()
 
+    patches = series.patches.order_by("Patch.date asc").paginate(page, 50, False)
+
+    def endpoint(page_index):
+        return url_for('project.series', series_id=series_id, page=page_index)
+
+    return render_template('series_list.html',
+                           title="Series %s" % series.name,
+                           series=series,
+                           patches=patches,
+                           endpoint=endpoint)
+
+@bp.route('/series/<series_id>/mbox')
+def series_mbox(series_id):
+    series = Series.query.filter_by(id=series_id).first_or_404()
+    f = StringIO()
+    mb = mbox(f)
+    for patch in series.patches.order_by("Patch.date asc"):
+        mb.add(patch.mbox)
+
+    return Response(f.getvalue(), mimetype='application/mbox')
 
 @bp.route('/admin')
 def admin():
