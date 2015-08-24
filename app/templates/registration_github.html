@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "security/_macros.html" import render_field_with_errors, render_field %}
+{% include "security/_messages.html" %}
+
+{% block breadcrumb %}
+  <li>register</li>
+{% endblock %}
+
+{% block content %}
+
+  <form action="{{ url_for('github_callback_register') }}" method="POST"
+        name="register_user_form">
+    Name: {{ form.name.data }} <br>
+    E-Mail: {{ form.email.data }} <br>
+    <input type="hidden" name="name" value="{{ form.name.data }}">
+    <input type="hidden" name="email" value="{{ form.email.data }}">
+    {{ render_field_with_errors(form.password) }}
+    {{ render_field_with_errors(form.confirm) }}
+    {{ render_field(form.submit) }}
+  </form>
+{% endblock %}

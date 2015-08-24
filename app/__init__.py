@@ -6,6 +6,7 @@ from flask.ext.security import SQLAlchemyUserDatastore
 from flask.ext.security import Security, current_user
 
 from config import configuration
+from flask.ext.github import GitHub
 
 
 app = Flask(__name__)
@@ -17,7 +18,7 @@ except:
 babel = Babel(app)
 mail = Mail(app)
 db = SQLAlchemy(app)
-
+github = GitHub(app)
 
 from app import forms
 from app import models
