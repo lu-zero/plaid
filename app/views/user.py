@@ -1,4 +1,4 @@
-from flask import Response, Blueprint
+from flask import Response, Blueprint, session
 from flask import g, render_template, url_for
 from flask import request, abort, redirect
 from flask.ext.security import current_user, roles_accepted
@@ -20,11 +20,28 @@ bp = Blueprint('user', __name__, url_prefix='/profile')
 
 @app.route('/register_with_github', methods=['GET'])
 def register_with_github():
+    session['github_action'] = 'register'
     return github.authorize(scope=['user:email'])
+
+@app.route('/login_with_github', methods=['GET'])
+def login_with_github():
+    session['github_action'] = 'login'
+    return github.authorize(scope=['user:email'])
+
 
 @app.route('/github_callback_register', methods=['GET', 'POST'])
 @github.authorized_handler
 def github_callback_register(access_token):
+    if session['github_action'] == 'register':
+        return process_github_register(access_token)
+    elif session['github_action'] == 'login':
+        return process_github_login(access_token)
+    else:
+        flash('Somethins is broken with GitHub authentication')
+        return redirect(url_for('index'))
+
+
+def process_github_register(access_token):
     if request.method == 'GET' and access_token is None:
         flash('GitHub authentication failed')
         return redirect(url_for('index'))
@@ -42,6 +59,25 @@ def github_callback_register(access_token):
         login.login_user(user)
         return redirect('/')
     return render_template('registration_github.html', form=form)
+
+
+def process_github_login(access_token):
+    if access_token is None:
+        flash('GitHub authentication failed')
+        return redirect(url_for('index'))
+
+    github_data_str = urllib2.urlopen("https://api.github.com/user?access_token=%s" % access_token).read()
+    github_data = json.loads(github_data_str)
+    email = github_data['email']
+
+    user = User.get_by_email(email)
+    if user is None:
+        flash('Unknown e-mail, please register first')
+        return redirect(url_for('index'))
+
+    login.login_user(user)
+    return redirect('/')
+
 
 @bp.route('/settings', methods=['GET', 'POST'])
 def settings():

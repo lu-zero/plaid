@@ -70,6 +70,10 @@ class User(UserMixin, db.Model):
     def get_by_name(user_name):
         return db.session.query(User).filter_by(name=user_name).first()
 
+    @staticmethod
+    def get_by_email(email):
+        return db.session.query(User).filter_by(email=email).first()
+
     def is_valid_password(self, password):
         return verify_password(password, self.password)
 
