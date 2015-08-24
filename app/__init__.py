@@ -15,6 +15,11 @@ try:
     app.config.from_object('local_settings')
 except:
     pass
+
+with open('githubsecrets.txt') as f:
+    app.config['GITHUB_CLIENT_ID'] = f.readline().strip()
+    app.config['GITHUB_CLIENT_SECRET'] = f.readline().strip()
+
 babel = Babel(app)
 mail = Mail(app)
 db = SQLAlchemy(app)
