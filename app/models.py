@@ -31,6 +31,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     active = db.Column(db.Boolean(), nullable=False, default=False)
     name = db.Column(db.String(50), nullable=False, unique=True)
+    github_username = db.Column(db.String(50), nullable=True, unique=True)
     email = db.Column(db.String(255), nullable=False, index=True, unique=True)
     confirmed_at = db.Column(db.DateTime())
     password = db.Column(db.String(255), nullable=False, default='')
@@ -69,6 +70,14 @@ class User(UserMixin, db.Model):
     @staticmethod
     def get_by_name(user_name):
         return db.session.query(User).filter_by(name=user_name).first()
+
+    @staticmethod
+    def get_by_email(email):
+        return db.session.query(User).filter_by(email=email).first()
+
+    @staticmethod
+    def get_by_github_username(github_username):
+        return db.session.query(User).filter_by(github_username=github_username).first()
 
     def is_valid_password(self, password):
         return verify_password(password, self.password)

@@ -6,6 +6,7 @@ from flask.ext.security import SQLAlchemyUserDatastore
 from flask.ext.security import Security, current_user
 
 from config import configuration
+from flask.ext.github import GitHub
 
 
 app = Flask(__name__)
@@ -14,10 +15,15 @@ try:
     app.config.from_object('local_settings')
 except:
     pass
+
+with open('githubsecrets.txt') as f:
+    app.config['GITHUB_CLIENT_ID'] = f.readline().strip()
+    app.config['GITHUB_CLIENT_SECRET'] = f.readline().strip()
+
 babel = Babel(app)
 mail = Mail(app)
 db = SQLAlchemy(app)
-
+github = GitHub(app)
 
 from app import forms
 from app import models
