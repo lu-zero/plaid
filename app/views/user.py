@@ -73,7 +73,7 @@ def process_github_login(access_token):
     user = User.get_by_email(email)
     if user is None:
         flash('Unknown e-mail, please register first')
-        return redirect(url_for('index'))
+        return redirect(url_for('register_with_github'))
 
     login.login_user(user)
     return redirect('/')
