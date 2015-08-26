@@ -47,10 +47,13 @@ def process_github_register(access_token):
         return redirect(url_for('index'))
     form = GitHubRegistrationForm(request.form)
     if request.method == 'GET' and access_token is not None:
-        github_data_str = urllib2.urlopen("https://api.github.com/user?access_token=%s" % access_token).read()
-        github_data = json.loads(github_data_str)
-        form.email.data = github_data['email']
-        form.name.data = github_data['name']
+        github_user_data = urllib2.urlopen("https://api.github.com/user?access_token=%s" % access_token).read()
+        github_user = json.loads(github_user_data)
+        github_emails_data = urllib2.urlopen("https://api.github.com/user/emails?access_token=%s" % access_token).read()
+        github_emails = json.loads(github_emails_data)
+
+        form.email.data = github_emails[0]['email']
+        form.name.data = github_user['name']
 
     if request.method == 'POST' and form.validate():
         user = User(name=form.name.data, password=encrypt_password(form.password.data), email=form.email.data)
