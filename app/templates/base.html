@@ -4,6 +4,7 @@
         <title>Plaid - {{title}}</title>
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap.css')}}" />
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap-theme.css')}}" />
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/octicons.css')}}" />
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/plaid.css')}}" />
         <script src="{{ url_for('static', filename='js/jquery-2.0.3.js') }}" async></script>
         <script src="{{ url_for('static', filename='js/bootstrap.js') }}" async></script>
@@ -32,8 +33,8 @@
                     {% else %}
                     <li><a href="/login"><span class="glyphicon glyphicon-log-in icons-padding"></span> Login</a></li>
                     <li><a href="/register"><span class="glyphicon glyphicon-edit icons-padding"></span> Register</a></li>
+                    <li><a href="{{ url_for('login_with_github') }}"><span class="octicon octicon-mark-github"></span> Login with Github</a></li>
                     {% endif %}
-                    <li><a href="#"><span class="glyphicon glyphicon-info-sign icons-padding"></span> Help</a></li>
                     {% if current_user!=None and current_user.is_authenticated() and not current_user.is_anonymous(): %}
                     <li><a href="/logout"><span class="glyphicon glyphicon-off icons-padding"></span> Exit</a></li>
                     {% endif %}
