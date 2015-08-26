@@ -21,12 +21,12 @@ bp = Blueprint('user', __name__, url_prefix='/profile')
 @app.route('/register_with_github', methods=['GET'])
 def register_with_github():
     session['github_action'] = 'register'
-    return github.authorize(scope=['user:email'])
+    return github.authorize(scope='user:email')
 
 @app.route('/login_with_github', methods=['GET'])
 def login_with_github():
     session['github_action'] = 'login'
-    return github.authorize(scope=['user:email'])
+    return github.authorize(scope='user:email')
 
 
 @app.route('/github_callback_register', methods=['GET', 'POST'])
