@@ -273,9 +273,10 @@ class HeaderParser(object):
 
 
 def import_mailbox(path, project):
-    mbox = mailbox.mbox(path, create=False)
-    for mail in mbox:
-        import_mail(mail, project)
+    with open(path, "ro") as f:
+        mbox = mailbox.mbox(f)
+        for mail in mbox:
+            import_mail(mail, project)
     return None
 
 
