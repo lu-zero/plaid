@@ -33,31 +33,30 @@
 
 {%- macro patches_bulk_table_line() -%}
 {% if g.user.has_role('committer') or g.user.has_role('admin') %}
-<tr><td colspan="4"><a href="#" id="select_all">select all</a> - <a href="#" id="clear_all">clear</a> -
-    <select id="states" name="new_state">
-        <option value='' ></option>
-        <option value='U' >unreviewed</option>
-        <option value="C" >commented</option>
-        <option value="A" >accepted</option>
-        <option value="R" >rejected</option>
-    </select>
-    <a href="#" id="bulk_apply">apply</a>
+<tr><td colspan="4">
+    <div class="btn-group btn-group-xs">
+        <button type="button" class="btn btn-default dropdown-toggle"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        With selected <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+        <li><a class="bulk_actions" value="A" id="accept" href="#">Accept</a></li>
+        <li><a class="bulk_actions" value="R" id="reject" href="#">Reject</a></li>
+        <li><a class="bulk_actions" value="C" id="reject" href="#">Comment</a></li>
+        <li><a class="bulk_actions" value="U" id="reject" href="#">Unreviewed</a></li>
+       </ul>
+    </div>
 </td></tr>
 
 <script defer>
     $(document).ready(function(){
         $("#select_all").click(function() {
-            $('.patch-checkbox').prop('checked', true);
-            return false;
+            $('.patch-checkbox').prop('checked', this.checked);
         });
-        $("#clear_all").click(function() {
-            $('.patch-checkbox').prop('checked', false);
-            return false;
-        });
-        $("#bulk_apply").click(function() {
-            var selected=$('.patch-checkbox').filter(function(i){return $('.patch-checkbox')[i].checked;});
+        $(".bulk_actions").click(function() {
+            var selected=$('.patch-checkbox:checked');
             var values=$.map(selected, function(el, i){return el.value;});
-            var newState = $( "#states option:selected" )[0].value;
+            var newState = $(this).attr("value");
             if (values.length > 0 && newState.length > 0) {
                 var valuesStr = values.join(',');
                 // we need to add it to the DOM or firefox complains
@@ -66,7 +65,6 @@
                     '<input type="hidden" name="new_state" value="' + newState + '">' +
                     '</form>').appendTo("body").submit();
             }
-            return false;
         });
     });
 </script>
@@ -75,9 +73,9 @@
 {% endmacro %}
 
 
-{%- macro patch_row_tiny(patch) -%}
+{%- macro patch_row_tiny(patch, show_box=True) -%}
     <tr>
-        {% if g.user.has_role('committer') or g.user.has_role('admin') %}
+        {% if show_box %}
         <td><input type="checkbox" class="patch-checkbox" name="patch" value="{{ patch.id }}"></td>
         {% endif %}
         <td>
@@ -101,7 +99,10 @@
             {{ patches_bulk_table_line() }}
             <tr>
                 {% if g.user.has_role('committer') or g.user.has_role('admin') %}
-                <th></th>
+                <th>
+                    <input type="checkbox"
+                           id="select_all" title="Select all">
+                </th>
                 {% endif %}
                 <th>Patch</th>
                 <th>Date</th>

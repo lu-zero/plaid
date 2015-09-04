@@ -75,9 +75,6 @@
         <table class="table table-striped">
         <thead>
             <tr>
-                {% if current_user.has_role('committer') or current_user.has_role('admin') %}
-                <th></th>
-                {% endif %}
                 <th>Patch</th>
                 <th>Date</th>
                 <th>State</th>
@@ -85,7 +82,7 @@
         </thead>
         <tbody>
         {%- for patch in patches[:page] %}
-            {{ patch_row_tiny(patch) }}
+            {{ patch_row_tiny(patch, False) }}
         {% endfor %}
         {% if patches.count() > page %}
         <tfoot>
