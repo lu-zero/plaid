@@ -1,6 +1,7 @@
 from flask import render_template
 from flask import request
 from flask import url_for
+from flask import g
 
 from flask.ext.security import current_user
 
@@ -19,6 +20,9 @@ app.register_blueprint(user.bp)
 def redirect_url(default='index'):
     return request.args.get('next') or request.referrer or url_for(default)
 
+@app.before_request
+def before_request():
+    g.user = current_user
 
 @app.route('/')
 @app.route('/index')
