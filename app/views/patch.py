@@ -7,6 +7,7 @@ from flask.ext import login
 from flask.ext.security import current_user, roles_accepted
 
 from app.models import Patch, PatchState
+from app.slugify import slugify
 from app import db
 
 bp = Blueprint('patch', __name__, url_prefix='/patch/<patch_id>')
@@ -60,9 +61,15 @@ def change_state():
 
 @bp.route('/mbox')
 def mbox():
-    return Response(g.patch.mbox, mimetype='application/mbox')
+    filename = "{}-{}.mbox".format(g.patch.id, slugify(g.patch.name))
+    headers = {"Content-Disposition":'attachment;filename="%s"' % filename}
+
+    return Response(g.patch.mbox, mimetype='application/mbox', headers=headers)
 
 
 @bp.route('/patch')
 def patch():
-    return Response(g.patch.content, mimetype='text/x-patch')
+    filename = "{}-{}.patch".format(g.patch.id, slugify(g.patch.name))
+    headers = {"Content-Disposition":'attachment;filename="%s"' % filename}
+
+    return Response(g.patch.content, mimetype='text/x-patch', headers=headers)

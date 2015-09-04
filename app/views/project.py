@@ -4,6 +4,7 @@ from flask import request, url_for
 
 from app.models import Project, Tag, Series
 from app.mbox import mbox
+from app.slugify import slugify
 
 from StringIO import StringIO
 
@@ -104,7 +105,13 @@ def series_mbox(series_id):
     for patch in series.patches.order_by("Patch.date asc"):
         mb.add(patch.mbox)
 
-    return Response(f.getvalue(), mimetype='application/mbox')
+    filename = "{}-{}-series.mbox".format(series_id, slugify(g.project.name))
+
+    headers = {"Content-Disposition":'attachment;filename="%s"' % filename}
+
+    return Response(f.getvalue(),
+                    mimetype='application/mbox',
+                    headers=headers)
 
 @bp.route('/admin')
 def admin():
