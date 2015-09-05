@@ -376,7 +376,8 @@ def import_mail(mail, project_name=None):
         return 0
 
     message_id = mail.get('Message-Id').strip()
-    if Patch.query.filter(Patch.msgid == message_id).count():
+    if Patch.query.filter_by(msgid=message_id).count() or \
+       Comment.query.filter_by(msgid=message_id).count():
         print('We have already imported a message with id "%s"' % message_id)
         return
 
