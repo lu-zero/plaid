@@ -34,7 +34,8 @@ def index():
     if patches.count() > 1:
         patches = patches.order_by(Patch.date)
 
-        def endpoint(page_index):
+        def endpoint(**kwargs):
+            page_index = kwargs.get('page')
             patch = patches.paginate(page_index, 1).items[0]
             return url_for('patch.index', patch_id=patch.id)
 

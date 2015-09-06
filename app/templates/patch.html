@@ -97,7 +97,9 @@
 {% endif %}
 
 {% if page is defined %}
+<div class="clearfix">
     {{paginate(page, endpoint)}}
+</div>
 {% endif %}
 
 <div class="panel panel-default">
