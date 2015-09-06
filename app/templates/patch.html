@@ -26,7 +26,11 @@
 <table class="table">
 <tbody><tr>
     <th>Submitter</th>
-    <td><a href="{{patch.submitter.email}}">{{patch.submitter.name}}</a></td>
+    <td>
+        <a href="{{url_for('project.submitter', project_name=patch.project.name, submitter_id=patch.submitter.id)}}">
+            {{patch.submitter.name}}
+        </a>
+    </td>
 </tr>
 <tr>
     <th>Date</th>

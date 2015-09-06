@@ -130,6 +130,26 @@ def series_mbox(series_id):
                     mimetype='application/mbox',
                     headers=headers)
 
+
+@bp.route('/submitter/<submitter_id>')
+@bp.route('/submitter/<submitter_id>/<int:page>')
+def submitter(submitter_id, page=1):
+    submitter = g.project.submitter.filter_by(id=submitter_id).first_or_404()
+
+    patches = submitter.patches.filter_by(project_id=g.project.id)
+
+    patches = patches.order_by("Patch.date desc").paginate(page, 50, False)
+
+    def endpoint(page_index):
+        return url_for('project.submitter', submitter_id=submitter_id, page=page_index);
+
+    return render_template('project_submitter.html',
+                           title=submitter.name,
+                           submitter=submitter,
+                           patches=patches,
+                           endpoint=endpoint)
+
+
 @bp.route('/admin')
 def admin():
     return "TODO"

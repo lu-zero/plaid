@@ -19,6 +19,7 @@
         <th>List address</th>
         <td>{{ g.project.listemail }}</td>
         </tr>
+        {% if g.project.maintainers.count() > 0 %}
         <tr>
         <th>Maintainers</th>
         <td>
@@ -35,6 +36,7 @@
             </ul>
         </td>
         </tr>
+        {% endif %}
         <tr>
             <th>Patch count</th>
             <td>

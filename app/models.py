@@ -137,7 +137,8 @@ class Project(db.Model):
     description = db.Column(db.String(256))
     notifications = db.Column(db.Boolean())
     maintainers = db.relationship('User', secondary=project_maintainers,
-                                  backref=backref('projects', lazy='dynamic'))
+                                  backref=backref('projects', lazy='dynamic'),
+                                  lazy='dynamic')
 
     def __unicode__(self):
         return self.name
@@ -181,6 +182,10 @@ class Project(db.Model):
     def tags(self):
         return Tag.query.join(tags).join(Patch).filter_by(project_id=self.id)
 
+    @property
+    def submitter(self):
+        return Submitter.query.filter(Submitter.patches.any(project_id=self.id))
+
     @staticmethod
     def get_all():
         return Project.query.all()
@@ -206,7 +211,7 @@ ancestry = db.Table('ancestry',
 class Patch(EmailMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     submitter_id = db.Column(db.Integer, db.ForeignKey('submitter.id'))
-    submitter = db.relationship('Submitter', backref='patches')
+    submitter = db.relationship('Submitter', backref=backref('patches', lazy='dynamic'))
     pull_url = db.Column(db.String(255))
     commit_ref = db.Column(db.String(255), default=None)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
