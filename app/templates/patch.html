@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import paginate, render_tags %}
+{% from "macros.html" import paginate, render_tags, render_patch_state %}
 {% block head %}
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/pygments.css')}}" />
 {% endblock %}
@@ -66,7 +66,7 @@
 </tr>
 <tr>
     <th>State</th>
-    <td>{{patch.state}}</td>
+    <td>{{render_patch_state(patch)}}</td>
 </tr>
 
 <tr>
