@@ -1,10 +1,10 @@
 {%- macro paginate(pagination, endpoint) -%}
     {% if pagination.pages > 1 %}
-    <ul class="pagination pagination-sm">
+    <ul class="pagination pagination-sm pull-right">
     {%- for page in pagination.iter_pages() %}
         {% if page %}
             <li {{ 'class=active' if page == pagination.page }} >
-                <a href="{{ endpoint(page) }}"
+                <a href="{{ endpoint(page=page) }}"
                    title="">{{ page }}</a>
             </li>
         {% else %}
@@ -16,7 +16,7 @@
 {% endmacro %}
 
 {%- macro render_tag(tag, project) -%}
-    <a class="btn btn-xs btn-info"i
+    <a class="btn btn-xs btn-info"
        href="{{ url_for('project.tag', project_name=project.name, tag_name=tag.name) }}">{{tag.name}}</a>
 {% endmacro %}
 
@@ -41,7 +41,6 @@
 
 {%- macro patches_bulk_table_line() -%}
 {% if g.user.has_role('committer') or g.user.has_role('admin') %}
-<tr><td colspan="4">
     <div class="btn-group btn-group-xs">
         <button type="button" class="btn btn-default dropdown-toggle"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -52,9 +51,9 @@
         <li><a class="bulk_actions" value="R" id="reject" href="#">Reject</a></li>
         <li><a class="bulk_actions" value="C" id="reject" href="#">Comment</a></li>
         <li><a class="bulk_actions" value="U" id="reject" href="#">Unreviewed</a></li>
+        <li role="separator" class="divider"></li>
        </ul>
     </div>
-</td></tr>
 
 <script defer>
     $(document).ready(function(){
@@ -80,6 +79,23 @@
 {% endif %}
 {% endmacro %}
 
+{%- macro filter_patches(endpoint) -%}
+<div class="btn-group btn-group-xs">
+    <button type="button" class="btn btn-default dropdown-toggle"
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Filter by State <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu filter-state">
+    <li><a href="{{endpoint(state=None)}}">Any</a></li>
+    <li role="separator" class="divider"></li>
+    <li><a href="{{endpoint(state='A')}}">Accept</a></li>
+    <li><a href="{{endpoint(state='R')}}">Reject</a></li>
+    <li><a href="{{endpoint(state='C')}}">Comment</a></li>
+    <li><a href="{{endpoint(state='U')}}">Unreviewed</a></li>
+   </ul>
+</div>
+
+{% endmacro %}
 
 {%- macro patch_row_tiny(patch, show_box=True) -%}
     <tr>
@@ -101,10 +117,9 @@
     </tr>
 {% endmacro %}
 
-{%- macro patch_list(patches) -%}
+{%- macro patch_list(patches, endpoint) -%}
     <table class="table table-striped">
         <thead>
-            {{ patches_bulk_table_line() }}
             <tr>
                 {% if g.user.has_role('committer') or g.user.has_role('admin') %}
                 <th>
@@ -128,8 +143,12 @@
 {%- macro render_patches(patches, endpoint) -%}
 
 {{ paginate(patches, endpoint) }}
+    <div class="btn-toolbar" role="toolbar" aria-label="list-menu">
+            {{ filter_patches(endpoint) }}
+            {{ patches_bulk_table_line() }}
+    </div>
 
-{{ patch_list(patches.items) }}
+{{ patch_list(patches.items, endpoint) }}
 
 {{ paginate(patches, endpoint) }}
 

@@ -11,7 +11,9 @@ from app.slugify import slugify
 
 from StringIO import StringIO
 from app.models import Patch, PatchState
+from app.views.decorators import paginable, render, filterable
 from app import db
+
 
 bp = Blueprint('project', __name__, url_prefix='/project/<project_name>')
 
@@ -38,24 +40,21 @@ def index():
 
 @bp.route('/patches/')
 @bp.route('/patches/<group>')
-@bp.route('/patches/<group>/<int:page>')
-def patches(group=None, page=1):
+@render('project_list.html')
+@paginable('patches')
+@filterable
+def patches(group=None):
     if group:
         patches = getattr(g.project, group+"_patches", [])
     else:
         group = 'patches'
         patches = g.project.patches
 
-    patches = patches.order_by("Patch.date desc").paginate(page, 50, False)
+    patches = patches.order_by("Patch.date desc")
 
-    def endpoint(page_index):
-        return url_for('project.patches', group=group, page=page_index)
-
-    return render_template('project_list.html',
-                           title="Project %s" % g.project.name,
-                           patches=patches,
-                           group=group,
-                           endpoint=endpoint)
+    return dict(title="Project %s" % g.project.name,
+                query=patches,
+                group=group)
 
 
 @bp.route('/tag/')
@@ -67,23 +66,23 @@ def tags():
 
 
 @bp.route('/tag/<tag_name>')
-@bp.route('/tag/<tag_name>/<int:page>')
+@render('tag.html')
+@paginable('patches')
+@filterable
 def tag(tag_name, page=1):
     tags = g.project.tags
 
     tag = tags.filter(Tag.name == tag_name).first_or_404()
     patches = tag.patches.filter_by(project_id=g.project.id)
 
-    patches = patches.order_by("Patch.date desc").paginate(page, 50, False)
+    patches = patches.order_by("Patch.date desc")
 
     def endpoint(page_index):
         return url_for('project.tag', tag_name=tag_name, page=page_index)
 
-    return render_template('tag.html',
-                           title="Tag %s" % tag.name,
-                           patches=patches,
-                           tag=tag,
-                           endpoint=endpoint)
+    return dict(title="Tag %s" % tag.name,
+                query=patches,
+                tag=tag)
 
 @bp.route('/bulk_change_state', methods=['POST'])
 @roles_accepted('admin', 'committer')
@@ -99,20 +98,17 @@ def bulk_change_state():
     return redirect(request.referrer)
 
 @bp.route('/series/<series_id>')
-@bp.route('/series/<series_id>/<int:page>')
+@render('series_list.html')
+@paginable('patches')
+@filterable
 def series(series_id, page=1):
     series = Series.query.filter_by(id=series_id).first_or_404()
 
-    patches = series.patches.order_by("Patch.date asc").paginate(page, 50, False)
+    patches = series.patches.order_by("Patch.date asc")
 
-    def endpoint(page_index):
-        return url_for('project.series', series_id=series_id, page=page_index)
-
-    return render_template('series_list.html',
-                           title="Series %s" % series.name,
-                           series=series,
-                           patches=patches,
-                           endpoint=endpoint)
+    return dict(title="Series %s" % series.name,
+                series=series,
+                query=patches)
 
 @bp.route('/series/<series_id>/mbox')
 def series_mbox(series_id):
@@ -132,22 +128,19 @@ def series_mbox(series_id):
 
 
 @bp.route('/submitter/<submitter_id>')
-@bp.route('/submitter/<submitter_id>/<int:page>')
+@render('series_list.html')
+@paginable('patches')
+@filterable
 def submitter(submitter_id, page=1):
     submitter = g.project.submitter.filter_by(id=submitter_id).first_or_404()
 
     patches = submitter.patches.filter_by(project_id=g.project.id)
 
-    patches = patches.order_by("Patch.date desc").paginate(page, 50, False)
+    patches = patches.order_by("Patch.date desc")
 
-    def endpoint(page_index):
-        return url_for('project.submitter', submitter_id=submitter_id, page=page_index);
-
-    return render_template('project_submitter.html',
-                           title=submitter.name,
-                           submitter=submitter,
-                           patches=patches,
-                           endpoint=endpoint)
+    return dict(title=submitter.name,
+                submitter=submitter,
+                query=patches)
 
 
 @bp.route('/admin')
