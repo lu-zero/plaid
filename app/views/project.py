@@ -45,7 +45,7 @@ def index():
 @filterable
 def patches(group=None):
     if group:
-        patches = getattr(g.project, group+"_patches", [])
+        patches = getattr(g.project, group+"_patches", g.project.patches)
     else:
         group = 'patches'
         patches = g.project.patches
