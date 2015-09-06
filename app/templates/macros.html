@@ -27,8 +27,16 @@
 {% endmacro %}
 
 {%- macro render_patch_state(patch) -%}
+{% if patch.state.value == 'A' %}
+{% set css_class = 'alert-success' %}
+{% elif patch.state.value == 'R' %}
+{% set css_class = 'alert-danger' %}
+{% elif patch.state.value == 'C' %}
 {% set css_class = 'alert-info' %}
-    <span class="badge {{css_class}}">{{ patch.state.name }} </span>
+{% elif patch.state.value == 'U' %}
+{% set css_class = 'alert-warning' %}
+{% endif %}
+    <span class="badge {{css_class}}">{{ patch.state.description }} </span>
 {% endmacro %}
 
 {%- macro patches_bulk_table_line() -%}
