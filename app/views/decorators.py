@@ -32,9 +32,13 @@ def paginable(pagename, max_per_page=50):
             page = request.args.get('page', 1, type=int)
             per_page = request.args.get('per_page', max_per_page, type=int)
 
-            p = q.paginate(page, per_page)
+            p = q.paginate(page, per_page, False)
 
-            d[pagename] = p
+            if not p.items:
+                d['page'] = None
+                d[pagename] = q.paginate(1, per_page, False)
+            else:
+                d[pagename] = p
             return d
         return wrapped
     return decorator
