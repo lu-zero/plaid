@@ -57,9 +57,6 @@
 
 <script defer>
     $(document).ready(function(){
-        $("#select_all").click(function() {
-            $('.patch-checkbox').prop('checked', this.checked);
-        });
         $(".bulk_actions").click(function() {
             var selected=$('.patch-checkbox:checked');
             var values=$.map(selected, function(el, i){return el.value;});
@@ -118,15 +115,20 @@
 {% endmacro %}
 
 {%- macro patch_list(patches, endpoint) -%}
+<script defer>
+    $(document).ready(function(){
+        $("#select_all").click(function() {
+            $('.patch-checkbox').prop('checked', this.checked);
+        });
+    });
+</script>
     <table class="table table-striped">
         <thead>
             <tr>
-                {% if g.user.has_role('committer') or g.user.has_role('admin') %}
                 <th>
                     <input type="checkbox"
                            id="select_all" title="Select all">
                 </th>
-                {% endif %}
                 <th>Patch</th>
                 <th>Date</th>
                 <th>State</th>
