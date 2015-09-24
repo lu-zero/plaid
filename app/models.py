@@ -236,7 +236,7 @@ class Patch(EmailMixin, db.Model):
         from email.encoders import encode_7or8bit
 
         body = ''
-        if self.comments[0].msgid == self.msgid:
+        if self.comments and self.comments[0].msgid == self.msgid:
             body += self.comments[0].content + '\n'
         body += self.content
 
