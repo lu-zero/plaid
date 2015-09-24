@@ -242,7 +242,7 @@ class Patch(EmailMixin, db.Model):
 
         mbox = MIMENonMultipart('text', 'plain', charset='utf-8')
 
-        mbox['Subject'] = self.name
+        mbox['Subject'] = ": ".join([t.name for t in self.tags] + [self.name.strip().capitalize()])
         mbox['From'] = '%s <%s>' % (self.submitter.name, self.submitter.email)
         mbox['Message-Id'] = self.msgid
 
