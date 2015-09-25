@@ -128,7 +128,7 @@ def series_mbox(series_id):
 
 
 @bp.route('/submitter/<submitter_id>')
-@render('series_list.html')
+@render('project_submitter.html')
 @paginable('patches')
 @filterable
 def submitter(submitter_id, page=1):
