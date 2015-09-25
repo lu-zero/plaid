@@ -231,13 +231,19 @@ class Patch(EmailMixin, db.Model):
         return str.strip('-') + '.patch'
 
     @property
+    def description(self):
+        if self.comments and self.comments[0].msgid == self.msgid:
+            return self.comments[0]
+        return None
+
+    @property
     def mbox(self):
         from email.mime.nonmultipart import MIMENonMultipart
         from email.encoders import encode_7or8bit
 
         body = ''
-        if self.comments and self.comments[0].msgid == self.msgid:
-            body += self.comments[0].content + '\n'
+        if self.description:
+            body += self.description.content + '\n'
         body += self.content
 
         mbox = MIMENonMultipart('text', 'plain', charset='utf-8')
