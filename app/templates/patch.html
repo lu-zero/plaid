@@ -107,6 +107,11 @@
     <h3 class="panel-title">{{title}}</h3>
 </div>
 <div class="panel-body">
+{% if patch.description %}
+<pre>
+{{ patch.description.content }}
+</pre>
+{% endif %}
 {{render_patch(patch.content)}}
 </div>
 </div>
