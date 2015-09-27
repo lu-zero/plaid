@@ -230,6 +230,14 @@ def parse_from_header(from_header):
     if name is not None:
         name = name.strip()
 
+        if name.startswith('=?') and name.endswith('?='):
+            def get_fragment(fragment):
+                (frag_str, frag_encoding) = fragment
+                return frag_str
+
+            fragments = map(get_fragment, decode_header(name))
+            name = ' '.join(fragments)
+
     return (name, email)
 
 class HeaderParser(object):
