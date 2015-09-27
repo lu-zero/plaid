@@ -202,10 +202,7 @@ class ContentParser(object):
         self.comment = self._clean_content(self.comment)
 
 
-class HeaderParser(object):
-    list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list', 'To', 'CC']
-    listid_res = [re.compile('.*<([^>]+)>.*', re.S),
-                  re.compile('^([\S]+)$', re.S)]
+def parse_from_header(from_header):
     # tuple of (regex, fn)
     #  - where fn returns a (name, email) tuple from the match groups
     #    resulting from re.match().groups()
@@ -217,6 +214,28 @@ class HeaderParser(object):
         # everything else
         (re.compile('(.*)'), (lambda g: (None, g[0]))),
     ]
+
+    (name, email) = (None, None)
+
+    for regex, fn in from_res:
+        match = regex.match(from_header)
+        if match:
+            (name, email) = fn(match.groups())
+            break
+
+    if email is None:
+        raise Exception("Could not parse From: header")
+
+    email = email.strip()
+    if name is not None:
+        name = name.strip()
+
+    return (name, email)
+
+class HeaderParser(object):
+    list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list', 'To', 'CC']
+    listid_res = [re.compile('.*<([^>]+)>.*', re.S),
+                  re.compile('^([\S]+)$', re.S)]
 
     def __init__(self, mail):
         self.message_id = mail.get('Message-Id').strip()
@@ -240,22 +259,7 @@ class HeaderParser(object):
 
     def _find_submitter_name_and_email(self, mail):
         from_header = self.clean_header(mail.get('From'))
-        (name, email) = (None, None)
-
-        for regex, fn in self.from_res:
-            match = regex.match(from_header)
-            if match:
-                (name, email) = fn(match.groups())
-                break
-
-        if email is None:
-            raise Exception("Could not parse From: header")
-
-        email = email.strip()
-        if name is not None:
-            name = name.strip()
-
-        return (name, email)
+        return parse_from_header(from_header)
 
     def _find_project_name(self, mail):
         for header in self.list_id_headers:
