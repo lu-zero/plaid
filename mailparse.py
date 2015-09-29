@@ -126,6 +126,9 @@ class SubjectParser(object):
 
         return subject
 
+    def _contains_just_tags(self, part):
+        return all([x.strip().find(' ') == -1 for x in part.split('/')])
+
     def _derive_tag_names(self, subject):
         # skip the parts indicating the index in patchset (e.g., [1/2])
         if subject.find(']') != -1:
@@ -140,7 +143,20 @@ class SubjectParser(object):
         tags = [x.strip()
                 for p in parts[0:-1] for x in p.split('/')
                 if x.strip().find(' ') == -1]
-        subject = ':'.join(parts[len(tags):])
+
+        # We are trying to understand which part of the subject is made by tags,
+        # the rest will be the subject.
+        # The last part of will always be part of the subject anyway.
+        # By parts we means the segments of the original subject split by colons
+        parts_containing_just_tags = 0
+        keep_going = True
+        while (parts_containing_just_tags + 1) < len(parts) and keep_going:
+            if self._contains_just_tags(parts[parts_containing_just_tags]):
+                parts_containing_just_tags += 1
+            else:
+                keep_going = False
+        subject = ':'.join(parts[parts_containing_just_tags:])
+        subject = subject.strip()
         return tags, subject
 
 
