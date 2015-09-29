@@ -83,6 +83,12 @@ class TestParser(unittest.TestCase):
         subject_parser = SubjectParser("[WIP]a: b: subject ", [""])
         self.assertEqual(['a', 'b'], subject_parser.tags)
 
+    def test_handle_slash_in_subject(self):
+        subject_parser = SubjectParser("[PATCH] checkasm/x86: Correctly handle variadic", [""])
+        self.assertEqual('Correctly handle variadic', subject_parser.name)
+        self.assertEqual(['checkasm', 'x86'], subject_parser.tags)
+        self.assertEqual('checkasm/x86: Correctly handle variadic', subject_parser.subject)
+
     def test_parse_from_header_with_ascii_characters(self):
         self.assertEqual(("Luca Barbato", "lu_zero at gentoo.org"), parse_from_header("lu_zero at gentoo.org (Luca Barbato)"))
         self.assertEqual(("Vittorio Giovara", "vittorio.giovara at gmail.com"), parse_from_header("vittorio.giovara at gmail.com (Vittorio Giovara)"))
