@@ -93,3 +93,9 @@ class TestParser(unittest.TestCase):
 
     def test_parse_from_header_with_Latin1(self):
         self.assertEqual((u"Martin Storsjö", "martin at martin.st"), parse_from_header("martin at martin.st (=?ISO-8859-15?Q?Martin_Storsj=F6?=)"))
+
+    def test_derive_tag_names_with_square_brackets(self):
+        subject_parser = SubjectParser("[PATCH] lavu: Deprecate AVFrame.error[]", [""])
+        self.assertEqual(['lavu'], subject_parser.tags)
+        self.assertEqual('Deprecate AVFrame.error[]', subject_parser.name)
+        self.assertEqual('lavu: Deprecate AVFrame.error[]', subject_parser.subject)

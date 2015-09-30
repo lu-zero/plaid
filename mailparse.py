@@ -26,6 +26,7 @@ class SubjectParser(object):
     re_re = re.compile('^(re|fwd?)[:\s]\s*', re.I)
     prefix_re = re.compile('^\[([^\]]*)\]\s*(.*)$')
     split_re = re.compile('[,\s]+')
+    patchset_index_re = re.compile('\[.+\]')
 
     def __init__(self, subject, drop_prefixes=None):
         self.subject = self._clean_subject(subject, drop_prefixes)
@@ -131,9 +132,11 @@ class SubjectParser(object):
 
     def _derive_tag_names(self, subject):
         # skip the parts indicating the index in patchset (e.g., [1/2])
-        if subject.find(']') != -1:
-            index_end = subject.index(']')
-            subject = subject[index_end + 1:]
+        # ignore other usages of square brackets
+        patchset_match = self.patchset_index_re.search(subject)
+        if patchset_match:
+            subject = subject[:patchset_match.start()] + subject[patchset_match.end():]
+            subject = subject.strip()
 
         parts = subject.split(':')
         if len(parts) < 2:
