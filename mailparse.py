@@ -92,7 +92,7 @@ class SubjectParser(object):
         '[bar] meep'
         """
 
-        subject = HeaderParser.clean_header(subject)
+        subject = clean_header(subject)
 
         if drop_prefixes is None:
             drop_prefixes = []
@@ -218,6 +218,19 @@ class ContentParser(object):
         self.comment = self._clean_content(self.comment)
 
 
+def clean_header(header):
+    """ Decode (possibly non-ascii) headers """
+
+    def decode(fragment):
+        (frag_str, frag_encoding) = fragment
+        if frag_encoding:
+            return frag_str.decode(frag_encoding)
+        return frag_str.decode()
+
+    fragments = map(decode, decode_header(header))
+    return normalise_space(u' '.join(fragments))
+
+
 def parse_from_header(from_header):
     # tuple of (regex, fn)
     #  - where fn returns a (name, email) tuple from the match groups
@@ -244,15 +257,7 @@ def parse_from_header(from_header):
 
     email = email.strip()
     if name is not None:
-        name = name.strip()
-
-        if name.startswith('=?') and name.endswith('?='):
-            def get_fragment(fragment):
-                (frag_str, frag_encoding) = fragment
-                return frag_str
-
-            fragments = map(get_fragment, decode_header(name))
-            name = ' '.join(fragments)
+        name = clean_header(name)
 
     return (name, email)
 
@@ -268,21 +273,8 @@ class HeaderParser(object):
         self.from_email = submitter[1]
         self.project_name = self._find_project_name(mail)
 
-    @staticmethod
-    def clean_header(header):
-        """ Decode (possibly non-ascii) headers """
-
-        def decode(fragment):
-            (frag_str, frag_encoding) = fragment
-            if frag_encoding:
-                return frag_str.decode(frag_encoding)
-            return frag_str.decode()
-
-        fragments = map(decode, decode_header(header))
-        return normalise_space(u' '.join(fragments))
-
     def _find_submitter_name_and_email(self, mail):
-        from_header = self.clean_header(mail.get('From'))
+        from_header = clean_header(mail.get('From'))
         return parse_from_header(from_header)
 
     def _find_project_name(self, mail):
