@@ -3,7 +3,7 @@ Flask-Admin==1.0.7
 Flask-Babel==0.9
 Flask-Migrate==0.1.4
 Flask-SQLAlchemy==1.0
-Flask-Security==1.7.*
+Flask-Security==1.7.4
 Flask-Script==0.6.2
 Flask-WTF==0.9.3
 Jinja2==2.7.1
