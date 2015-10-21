@@ -16,9 +16,12 @@ try:
 except:
     pass
 
-with open('githubsecrets.txt') as f:
-    app.config['GITHUB_CLIENT_ID'] = f.readline().strip()
-    app.config['GITHUB_CLIENT_SECRET'] = f.readline().strip()
+try:
+    with open('githubsecrets.txt') as f:
+        app.config['GITHUB_CLIENT_ID'] = f.readline().strip()
+        app.config['GITHUB_CLIENT_SECRET'] = f.readline().strip()
+except:
+    pass
 
 babel = Babel(app)
 mail = Mail(app)
