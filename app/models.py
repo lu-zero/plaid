@@ -183,7 +183,7 @@ class Project(db.Model):
         return Tag.query.join(tags).join(Patch).filter_by(project_id=self.id)
 
     @property
-    def submitter(self):
+    def submitters(self):
         return Submitter.query.filter(Submitter.patches.any(project_id=self.id))
 
     @staticmethod

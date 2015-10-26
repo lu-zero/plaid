@@ -132,7 +132,7 @@ def series_mbox(series_id):
 @paginable('patches')
 @filterable
 def submitter(submitter_id, page=1):
-    submitter = g.project.submitter.filter_by(id=submitter_id).first_or_404()
+    submitter = g.project.submitters.filter_by(id=submitter_id).first_or_404()
 
     patches = submitter.patches.filter_by(project_id=g.project.id)
 
