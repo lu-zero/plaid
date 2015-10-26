@@ -16,6 +16,11 @@ app.register_blueprint(project.bp)
 app.register_blueprint(patch.bp)
 app.register_blueprint(user.bp)
 
+try:
+    from . import github
+    app.register_blueprint(github.bp)
+except:
+    pass
 
 def redirect_url(default='index'):
     return request.args.get('next') or request.referrer or url_for(default)

@@ -35,7 +35,13 @@
                     {% else %}
                     <li><a href="/login"><span class="glyphicon glyphicon-log-in icons-padding"></span> Login</a></li>
                     <li><a href="/register"><span class="glyphicon glyphicon-edit icons-padding"></span> Register</a></li>
-                    <li><a href="{{ url_for('login_with_github') }}"><span class="octicon octicon-mark-github"></span> Login with Github</a></li>
+                    {% if g.github %}
+                        <li>
+                            <a href="{{ url_for('github.login') }}">
+                                <span class="octicon octicon-mark-github"></span> Login with Github
+                            </a>
+                        </li>
+                    {% endif %}
                     {% endif %}
                     {% if current_user!=None and current_user.is_authenticated() and not current_user.is_anonymous(): %}
                     <li><a href="/logout"><span class="glyphicon glyphicon-off icons-padding"></span> Exit</a></li>

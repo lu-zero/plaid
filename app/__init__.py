@@ -16,17 +16,17 @@ try:
 except:
     pass
 
+babel = Babel(app)
+mail = Mail(app)
+db = SQLAlchemy(app)
+
 try:
     with open('githubsecrets.txt') as f:
         app.config['GITHUB_CLIENT_ID'] = f.readline().strip()
         app.config['GITHUB_CLIENT_SECRET'] = f.readline().strip()
+    github = GitHub(app)
 except:
     pass
-
-babel = Babel(app)
-mail = Mail(app)
-db = SQLAlchemy(app)
-github = GitHub(app)
 
 from app import forms
 from app import models

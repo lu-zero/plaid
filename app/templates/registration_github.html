@@ -7,7 +7,7 @@
 
 {% block content %}
 
-  {% call render_form(form, action_url=url_for('github_callback_register')) %}
+  {% call render_form(form, action_url=url_for('github.register')) %}
     {{ render_field(form.name) }}
     {{ render_field(form.email) }}
     {{ render_field(form.password) }}
