@@ -20,6 +20,13 @@
        href="{{ url_for('project.tag', project_name=project.name, tag_name=tag.name) }}">{{tag.name}}</a>
 {% endmacro %}
 
+{%- macro render_submitter(submitter, project) -%}
+    <a class="btn btn-xs btn-success"
+       href="{{ url_for('project.submitter',
+                         project_name=project.name,
+                         submitter_id=submitter.id) }}">{{ submitter.name }}</a>
+{% endmacro %}
+
 {%- macro render_tags(tags, project) -%}
     {%- for tag in tags %}
         {{ render_tag(tag, project) }}

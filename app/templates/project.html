@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% from "macros.html" import render_item, render_status, render_tag, patch_row_tiny, patches_bulk_script, patches_bulk_table_line %}
+{% from "macros.html" import render_item, render_status, render_tag, render_submitter %}
+{% from "macros.html" import patch_row_tiny, patches_bulk_script, patches_bulk_table_line %}
 
 {% block breadcrumb %}
 <li>{{ g.project.name }}</li>
@@ -50,13 +51,27 @@
                 {{ g.project.tags.count() }}
                 </a>
             </td>
+        </tr>
+        <tr class="collapse" id="taglist">
+            <td colspan="2">
+                {% for tag in g.project.tags | sort %}
+                    {{render_tag(tag, g.project)}}
+                {% endfor %}
+            </td>
+        </tr>
         <tr>
-            <td colspan=2>
-                <div class="collapse" id="taglist">
-                    {% for tag in g.project.tags %}
-                        {{render_tag(tag, g.project)}}
-                    {% endfor %}
-                </div>
+            <th>Submitters</th>
+            <td>
+                <a href="#" data-toggle="collapse" data-target="#submitterlist">
+                {{ g.project.submitters.count() }}
+                </a>
+            </td>
+        </tr>
+        <tr class="collapse" id="submitterlist">
+            <td colspan="2">
+                {% for submitter in g.project.submitters %}
+                    {{ render_submitter(submitter, g.project) }}
+                {% endfor %}
             </td>
         </tr>
 
