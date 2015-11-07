@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_form, render_field, render_submit %}
+
+{% block breadcrumb %}
+<li>search</li>
+{% endblock %}
+
+{% block content %}
+<div class="panel panel-primary">
+    <div class="panel-heading">Search</div>
+    <div class="panel-body">
+    {% call render_form(form, action='GET', action_url=url_for('search.query')) %}
+       {{ render_field(form.project) }}
+       {{ render_field(form.name) }}
+       {{ render_submit(form.submit, class_='btn btn-default') }}
+    {% endcall %}
+    </div>
+</div>
+{% endblock %}
+

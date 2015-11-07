@@ -48,3 +48,9 @@ class GitHubRegistrationForm(form.Form):
     def merge_user(self, user):
         if self.password.validate():
             user.set_password(self.password.data)
+
+class SearchForm(form.Form):
+    project = fields.TextField('Project')
+    name = fields.TextField('Subject')
+
+    submit = fields.SubmitField('Search')

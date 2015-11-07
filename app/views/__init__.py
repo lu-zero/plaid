@@ -11,10 +11,12 @@ from app.models import Project
 from . import patch
 from . import project
 from . import user
+from . import search
 
 app.register_blueprint(project.bp)
 app.register_blueprint(patch.bp)
 app.register_blueprint(user.bp)
+app.register_blueprint(search.bp)
 
 try:
     from . import github

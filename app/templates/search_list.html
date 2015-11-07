@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_patches %}
+
+{% block breadcrumb %}
+<li><a href="{{url_for("search.index")}}">search</a></li>
+<li>query</li>
+{% endblock %}
+
+{% block content %}
+
+{{ render_patches(patches, endpoint) }}
+
+{% endblock %}
