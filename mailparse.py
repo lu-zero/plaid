@@ -259,7 +259,8 @@ def parse_from_header(from_header):
         raise Exception("Could not parse From: header")
 
     email = email.strip()
-    if name is not None:
+    # Horrible workaround for importing mailman mangled emails
+    if name is not None and " at " in email:
         name = clean_header(name)
 
     return (name, email)
