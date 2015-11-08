@@ -6,7 +6,8 @@ from flask.ext import login
 
 from flask.ext.security import current_user, roles_accepted
 
-from app.forms import SearchForm
+from wtforms import fields
+from wtforms import form
 
 from app.models import Patch, PatchState
 from app.views.decorators import paginable, render, filterable
@@ -14,6 +15,13 @@ from app.views.decorators import paginable, render, filterable
 from app import db
 
 bp = Blueprint('search', __name__, url_prefix='/search')
+
+class SearchForm(form.Form):
+    project = fields.TextField('Project')
+    name = fields.TextField('Subject')
+    content = fields.TextField('Contents')
+
+    submit = fields.SubmitField('Search')
 
 @bp.route('/')
 def index():
@@ -28,9 +36,13 @@ def index():
 def query():
     project = request.args.get('project', None, type=int)
     name = request.args.get('name', None, type=str)
+    content = request.args.get('content', None, type=str)
     tags = request.args.getlist('tags')
 
     query = Patch.query;
+
+    if content:
+        query = query.whoosh_search(content)
 
     if project:
         query = query.filter_by(project_id=project)

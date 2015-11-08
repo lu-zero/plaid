@@ -4,6 +4,9 @@ from datetime import datetime
 from datetime import timedelta
 from flask.ext.security import RoleMixin
 from flask.ext.security import UserMixin
+
+import flask.ext.whooshalchemy
+
 from sqlalchemy.orm import backref
 from sqlalchemy.sql import or_
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -209,6 +212,7 @@ ancestry = db.Table('ancestry',
 
 
 class Patch(EmailMixin, db.Model):
+    __searchable__ = ['name', 'content']
     id = db.Column(db.Integer, primary_key=True)
     submitter_id = db.Column(db.Integer, db.ForeignKey('submitter.id'))
     submitter = db.relationship('Submitter', backref=backref('patches', lazy='dynamic'))

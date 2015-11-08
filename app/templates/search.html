@@ -12,6 +12,7 @@
     {% call render_form(form, action='GET', action_url=url_for('search.query')) %}
        {{ render_field(form.project) }}
        {{ render_field(form.name) }}
+       {{ render_field(form.content) }}
        {{ render_submit(form.submit, class_='btn btn-default') }}
     {% endcall %}
     </div>

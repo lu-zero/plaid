@@ -37,6 +37,9 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from app.models import User, Patch, Role, Submitter, Project, Comment, Series, Topic, Tag
 
+from flask.ext.whooshalchemy import whoosh_index
+
+whoosh_index(app, Patch)
 
 class PlaidModelView(ModelView):
 
