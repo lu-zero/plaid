@@ -51,9 +51,10 @@ def render(template):
         def wrapped(*args, **kwargs):
             d = f(*args, **kwargs)
             def endpoint(**up):
-                kwargs.update(up)
-
-                return url_for(request.endpoint, **kwargs)
+                args = dict()
+                args.update(request.args)
+                args.update(up)
+                return url_for(request.endpoint, **args)
 
             d['endpoint'] = endpoint
             return render_template(template, **d)
