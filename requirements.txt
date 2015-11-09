@@ -22,3 +22,4 @@ py-bcrypt==0.4
 wsgiref==0.1.2
 GitHub-Flask==2.1.1
 Unidecode==0.4.18
+unidiff==0.5.1
