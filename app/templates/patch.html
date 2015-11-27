@@ -24,7 +24,12 @@
 
 {% block content %}
 <table class="table">
-<tbody><tr>
+<tbody>
+<tr>
+    <th>Subject</th>
+    <td>{{ patch.name }}</td>
+</tr>
+<tr>
     <th>Submitter</th>
     <td>
         <a href="{{url_for('project.submitter', project_name=patch.project.name, submitter_id=patch.submitter.id)}}">
