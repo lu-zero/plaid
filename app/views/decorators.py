@@ -53,6 +53,7 @@ def render(template):
             def endpoint(**up):
                 args = dict()
                 args.update(request.args)
+                args.update(request.view_args)
                 args.update(up)
                 return url_for(request.endpoint, **args)
 
