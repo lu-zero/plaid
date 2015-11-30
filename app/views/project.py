@@ -84,19 +84,6 @@ def tag(tag_name, page=1):
                 query=patches,
                 tag=tag)
 
-@bp.route('/bulk_change_state', methods=['POST'])
-@roles_accepted('admin', 'committer')
-def bulk_change_state():
-    new_state_str = request.form['new_state']
-    new_state = PatchState.from_string(new_state_str)
-    patches_ids_str = request.form['patches']
-    ids = [int(id) for id in patches_ids_str.split(",")]
-    for id in ids:
-        for p in Patch.query.filter_by(id=id):
-            p.state = new_state
-    db.session.commit()
-    return redirect(request.referrer)
-
 @bp.route('/series/<series_id>')
 @render('series_list.html')
 @paginable('patches')

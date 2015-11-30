@@ -71,7 +71,7 @@
             if (values.length > 0 && newState.length > 0) {
                 var valuesStr = values.join(',');
                 // we need to add it to the DOM or firefox complains
-                $('<form style="display:hidden" action="{{ url_for('project.bulk_change_state') }}" method="POST">' +
+                $('<form style="display:hidden" action="{{ url_for('bulk_update') }}" method="POST">' +
                     '<input type="hidden" name="patches" value="' + valuesStr + '">' +
                     '<input type="hidden" name="new_state" value="' + newState + '">' +
                     '</form>').appendTo("body").submit();

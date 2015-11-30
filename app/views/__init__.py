@@ -4,9 +4,11 @@ from flask import url_for
 from flask import g
 
 from flask.ext.security import current_user
+from flask.ext.security import roles_accepted
 
 from app import app
 from app.models import Project
+from app.models import Patch
 
 from . import patch
 from . import project
@@ -38,3 +40,17 @@ def index():
                            title="Homepage",
                            user=current_user,
                            projects=Project.get_all())
+
+
+@app.route('/bulk_update', methods=['POST'])
+@roles_accepted('admin', 'committer')
+def bulk_update():
+    new_state_str = request.form['new_state']
+    new_state = PatchState.from_string(new_state_str)
+    patches_ids_str = request.form['patches']
+    ids = [int(id) for id in patches_ids_str.split(",")]
+    for id in ids:
+        for p in Patch.query.filter_by(id=id):
+            p.state = new_state
+    db.session.commit()
+    return redirect(request.referrer)
