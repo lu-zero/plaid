@@ -288,7 +288,7 @@
         class_ - sets a class for form
     #}
 {% macro render_form(form, action_url='', action_text='Submit', class_='', btn_class='btn btn-default', action='POST') -%}
-    <form method="{{POST}}"
+    <form method="{{ action }}"
           action="{{ action_url }}"
           role="form"
           class="form-horizontal {{ class_ }}">
