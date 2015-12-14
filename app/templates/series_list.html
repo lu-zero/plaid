@@ -14,7 +14,7 @@
 <tr>
     <th>Submitter</th>
     <td>
-        <a href="{{series.patches[0].submitter.email}}">
+        <a href="{{ url_for('project.submitter', submitter_id=series.patches[0].submitter.id) }}">
             {{series.patches[0].submitter.name}}
         </a>
     </td>
