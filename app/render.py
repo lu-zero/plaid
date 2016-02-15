@@ -22,15 +22,15 @@ class CodeHtmlFormatter(HtmlFormatter):
         lines = list(source)
         mw = len(str(len(lines) - 1))
         num = 0
-        yield 0, '<pre class="highlight">'
+        yield 0, '<pre class="highlight"><table>'
         for i, t in lines:
             if i == 1:
-                line = ('<span><a name="l-%d" href="#l-%d">%*d</a></span> ' %
+                line = ('<tr><td><a name="l-%d" href="#l-%d">%*d</a>' %
                         (num, num, mw, num))
                 num += 1
-                line += t
+                line += '<td>' + t + '</td></tr>'
             yield i, line
-        yield 0, '</pre>'
+        yield 0, '</table><pre>'
 
 
 def render_patch(data):

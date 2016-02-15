@@ -11,3 +11,11 @@
         margin: 7px 10px;
     }
 }
+
+.highlight a {
+    margin-right: 1em;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
