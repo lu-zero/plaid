@@ -90,15 +90,15 @@ class TestParser(unittest.TestCase):
         self.assertEqual('checkasm/x86: Correctly handle variadic', subject_parser.subject)
 
     def test_parse_from_header_with_ascii_characters(self):
-        self.assertEqual(("Luca Barbato", "lu_zero at gentoo.org"), parse_from_header("lu_zero at gentoo.org (Luca Barbato)"))
-        self.assertEqual(("Vittorio Giovara", "vittorio.giovara at gmail.com"), parse_from_header("vittorio.giovara at gmail.com (Vittorio Giovara)"))
+        self.assertEqual(("Luca Barbato", "lu_zero@gentoo.org"), parse_from_header("lu_zero@gentoo.org (Luca Barbato)"))
+        self.assertEqual(("Vittorio Giovara", "vittorio.giovara@gmail.com"), parse_from_header("vittorio.giovara@gmail.com (Vittorio Giovara)"))
 
     def test_parse_from_header_with_UTF8(self):
-        self.assertEqual((u"Alexandra Hájková", "alexandra.khirnova at gmail.com"), parse_from_header("alexandra.khirnova at gmail.com (=?UTF-8?q?Alexandra=20H=C3=A1jkov=C3=A1?=)"))
-        self.assertEqual((u"Arttu Ylä-Outinen", "arttu.yla-outinen at tut.fi"), parse_from_header("arttu.yla-outinen at tut.fi (=?UTF-8?Q?Arttu_Yl=c3=a4-Outinen?=)"))
+        self.assertEqual((u"Alexandra Hájková", "alexandra.khirnova@gmail.com"), parse_from_header("alexandra.khirnova@gmail.com (=?UTF-8?q?Alexandra=20H=C3=A1jkov=C3=A1?=)"))
+        self.assertEqual((u"Arttu Ylä-Outinen", "arttu.yla-outinen@tut.fi"), parse_from_header("arttu.yla-outinen@tut.fi (=?UTF-8?Q?Arttu_Yl=c3=a4-Outinen?=)"))
 
     def test_parse_from_header_with_Latin1(self):
-        self.assertEqual((u"Martin Storsjö", "martin at martin.st"), parse_from_header("martin at martin.st (=?ISO-8859-15?Q?Martin_Storsj=F6?=)"))
+        self.assertEqual((u"Martin Storsjö", "martin@martin.st"), parse_from_header("martin@martin.st (=?ISO-8859-15?Q?Martin_Storsj=F6?=)"))
 
     def test_derive_tag_names_with_square_brackets(self):
         subject_parser = SubjectParser("[PATCH] lavu: Deprecate AVFrame.error[]", [""])
